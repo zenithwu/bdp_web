@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.JobSetMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.JobSet">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="desc" property="desc" />
+        <result column="create_time" property="createTime" />
+        <result column="create_per" property="createPer" />
+        <result column="mod_time" property="modTime" />
+        <result column="mod_per" property="modPer" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, desc, create_time, create_per, mod_time, mod_per
+    </sql>
+
+</mapper>
