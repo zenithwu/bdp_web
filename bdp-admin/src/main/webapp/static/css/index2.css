@@ -6,10 +6,10 @@ body{background: #e4e7ea;}
 img{border: 0;}
 .panel-success .panel-heading{
 	float: left;
-	padding: 15px;
 	background-color: #1CAF9A;
 	padding: 30px;
 	border-radius: 5px;
+	padding: 20px 15px;
 }
 .panel-danger .panel-heading{background-color: #D9534F;}
 .panel-primary .panel-heading{background-color: #428bca;}
@@ -17,10 +17,10 @@ img{border: 0;}
 .panel-yellow .panel-heading{background-color: #f6a645;}
 .panel-success{width: 100%;}
 .stat{color: #fff;height: 65px;}
-.stat table tr td{}
 .width{ width: 10%;}
 .fl{ float: left;}
-.con-text{margin-top: 4%;margin-left: 5%;font-size: 26px;margin-right: 5%;/*position: relative;top: 20%;left: 10%;*/}
+.con-text{margin-top: 4%;margin-left: 3%;font-size: 25px;margin-right: 5%;/*position: relative;top: 20%;left: 10%;*/}
+.stat table tr td{font-size: 16px;}
 .panel-stat .stat img {
     text-align: center;
     vertical-align: middle;
