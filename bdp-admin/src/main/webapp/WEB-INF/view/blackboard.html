@@ -1,14 +1,107 @@
 @layout("/common/_container.html"){
-<div class="container-fluid" style="padding: 0 !important;">
-	<div class="row">
-		<div class="col-sm-12">
-			@for(notice in noticeList){
-				<div class="alert alert-success alert-dismissable">
-					<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-					${notice.content}
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel="stylesheet" href="${ctxPath}/static/css/index2.css" />
+</head>
+<body>
+<div class="wrapper wrapper-content fl">
+	<div class="col-sm-6 col-md-3 fl">
+		<div class="panel-success fl">
+			<div class="panel-heading fl width100">
+				<div class="stat fl width100">
+					<div class="fl">
+						<img src="${ctxPath}/static/img/renwu.png" />
+					</div>
+					<div class="fl con-text">
+						<span class="con-text-text">任务数量</span>
+					</div>
+					<div class="number">10</div>
 				</div>
-			@}
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 col-md-3 fl">
+		<div class="panel-success panel-danger fl">
+			<div class="panel-heading fl width100">
+				<div class="stat fl width100">
+					<div class="fl">
+						<img src="${ctxPath}/static/img/is-user.png" />
+					</div>
+					<div class="fl con-text">
+						<span>用户资料</span>
+					</div>
+					<div class="number">10</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 col-md-3 fl">
+		<div class="panel-success panel-primary fl">
+			<div class="panel-heading fl width100">
+				<div class="stat fl width100">
+					<div class="fl">
+						<img src="${ctxPath}/static/img/statesd.png" />
+					</div>
+					<div class="fl con-text">
+						<span>调度状态</span>
+					</div>
+					<table>
+						<tr>
+							<td>成功</td>
+							<td>失败</td>
+							<td>运行中</td>
+						</tr>
+						<tr>
+							<td>94</td>
+							<td>5</td>
+							<td>1</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 col-md-3 fl">
+		<div class="panel-success panel-yellow fl">
+			<div class="panel-heading fl width100">
+				<div class="stat fl width100">
+					<div class="fl">
+						<img src="${ctxPath}/static/img/jinri-tiaodu.png" />
+					</div>
+					<div class="fl con-text">
+						<span>今日调度</span>
+					</div>
+					<table>
+						<tr>
+							<td>成功</td>
+							<td>失败</td>
+							<td>运行中</td>
+						</tr>
+						<tr>
+							<td>10</td>
+							<td>0</td>
+							<td>1</td>
+						</tr>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
+<div class="clear"></div>
+<div class="data-content">
+	<div class="panel-title">调度报表</div>
+	<div class="col-sm-left fl">
+		<section class="panel">
+			<img src="${ctxPath}/static/img/zhexiantu.png" />
+		</section>
+	</div>
+	<div class="col-sm-right fl">
+		<img src="${ctxPath}/static/img/bingxingtu.png" style="width: 100%;"/>
+	</div>
+</div>
+</body>
+</html>
 @}

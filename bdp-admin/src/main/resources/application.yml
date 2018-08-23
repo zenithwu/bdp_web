@@ -37,7 +37,7 @@ log:
 spring:
   profiles: local
   datasource:
-    url: jdbc:mysql://bdata007:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
@@ -47,7 +47,7 @@ spring:
 guns:
   muti-datasource:
     open: false
-    url: jdbc:mysql://bdata007:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
     username: bdp
     password: bdp
     dataSourceNames:
@@ -59,7 +59,7 @@ guns:
 spring:
   profiles: dev
   datasource:
-    url: jdbc:mysql://bdata007:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
@@ -70,7 +70,7 @@ spring:
 spring:
   profiles: test
   datasource:
-    url: jdbc:mysql://bdata007:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
     username: bdp
     password: bdp
     filters: wall,mergeStat
@@ -80,7 +80,7 @@ spring:
 spring:
   profiles: produce
   datasource:
-      url: jdbc:mysql://bdata007:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+      url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
       username: bdp
       password: bdp
       filters: wall,mergeStat
