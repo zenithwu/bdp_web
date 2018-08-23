@@ -1,0 +1,126 @@
+@layout("/common/_container.html"){
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
+</head>
+<body>
+<div class="contentpanel">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-btns">
+                <a href="" class="panel-close">×</a>
+                <a href="" class="minimize">−</a>
+                <!--<a href="" class="panel-close">退出</a>
+                <a href="" class="minimize">zenith</a>-->
+            </div>
+            <h4 class="panel-title">任务名称</h4>
+            <p>这是任务描述这是任务描述</p>
+        </div>
+        <div class="panel-body">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline btn-border-le-radius btn-select">执行方法</button>
+                <button type="button" class="btn btn-outline btn-border-ri-radius">任务历史</button>
+            </div>
+            <div class="clear"></div>
+            <!--表格-->
+            <div class="tabler-model3 fl">
+                <div class="title">基本设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">程序主类</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="com.863.dddd.HelloWorld" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">输入路径</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="/dddd/sdsd/ss/data" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">输出路径</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="/result/sdsd/ss/output" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">程序参数</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="{yyyy-mm-dd} 10" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">程序上传</label>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <div class="col-input">
+                            <input type="text" class="form-control fl" style="margin-left: 4.5%;padding: 19px 15px;" placeholder="" />
+                        </div>
+                        <button class="wenjian-btn">文件</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tabler-model3 fl">
+                <div class="title">资源设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3-en fl">spark.driver.memory</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control form-control-input" placeholder="1g" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3-en fl">spark.driver.cores</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control form-control-input" placeholder="1" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3-en fl">spark.executor.memory</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control form-control-input" placeholder="1g" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3-en fl">spark.executor.cores</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control form-control-input" placeholder="1" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tabler-model3 fl">
+                <div class="title">调度设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">定时执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="H/15 * * * *" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">依赖执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="test1,test2" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="clear"></div>
+            <!--保存-->
+            <div class="btn-group fr mtop total-btn">
+                <div>
+                    <button class="btn btn-save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+@}

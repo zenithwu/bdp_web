@@ -26,9 +26,12 @@ public  final class ProcUtil {
     public static void createProject(String procName) throws IOException {
         jenkins.createFolder(procName);
     }
-
+    public static void deleteProject(String procName) throws IOException {
+        jenkins.deleteJob(procName);
+    }
     public static void main(String[] args) throws IOException {
-        ProcUtil.createProject("zenith");
+//        ProcUtil.createProject("zenith1");
+//        ProcUtil.deleteProject("zenith1");
     }
 
 }

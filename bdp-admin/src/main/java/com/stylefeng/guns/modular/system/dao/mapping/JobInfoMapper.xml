@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.JobInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.JobInfo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type_id" property="typeId" />
+        <result column="desc" property="desc" />
+        <result column="enable" property="enable" />
+        <result column="create_time" property="createTime" />
+        <result column="create_per" property="createPer" />
+        <result column="mod_time" property="modTime" />
+        <result column="mod_per" property="modPer" />
+        <result column="last_run_state" property="lastRunState" />
+        <result column="last_run_time" property="lastRunTime" />
+        <result column="last_run_cost" property="lastRunCost" />
+        <result column="user_info_id" property="userInfoId" />
+        <result column="job_set_id" property="jobSetId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, type_id, desc, enable, create_time, create_per, mod_time, mod_per, last_run_state, last_run_time, last_run_cost, user_info_id, job_set_id
+    </sql>
+
+</mapper>
