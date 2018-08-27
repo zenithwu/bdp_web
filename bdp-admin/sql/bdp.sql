@@ -468,7 +468,7 @@ CREATE TABLE IF NOT EXISTS `bdp`.`job_run_history` (
   `state` TINYINT(1) NULL COMMENT '运行状态',
   `cost` BIGINT(20) NULL COMMENT '运行耗时 单位ms',
   `time` DATETIME NULL COMMENT '开始运行的时间',
-  `log` BLOB NULL COMMENT '运行的日志信息',
+  `log` text NULL COMMENT '运行的日志信息',
   `job_info_id` INT NOT NULL COMMENT '任务信息编号',
   PRIMARY KEY (`id`))
 ENGINE = InnoDB DEFAULT CHARSET=utf8 

@@ -5,24 +5,22 @@
 
             <div class="row">
                 <div class="col-sm-6 b-r">
-                            <#input id="id" name="任务编号" underline="true"/>
-                            <#input id="name" name="任务名称" underline="true"/>
-                            <#input id="typeId" name="任务类型 1 数据接入 2 SQL计算 3 程序执行 4 数据推送" underline="true"/>
-                            <#input id="desc" name="任务描述" underline="true"/>
-                            <#input id="enable" name="任务状态" underline="true"/>
-                            <#input id="createTime" name="创建时间" underline="true"/>
-                            <#input id="createPer" name="创建用户"/>
+                    <#select id="jobSetId" name="任务集" underline="true">
+                    @for(jobSet in jobSetList){
+                        <option value=${jobSet.id}>${jobSet.name}</option>
+                    @}
+                    </#select>
+                    <#select id="typeId" name="任务类型" underline="true">
+                    <option value="1">数据接入</option>
+                    <option value="2">SQL计算</option>
+                    <option value="3">程序执行</option>
+                    <option value="4">数据推送</option>
+                    </#select>
                 </div>
-
-                <div class="col-sm-6">
-                            <#input id="modTime" name="修改时间" underline="true"/>
-                            <#input id="modPer" name="修改用户" underline="true"/>
-                            <#input id="lastRunState" name="上次运行状态 0 失败 1 成功 2 运行中" underline="true"/>
-                            <#input id="lastRunTime" name="上次运行时间" underline="true"/>
-                            <#input id="lastRunCost" name="上次运行耗时 单位ms" underline="true"/>
-                            <#input id="userInfoId" name="所属人id" underline="true"/>
-                            <#input id="jobSetId" name="所属任务集" underline="true"/>
-                </div>
+            <div class="col-sm-6">
+                <#input id="name" name="任务名称" underline="true"/>
+            <#input id="desc" name="任务描述" underline="true"/>
+        </div>
             </div>
 
             <div class="row btn-group-m-t">

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.JobRunHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.JobRunHistory">
+        <id column="id" property="id" />
+        <result column="num" property="num" />
+        <result column="params" property="params" />
+        <result column="state" property="state" />
+        <result column="cost" property="cost" />
+        <result column="time" property="time" />
+        <result column="log" property="log" />
+        <result column="job_info_id" property="jobInfoId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, num, params, state, cost, time, log, job_info_id
+    </sql>
+
+</mapper>

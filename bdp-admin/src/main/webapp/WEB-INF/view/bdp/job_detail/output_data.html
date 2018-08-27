@@ -1,0 +1,161 @@
+@layout("/common/_container.html"){
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
+</head>
+<body>
+<div class="contentpanel">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-btns">
+                <a href="" class="panel-close">×</a>
+                <a href="" class="minimize">−</a>
+                <!--<a href="" class="panel-close">退出</a>
+                <a href="" class="minimize">zenith</a>-->
+            </div>
+            <h4 class="panel-title">任务名称</h4>
+            <p>这是任务描述这是任务描述</p>
+        </div>
+        <div class="panel-body fl">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline btn-border-le-radius btn-select">执行方法</button>
+                <button type="button" class="btn btn-outline btn-border-ri-radius">任务历史</button>
+            </div>
+            <!--表格-->
+            <div class="tabler-model3 fl">
+                <div class="title">输入设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">输入方式</label>
+                        <div class="col-input">
+                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
+                            <select class="form-control">
+                                <option>sql语句</option>
+                                <option>sql语句-1</option>
+                                <option>sql语句-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">sql语句/表名</label>
+                        <div class="col-input">
+                            <textarea class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tabler-model3 fl">
+                <div class="title">输出设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据源类型</label>
+                        <div class="col-input">
+                            <select class="form-control">
+                                <option>mysql</option>
+                                <option>mysql-1</option>
+                                <option>mysql-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据源连接</label>
+                        <div class="col-input">
+                            <select class="form-control">
+                                <option>mysql-123.222.222</option>
+                                <option>mysql-123.222.222-1</option>
+                                <option>mysql-123.222.222-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据表</label>
+                        <div class="col-input">
+                            <select class="form-control">
+                                <option>t_result_sss</option>
+                                <option>t_result_sss-1</option>
+                                <option>t_result_sss-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">前置语句</label>
+                        <div class="col-input">
+                            <textarea class="form-control" placeholder="delete from tables where time ='{yyyy-mm-dd}'"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tabler-model3 fl">
+                <div class="title">调度设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">定时执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="H/15 * * * *" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">依赖执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="test1,test2" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="panel-body fl">
+            <div class="tabler-model3 fl">
+                <form>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">输入方式</label>
+                        <div class="col-input">
+                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
+                            <select class="form-control">
+                                <option>表名称</option>
+                                <option>表名称-1</option>
+                                <option>表名称-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据库</label>
+                        <div class="col-input">
+                            <select class="form-control">
+                                <option>ods</option>
+                                <option>ods-1</option>
+                                <option>ods-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据表</label>
+                        <div class="col-input">
+                            <select class="form-control">
+                                <option>t_ods_bbbbb</option>
+                                <option>t_ods_bbbbb-1</option>
+                                <option>t_ods_bbbbb-2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据分区</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="state_date={yyyy-mm-dd},type=1" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!--保存-->
+            <div class="btn-group fr mtop total-btn">
+                <button class="btn btn-save">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+@}

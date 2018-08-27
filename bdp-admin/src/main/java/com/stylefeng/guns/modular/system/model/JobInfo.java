@@ -226,4 +226,86 @@ public class JobInfo extends Model<JobInfo> {
         ", jobSetId=" + jobSetId +
         "}";
     }
+
+
+
+
+    public String getCreatePerName() {
+        return createPerName;
+    }
+
+    public void setCreatePerName(String createPerName) {
+        this.createPerName = createPerName;
+    }
+
+    public String getModPerName() {
+        return modPerName;
+    }
+
+    public void setModPerName(String modPerName) {
+        this.modPerName = modPerName;
+    }
+
+    public String getUserInfoName() {
+        return userInfoName;
+    }
+
+    public void setUserInfoName(String userInfoName) {
+        this.userInfoName = userInfoName;
+    }
+
+    public String getJobSetName() {
+        return jobSetName;
+    }
+
+    public void setJobSetName(String jobSetName) {
+        this.jobSetName = jobSetName;
+    }
+
+    public String getEnableName() {
+        return enableName;
+    }
+
+    public void setEnableName(String enableName) {
+        this.enableName = enableName;
+    }
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    /**
+     * 创建用户
+     */
+    @TableField(exist=false)
+    private String createPerName;
+
+    /**
+     * 修改用户
+     */
+    @TableField(exist=false)
+    private String modPerName;
+
+    /**
+     * 所属人id
+     */
+    @TableField(exist=false)
+    private String userInfoName;
+    /**
+     * 所属任务集
+     */
+    @TableField(exist=false)
+    private String jobSetName;
+
+    /**
+     * 任务类型
+     */
+    @TableField(exist=false)
+    private String typeName;
+
+    @TableField(exist=false)
+    private String enableName;
 }

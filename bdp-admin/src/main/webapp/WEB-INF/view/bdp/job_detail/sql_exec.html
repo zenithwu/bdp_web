@@ -1,0 +1,58 @@
+@layout("/common/_container.html"){
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
+</head>
+<body>
+<div class="contentpanel">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-btns">
+                <a href="" class="panel-close">×</a>
+                <a href="" class="minimize">−</a>
+                <!--<a href="" class="panel-close">退出</a>
+                <a href="" class="minimize">zenith</a>-->
+            </div>
+            <h4 class="panel-title">任务名称</h4>
+            <p>这是任务描述这是任务描述</p>
+        </div>
+        <div class="panel-body fl">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline btn-border-le-radius btn-select">执行方法</button>
+                <button type="button" class="btn btn-outline btn-border-ri-radius">任务历史</button>
+            </div>
+            <!--表格-->
+            <div class="textarea-model fl">
+                <div class="title">HQL语句</div>
+                <textarea class="textarea">insert into ods.t_ods_sfsfsf select *** where {yyyy-mm-dd}</textarea>
+                <div class="btn-group fr mtop">
+                    <button class="btn btn-save">保存</button>
+                </div>
+            </div>
+            <div class="tabler-model fl">
+                <div class="title">调度设置</div>
+                <form>
+                    <div class="form-group">
+                        <label class="col-th fl">定时执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="H/15 * * * *" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th fl">依赖执行</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="test1,test2" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+@}

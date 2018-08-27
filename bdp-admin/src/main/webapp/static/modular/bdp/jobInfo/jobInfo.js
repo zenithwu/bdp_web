@@ -16,18 +16,17 @@ JobInfo.initColumn = function () {
         {field: 'selectItem', radio: true},
             {title: '任务编号', field: 'id', visible: true, align: 'center', valign: 'middle'},
             {title: '任务名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
-            {title: '任务类型 1 数据接入 2 SQL计算 3 程序执行 4 数据推送', field: 'typeId', visible: true, align: 'center', valign: 'middle'},
-            {title: '任务描述', field: 'desc', visible: true, align: 'center', valign: 'middle'},
-            {title: '任务状态', field: 'enable', visible: true, align: 'center', valign: 'middle'},
+            {title: '任务类型', field: 'typeName', visible: true, align: 'center', valign: 'middle'},
+            {title: '任务状态', field: 'enableName', visible: true, align: 'center', valign: 'middle'},
             {title: '创建时间', field: 'createTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '创建用户', field: 'createPer', visible: true, align: 'center', valign: 'middle'},
+            {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '修改用户', field: 'modPer', visible: true, align: 'center', valign: 'middle'},
-            {title: '上次运行状态 0 失败 1 成功 2 运行中', field: 'lastRunState', visible: true, align: 'center', valign: 'middle'},
+            {title: '修改用户', field: 'modPerName', visible: true, align: 'center', valign: 'middle'},
+            {title: '上次运行状态', field: 'lastRunState', visible: true, align: 'center', valign: 'middle'},
             {title: '上次运行时间', field: 'lastRunTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '上次运行耗时 单位ms', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
-            {title: '所属人id', field: 'userInfoId', visible: true, align: 'center', valign: 'middle'},
-            {title: '所属任务集', field: 'jobSetId', visible: true, align: 'center', valign: 'middle'}
+            {title: '上次运行耗时', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
+            {title: '所属人id', field: 'userInfoName', visible: true, align: 'center', valign: 'middle'},
+            {title: '所属任务集', field: 'jobSetName', visible: true, align: 'center', valign: 'middle'}
     ];
 };
 
@@ -68,12 +67,14 @@ JobInfo.openJobInfoDetail = function () {
         var index = layer.open({
             type: 2,
             title: '任务信息详情',
-            area: ['800px', '420px'], //宽高
+            // area: ['800px', '420px'], //宽高
             fix: false, //不固定
-            maxmin: true,
+            maxmin: false,
             content: Feng.ctxPath + '/jobInfo/jobInfo_update/' + JobInfo.seItem.id
         });
         this.layerIndex = index;
+        //最大化
+        layer.full(index)
     }
 };
 
