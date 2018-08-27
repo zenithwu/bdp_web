@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author zenith
- * @since 2018-08-22
+ * @since 2018-08-27
  */
 @Service
 public class ConfConnectTypeServiceImpl extends ServiceImpl<ConfConnectTypeMapper, ConfConnectType> implements IConfConnectTypeService {

@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * </p>
  *
  * @author zenith
- * @since 2018-08-22
+ * @since 2018-08-27
  */
 public interface ConfConnectTypeMapper extends BaseMapper<ConfConnectType> {
 

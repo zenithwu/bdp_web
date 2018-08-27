@@ -14,7 +14,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author zenith
- * @since 2018-08-22
+ * @since 2018-08-27
  */
 @TableName("conf_connect_type")
 public class ConfConnectType extends Model<ConfConnectType> {
@@ -30,6 +30,10 @@ public class ConfConnectType extends Model<ConfConnectType> {
      * 连接类型名称
      */
     private String name;
+    /**
+     * 类型编号 0 rdbms 1 ftp
+     */
+    private Integer type;
     /**
      * 连接类型描述
      */
@@ -70,6 +74,14 @@ public class ConfConnectType extends Model<ConfConnectType> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public String getDesc() {
@@ -122,6 +134,7 @@ public class ConfConnectType extends Model<ConfConnectType> {
         return "ConfConnectType{" +
         "id=" + id +
         ", name=" + name +
+        ", type=" + type +
         ", desc=" + desc +
         ", createTime=" + createTime +
         ", createPer=" + createPer +

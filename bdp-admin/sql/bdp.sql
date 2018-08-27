@@ -388,6 +388,7 @@ CREATE TABLE `test` (
 CREATE TABLE IF NOT EXISTS `bdp`.`conf_connect_type` (
   `id` INT NOT NULL AUTO_INCREMENT COMMENT '编号',
   `name` VARCHAR(100) NULL COMMENT '连接类型名称',
+  `type` INT NULL COMMENT '类型编号 0 rdbms 1 ftp',
   `desc` VARCHAR(100) NULL COMMENT '连接类型描述',
   `create_time` DATETIME NULL COMMENT '创建时间',
   `create_per` INT NULL COMMENT '创建用户',

@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.ConfConnectType">
         <id column="id" property="id" />
         <result column="name" property="name" />
+        <result column="type" property="type" />
         <result column="desc" property="desc" />
         <result column="create_time" property="createTime" />
         <result column="create_per" property="createPer" />
@@ -15,7 +16,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, desc, create_time, create_per, mod_time, mod_per
+        id, name, type, desc, create_time, create_per, mod_time, mod_per
     </sql>
 
 </mapper>
