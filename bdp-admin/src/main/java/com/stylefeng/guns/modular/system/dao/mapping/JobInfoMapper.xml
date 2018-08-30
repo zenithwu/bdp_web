@@ -25,4 +25,18 @@
         id, name, type_id, desc, enable, create_time, create_per, mod_time, mod_per, last_run_state, last_run_time, last_run_cost, user_info_id, job_set_id
     </sql>
 
+	<!-- 启用任务 -->
+	<update id="enableJobInfo" parameterType="int">
+		UPDATE job_info SET enable = 0 WHERE id = #{_parameter}
+	</update>
+
+	<!-- 禁用人物 -->
+	<update id="disableJobInfo" parameterType="int">
+		UPDATE job_info SET enable = 1 WHERE id = #{_parameter}
+	</update>
+	
+	<!-- 根据任务名称获取任务信息（任务名不重复） -->
+	<select id="selJobInfoByName" parameterType="string" resultMap="BaseResultMap">
+		SELECT * FROM job_info WHERE name = #{_parameter}
+	</select>
 </mapper>

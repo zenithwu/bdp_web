@@ -1,6 +1,9 @@
 package com.stylefeng.guns.modular.system.dao;
 
 import com.stylefeng.guns.modular.system.model.JobInfoConf;
+
+import java.util.List;
+
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 /**
@@ -13,4 +16,11 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  */
 public interface JobInfoConfMapper extends BaseMapper<JobInfoConf> {
 
+	/**
+	 * 根据任务id查找是否有关联任务
+	 * @param id
+	 * @return
+	 */
+	List<JobInfoConf> selJobInfoConfByJobInfoId(int id);
+	
 }

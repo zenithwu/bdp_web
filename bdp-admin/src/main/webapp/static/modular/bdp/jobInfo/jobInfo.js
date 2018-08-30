@@ -22,7 +22,7 @@ JobInfo.initColumn = function () {
             {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
             {title: '修改用户', field: 'modPerName', visible: true, align: 'center', valign: 'middle'},
-            {title: '上次运行状态', field: 'lastRunState', visible: true, align: 'center', valign: 'middle'},
+            {title: '上次运行状态', field: 'lastRunStateName', visible: true, align: 'center', valign: 'middle'},
             {title: '上次运行时间', field: 'lastRunTime', visible: true, align: 'center', valign: 'middle'},
             {title: '上次运行耗时', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
             {title: '所属人id', field: 'userInfoName', visible: true, align: 'center', valign: 'middle'},
@@ -60,6 +60,26 @@ JobInfo.openAddJobInfo = function () {
 };
 
 /**
+ * 打开查看任务信息运行历史
+ */
+JobInfo.jobRunHistory = function () {
+    if (this.check()) {
+        var index = layer.open({
+            type: 2,
+            title: '任务信息详情',
+            // area: ['800px', '420px'], //宽高
+            fix: false, //不固定
+            maxmin: false,
+            content: Feng.ctxPath + '/jobRunHistory/jobRunHistoryList'
+        });
+        this.layerIndex = index;
+        //最大化
+        layer.full(index)
+    }
+};
+
+
+/**
  * 打开查看任务信息详情
  */
 JobInfo.openJobInfoDetail = function () {
@@ -83,14 +103,77 @@ JobInfo.openJobInfoDetail = function () {
  */
 JobInfo.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Feng.ctxPath + "/jobInfo/delete", function (data) {
-            Feng.success("删除成功!");
-            JobInfo.table.refresh();
-        }, function (data) {
-            Feng.error("删除失败!" + data.responseJSON.message + "!");
+    	var queren = function(){
+    		 var ajax = new $ax(Feng.ctxPath + "/jobInfo/delete", function (data) {
+    	            Feng.success("删除成功!");
+    	            JobInfo.table.refresh();
+    	        }, function (data) {
+    	            Feng.error("删除失败!" + data.responseJSON.message + "!");
+    	        });
+    	        ajax.set("jobInfoId",JobInfo.seItem.id);
+    	        ajax.start();
+    	        
+    	}
+        Feng.confirm("是否删除任务" + JobInfo.seItem.name + "?",queren);
+    }
+};
+
+/**
+ * 启用任务信息
+ */
+JobInfo.enable = function () {
+    if (this.check()) {
+    	var queren = function(){
+    		 var ajax = new $ax(Feng.ctxPath + "/jobInfo/enableJobInfo", function (data) {
+    	            Feng.success("启用成功!");
+    	            JobInfo.table.refresh();
+    	        }, function (data) {
+    	            Feng.error("启用失败!" + data.responseJSON.message + "!");
+    	        });
+    	        ajax.set("jobInfoId",JobInfo.seItem.id);
+    	        ajax.start();
+    	        
+    	}
+        Feng.confirm("是否启用任务" + JobInfo.seItem.name + "?",queren);
+    }
+};
+
+/**
+ * 禁用任务信息
+ */
+JobInfo.disable = function () {
+    if (this.check()) {
+    	var queren = function(){
+    		 var ajax = new $ax(Feng.ctxPath + "/jobInfo/disableJobInfo", function (data) {
+    	            Feng.success("禁用成功!");
+    	            JobInfo.table.refresh();
+    	        }, function (data) {
+    	            Feng.error("禁用失败!" + data.responseJSON.message + "!");
+    	        });
+    	        ajax.set("jobInfoId",JobInfo.seItem.id);
+    	        ajax.start();
+    	        
+    	}
+        Feng.confirm("是否禁用任务" + JobInfo.seItem.name + "?",queren);
+    }
+};
+
+/**
+ * 运行任务信息
+ */
+JobInfo.runJobInfo = function () {
+	if (this.check()) {
+        var index = layer.open({
+            type: 2,
+            title: '运行任务参数信息',
+            // area: ['800px', '420px'], //宽高
+            fix: false, //不固定
+            maxmin: false,
+            content: Feng.ctxPath + '/jobInfo/runJobInfo/' + JobInfo.seItem.id
         });
-        ajax.set("jobInfoId",this.seItem.id);
-        ajax.start();
+        this.layerIndex = index;
+        //最大化
+        layer.full(index)
     }
 };
 

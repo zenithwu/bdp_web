@@ -3,14 +3,24 @@ package com.stylefeng.guns.modular.bdp.controller;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
 import com.stylefeng.guns.core.constant.JobStatus;
 import com.stylefeng.guns.core.constant.JobType;
+import com.stylefeng.guns.core.constant.LastRunState;
+import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
+import com.stylefeng.guns.core.util.DateUtil;
+import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
+import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
+import com.stylefeng.guns.modular.bdp.service.impl.JobInfoConfServiceImpl;
+import com.stylefeng.guns.modular.bdp.service.impl.JobRunHistoryServiceImpl;
 import com.stylefeng.guns.modular.system.model.JobInfo;
+import com.stylefeng.guns.modular.system.model.JobInfoConf;
+import com.stylefeng.guns.modular.system.model.JobRunHistory;
 import com.stylefeng.guns.modular.system.model.JobSet;
 import com.stylefeng.guns.modular.system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,6 +54,10 @@ public class JobInfoController extends BaseController {
     private IJobSetService jobSetService;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IJobInfoConfService jobInfoConfService;
+    @Autowired
+    private IJobRunHistoryService jobRunHistoryService;
     /**
      * 跳转到任务信息首页
      */
@@ -85,6 +101,7 @@ public class JobInfoController extends BaseController {
         for (JobInfo info:list
              ) {
             info.setEnableName(JobStatus.ObjOf(info.getEnable()).getName());
+            info.setLastRunStateName(LastRunState.ObjOf(info.getLastRunState()).getName());
             if (info.getCreatePer()!=null) {
                 info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
             }
@@ -106,13 +123,18 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/add")
     @ResponseBody
     public Object add(JobInfo jobInfo) {
-        jobInfo.setCreatePer(ShiroKit.getUser().getId());
-        jobInfo.setCreateTime(DateTimeKit.date());
-        jobInfo.setUserInfoId(ShiroKit.getUser().getId());
-        //启用状态
-        jobInfo.setEnable(0);
-        jobInfoService.insert(jobInfo);
-        return SUCCESS_TIP;
+    	JobInfo job = jobInfoService.selJobInfoByName(jobInfo.getName());
+       if(job != null){
+    	   throw new GunsException(BizExceptionEnum.JOBINFO_EXISTED);
+       }else{
+    	   jobInfo.setCreatePer(ShiroKit.getUser().getId());
+           jobInfo.setCreateTime(DateTimeKit.date());
+           jobInfo.setUserInfoId(ShiroKit.getUser().getId());
+           //启用状态
+           jobInfo.setEnable(0);
+           jobInfoService.insert(jobInfo);
+           return SUCCESS_TIP;
+       }
     }
 
     /**
@@ -121,8 +143,13 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Object delete(@RequestParam Integer jobInfoId) {
-        jobInfoService.deleteById(jobInfoId);
-        return SUCCESS_TIP;
+       List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+        if(icList.size()>0 && icList != null){
+        	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
+        }else{
+        	jobInfoService.deleteById(jobInfoId);
+        	return SUCCESS_TIP;
+        }
     }
 
     /**
@@ -134,4 +161,70 @@ public class JobInfoController extends BaseController {
         jobInfoService.updateById(jobInfo);
         return SUCCESS_TIP;
     }
+    
+    /**
+     * 启用任务
+     * @return
+     */
+    @RequestMapping(value = "/enableJobInfo")
+    @ResponseBody
+    public Object enableJobInfo(@RequestParam Integer jobInfoId){
+    	List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+        if(icList.size()>0 && icList != null){
+        	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
+        }else{
+        	jobInfoService.enableJobInfo(jobInfoId);
+        	return SUCCESS_TIP;
+        }
+    }
+    
+    
+    /**
+     * 禁用任务
+     * @return
+     */
+    @RequestMapping(value = "/disableJobInfo")
+    @ResponseBody
+    public Object disableJobInfo(@RequestParam Integer jobInfoId){
+    	List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+        if(icList.size()>0 && icList != null){
+        	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
+        }else{
+        	jobInfoService.disableJobInfo(jobInfoId);
+        	return SUCCESS_TIP;
+        }
+    }
+    
+    /**
+     * 跳转到运行任务信息
+     */
+    @RequestMapping("/runJobInfo/{jobInfoId}")
+    public String runJobInfo(@PathVariable Integer jobInfoId, Model model) {
+    	 JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
+         model.addAttribute("item",jobInfo);
+        return PREFIX + "jobInfo_run.html";
+    }
+    
+    /**
+     * 新增任务信息
+     */
+    @RequestMapping(value = "/rungoJobInfo")
+    @ResponseBody
+    public Object rungoJobInfo(JobInfo jobInfo) {
+        //启用状态
+    	jobInfo.setLastRunState(2);
+        boolean b = jobInfoService.updateById(jobInfo);
+        if(b){
+        	JobRunHistory history = new JobRunHistory();
+            long random = (long) ((Math.random() + 1) * 100000);
+            history.setNum(System.currentTimeMillis()+random);
+            history.setParams(String.valueOf(jobInfo.getLastRunTime()));
+            history.setState(2);
+            history.setTime(new Date());
+            history.setJobInfoId(jobInfo.getId());
+            jobRunHistoryService.insertLobRunHistory(history);
+        }
+        return SUCCESS_TIP;
+    }
+
 }

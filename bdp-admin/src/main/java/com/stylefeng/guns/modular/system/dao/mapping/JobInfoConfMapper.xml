@@ -15,4 +15,9 @@
         id, key, value, job_info_id
     </sql>
 
+	<!-- 根据任务id查找是否有关联任务 -->
+	<select id="selJobInfoConfByJobInfoId" parameterType="int" resultMap="BaseResultMap">
+	SELECT * FROM job_info_conf WHERE job_info_id = #{_parameter}
+	</select>
+
 </mapper>

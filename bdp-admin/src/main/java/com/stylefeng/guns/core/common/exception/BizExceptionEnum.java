@@ -12,6 +12,9 @@ public enum BizExceptionEnum implements ServiceExceptionEnum {
     /**
      * 字典
      */
+	JOBINFO_RUN(400, "该任务正在运行，请稍后再试"),
+	JOBINFO_EXISTED(400, "任务名重复，请重新输入"),
+	JOBINFOCOF_JOBINFO(400, "有其他任务依赖该任务，暂不能操作"),
     DICT_EXISTED(400, "字典已经存在"),
     ERROR_CREATE_DICT(500, "创建字典失败"),
     ERROR_WRAPPER_FIELD(500, "包装字典属性失败"),

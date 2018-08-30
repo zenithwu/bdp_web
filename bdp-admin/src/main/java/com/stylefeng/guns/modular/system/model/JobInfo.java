@@ -277,7 +277,19 @@ public class JobInfo extends Model<JobInfo> {
         this.typeName = typeName;
     }
 
-    /**
+    
+    
+    public String getLastRunStateName() {
+		return lastRunStateName;
+	}
+
+	public void setLastRunStateName(String lastRunStateName) {
+		this.lastRunStateName = lastRunStateName;
+	}
+
+
+
+	/**
      * 创建用户
      */
     @TableField(exist=false)
@@ -308,4 +320,10 @@ public class JobInfo extends Model<JobInfo> {
 
     @TableField(exist=false)
     private String enableName;
+    
+    /**
+     * 最后运行状态
+     */
+    @TableField(exist=false)
+    private String lastRunStateName;
 }

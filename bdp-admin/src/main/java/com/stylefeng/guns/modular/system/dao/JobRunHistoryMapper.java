@@ -1,6 +1,9 @@
 package com.stylefeng.guns.modular.system.dao;
 
 import com.stylefeng.guns.modular.system.model.JobRunHistory;
+
+import java.util.List;
+
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 /**
@@ -13,4 +16,17 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  */
 public interface JobRunHistoryMapper extends BaseMapper<JobRunHistory> {
 
+	/**
+	 * 任务运行添加运行历史
+	 * @param jobRunHistory
+	 * @return
+	 */
+	int insertLobRunHistory(JobRunHistory jobRunHistory);
+	
+	/**
+	 * 根据任务id查询任务运行历史信息
+	 * @param id
+	 * @return
+	 */
+	List<JobRunHistory> selJobRunHistoryByJobId(int id);
 }

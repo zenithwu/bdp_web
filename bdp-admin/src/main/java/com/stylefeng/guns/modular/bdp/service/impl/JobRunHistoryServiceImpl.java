@@ -4,6 +4,10 @@ import com.stylefeng.guns.modular.system.model.JobRunHistory;
 import com.stylefeng.guns.modular.system.dao.JobRunHistoryMapper;
 import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +20,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobRunHistoryServiceImpl extends ServiceImpl<JobRunHistoryMapper, JobRunHistory> implements IJobRunHistoryService {
+
+	@Autowired
+	private JobRunHistoryMapper jobRunHistoryMapper;
+	
+	@Override
+	public int insertLobRunHistory(JobRunHistory jobRunHistory) {
+		// TODO Auto-generated method stub
+		return jobRunHistoryMapper.insertLobRunHistory(jobRunHistory);
+	}
+
+	@Override
+	public List<JobRunHistory> selJobRunHistoryByJobId(int id) {
+		// TODO Auto-generated method stub
+		return jobRunHistoryMapper.selJobRunHistoryByJobId(id);
+	}
 
 }

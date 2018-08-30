@@ -12,5 +12,24 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * @since 2018-08-23
  */
 public interface JobInfoMapper extends BaseMapper<JobInfo> {
-
+	/**
+	 * 启用任务
+	 * @param id
+	 * @return
+	 */
+	int enableJobInfo(int id);
+	
+	/**
+	 * 禁用任务
+	 * @param id
+	 * @return
+	 */
+	int disableJobInfo(int id);
+	
+	/**
+	 * 根据任务名称获取任务信息（任务名不重复）
+	 * @param name
+	 * @return
+	 */
+	JobInfo selJobInfoByName(String name);
 }

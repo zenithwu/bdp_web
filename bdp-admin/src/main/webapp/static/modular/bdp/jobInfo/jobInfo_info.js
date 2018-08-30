@@ -2,7 +2,29 @@
  * 初始化任务信息详情对话框
  */
 var JobInfoInfoDlg = {
-    jobInfoInfoData : {}
+    jobInfoInfoData : {},
+    validateFields: {
+    	name: {
+            validators: {
+                notEmpty: {
+                    message: '账户不能为空'
+                },
+                regexp: {//正则验证
+                    regexp: /^[^\u4e00-\u9fa5]+$/,
+                    message: '请输入非中文字符'
+                },
+            }
+        }
+    }
+};
+
+/**
+ * 验证数据是否为空
+ */
+JobInfoInfoDlg.validate = function () {
+    $('#jobInfoForm').data("bootstrapValidator").resetForm();
+    $('#jobInfoForm').bootstrapValidator('validate');
+    return $("#jobInfoForm").data('bootstrapValidator').isValid();
 };
 
 /**
@@ -68,7 +90,9 @@ JobInfoInfoDlg.addSubmit = function() {
 
     this.clearData();
     this.collectData();
-
+    if (!this.validate()) {
+        return;
+    }
     //提交信息
     var ajax = new $ax(Feng.ctxPath + "/jobInfo/add", function(data){
         Feng.success("添加成功!");
@@ -88,7 +112,9 @@ JobInfoInfoDlg.editSubmit = function() {
 
     this.clearData();
     this.collectData();
-
+    if (!this.validate()) {
+        return;
+    }
     //提交信息
     var ajax = new $ax(Feng.ctxPath + "/jobInfo/update", function(data){
         Feng.success("修改成功!");
@@ -101,6 +127,28 @@ JobInfoInfoDlg.editSubmit = function() {
     ajax.start();
 }
 
-$(function() {
+/**
+ * 提交运行
+ */
+JobInfoInfoDlg.rungoJobInfo = function() {
 
+    this.clearData();
+    this.collectData();
+
+    //提交信息
+    var ajax = new $ax(Feng.ctxPath + "/jobInfo/rungoJobInfo", function(data){
+        Feng.success("添加成功!");
+        window.parent.JobInfo.table.refresh();
+        JobInfoInfoDlg.close();
+    },function(data){
+        Feng.error("添加失败!" + data.responseJSON.message + "!");
+    });
+    ajax.set(this.jobInfoInfoData);
+    ajax.start();
+}
+
+
+
+$(function() {
+	 Feng.initValidator("jobInfoForm", JobInfoInfoDlg.validateFields);
 });

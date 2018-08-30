@@ -13,4 +13,24 @@ import com.baomidou.mybatisplus.service.IService;
  */
 public interface IJobInfoService extends IService<JobInfo> {
 
+	/**
+	 * 启用任务
+	 * @param id
+	 * @return
+	 */
+	int enableJobInfo(int id);
+	
+	/**
+	 * 禁用任务
+	 * @param id
+	 * @return
+	 */
+	int disableJobInfo(int id);
+	
+	/**
+	 * 根据任务名称获取任务信息（任务名不重复）
+	 * @param name
+	 * @return
+	 */
+	JobInfo selJobInfoByName(String name);
 }

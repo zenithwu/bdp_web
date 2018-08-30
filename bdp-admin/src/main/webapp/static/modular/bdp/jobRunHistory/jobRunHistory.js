@@ -68,6 +68,19 @@ JobRunHistory.openJobRunHistoryDetail = function () {
         this.layerIndex = index;
     }
 };
+/**
+ * 查看记录详情
+ */
+JobRunHistory.detail = function () {
+	if (this.check()) {
+        var ajax = new $ax(Feng.ctxPath + '/jobRunHistory/detail/' + JobRunHistory.seItem.id, function (data) {
+            Feng.infoDetail("日志详情", data.log);
+        }, function (data) {
+            Feng.error("获取详情失败!");
+        });
+        ajax.start();
+    }
+};
 
 /**
  * 删除
@@ -95,8 +108,15 @@ JobRunHistory.search = function () {
 };
 
 $(function () {
+	var table = null;
     var defaultColunms = JobRunHistory.initColumn();
-    var table = new BSTable(JobRunHistory.id, "/jobRunHistory/list", defaultColunms);
+    console.log(typeof(window.parent.JobInfo));
+    if(typeof(window.parent.JobInfo) != "undefined"){
+    	table = new BSTable(JobRunHistory.id, "/jobRunHistory/list/" + window.parent.JobInfo.seItem.id, defaultColunms);
+    }else{
+    	table = new BSTable(JobRunHistory.id, "/jobRunHistory/list", defaultColunms);
+    }
     table.setPaginationType("client");
+    
     JobRunHistory.table = table.init();
 });

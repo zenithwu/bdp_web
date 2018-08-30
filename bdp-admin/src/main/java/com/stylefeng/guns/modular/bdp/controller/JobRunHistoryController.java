@@ -6,10 +6,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.stylefeng.guns.core.log.LogObjectHolder;
+import com.stylefeng.guns.core.support.BeanKit;
+
 import org.springframework.web.bind.annotation.RequestParam;
 import com.stylefeng.guns.modular.system.model.JobRunHistory;
+import com.stylefeng.guns.modular.system.warpper.LogWarpper;
 import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 
 /**
@@ -53,16 +60,48 @@ public class JobRunHistoryController extends BaseController {
         LogObjectHolder.me().set(jobRunHistory);
         return PREFIX + "jobRunHistory_edit.html";
     }
+    /**
+     * 详情
+     */
+    @RequestMapping("/jobRunHistory_detail/{jobRunHistoryId}")
+    public Object jobRunHistoryDetail(@PathVariable Integer jobRunHistoryId, Model model) {
+        JobRunHistory jobRunHistory = jobRunHistoryService.selectById(jobRunHistoryId);
+        Map<String, Object> stringObjectMap = BeanKit.beanToMap(jobRunHistory);
+        return super.warpObject(new LogWarpper(stringObjectMap));
+    }
+    
+    /**
+     * 获取列表
+     */
+    @RequestMapping(value = "/list/{id}")
+    @ResponseBody
+    public Object list(String condition,@PathVariable Integer id) {
+    	System.out.println(id);
+    	if(id!=null){
+    		return jobRunHistoryService.selJobRunHistoryByJobId(id);
+    	}else{
+    		return jobRunHistoryService.selectList(null);
+    	}
+        
+    }
 
+    /**
+     * 从任务页面显示任务运行历史页面
+     * @return
+     */
+    @RequestMapping("/jobRunHistoryList")
+    public String jobRunHistoryList() {
+        return PREFIX + "jobRunHistory.html";
+    }
     /**
      * 获取列表
      */
     @RequestMapping(value = "/list")
     @ResponseBody
-    public Object list(String condition) {
+    public Object jobRunHistoryLists() {
         return jobRunHistoryService.selectList(null);
     }
-
+    
     /**
      * 新增
      */
