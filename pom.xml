@@ -21,6 +21,13 @@
         <version>2.0.1.RELEASE</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -42,6 +49,14 @@
         <mysql-connector-java.version>8.0.11</mysql-connector-java.version>
         <jwt.version>0.9.0</jwt.version>
         <hutool.version>4.1.1</hutool.version>
+
+        <scala.version>2.11.12</scala.version>
+        <scala.bin.version>2.11</scala.bin.version>
+        <spark.version>2.3.0.cloudera3</spark.version>
+        <cdh.hadoop.version>2.6.0-cdh5.14.4</cdh.hadoop.version>
+        <cdh.hive.version>1.1.0-cdh5.14.4</cdh.hive.version>
+        <cdh.version>5.14.4 </cdh.version>
+
     </properties>
 
     <dependencyManagement>
@@ -165,6 +180,61 @@
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
+            <!--scala begin-->
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-compiler</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <!--scala end-->
+
+            <!--hadoop begin-->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${cdh.hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${cdh.hadoop.version}</version>
+            </dependency>
+            <!--hadoop end-->
+
+            <!--hive begin-->
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-jdbc</artifactId>
+                <version>${cdh.hive.version}</version>
+            </dependency>
+            <!--hive end-->
+            <!--spark begin-->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_${scala.bin.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_${scala.bin.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-mllib_${scala.bin.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <!--spark begin-->
         </dependencies>
     </dependencyManagement>
 
