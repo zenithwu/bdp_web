@@ -37,17 +37,22 @@ log:
 spring:
   profiles: local
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
     filters: wall,mergeStat
+  jenkins:
+      url: http://localhost:8081/
+      user: rest_api
+      token: rest_api
+
 
 #多数据源情况的配置
 guns:
   muti-datasource:
     open: false
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     dataSourceNames:
@@ -59,29 +64,39 @@ guns:
 spring:
   profiles: dev
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
     filters: wall,mergeStat
+  jenkins:
+      url: http://192.168.0.204:8080/
+      user: rest_api
+      token: rest_api
 
 ---
 
 spring:
   profiles: test
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     filters: wall,mergeStat
-
+  jenkins:
+      url: http://192.168.0.204:8080/
+      user: rest_api
+      token: rest_api
 ---
 
 spring:
   profiles: produce
   datasource:
-      url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC
+      url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
       username: bdp
       password: bdp
       filters: wall,mergeStat
-
+  jenkins:
+      url: http://192.168.0.204:8080/
+      user: rest_api
+      token: rest_api

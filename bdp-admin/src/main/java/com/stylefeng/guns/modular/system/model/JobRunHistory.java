@@ -139,4 +139,40 @@ public class JobRunHistory extends Model<JobRunHistory> {
         ", jobInfoId=" + jobInfoId +
         "}";
     }
+
+    public String getStateName() {
+        return stateName;
+    }
+
+    public void setStateName(String stateName) {
+        this.stateName = stateName;
+    }
+
+    /**
+     * 运行状态
+     */
+    @TableField(exist = false)
+    private String  stateName;
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
+    @TableField(exist = false)
+    private String jobName;
+
+    public String getJobSetName() {
+        return jobSetName;
+    }
+
+    public void setJobSetName(String jobSetName) {
+        this.jobSetName = jobSetName;
+    }
+
+    @TableField(exist = false)
+    private String jobSetName;
 }

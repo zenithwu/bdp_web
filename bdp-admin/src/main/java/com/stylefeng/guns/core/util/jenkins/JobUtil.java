@@ -2,6 +2,7 @@ package com.stylefeng.guns.core.util.jenkins;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.FolderJob;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import org.dom4j.DocumentException;
 
 import java.io.IOException;
@@ -13,9 +14,9 @@ public  class JobUtil {
     private JenkinsServer jenkins;
     private FolderJob proc;
 
-    public JobUtil(String procName) {
+    public JobUtil(String procName,String url,String user,String token) {
         try {
-            jenkins = new JenkinsServer(new URI(Constant.URL), Constant.USER,Constant.TOKEN);
+            jenkins = new JenkinsServer(new URI(url), user,token);
             proc=jenkins.getFolderJob(jenkins.getJob(procName)).get();
         } catch (Exception e) {
         }
@@ -71,6 +72,8 @@ public  class JobUtil {
     public void deleteJob(String jobName) throws IOException {
         jenkins.deleteJob(proc,jobName);
     }
-
+    public JobWithDetails getJob(String jobName) throws IOException {
+        return jenkins.getJob(proc,jobName);
+    }
 
 }

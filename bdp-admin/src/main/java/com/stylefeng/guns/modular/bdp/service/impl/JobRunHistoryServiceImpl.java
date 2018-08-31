@@ -20,20 +20,4 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobRunHistoryServiceImpl extends ServiceImpl<JobRunHistoryMapper, JobRunHistory> implements IJobRunHistoryService {
-
-	@Autowired
-	private JobRunHistoryMapper jobRunHistoryMapper;
-	
-	@Override
-	public int insertLobRunHistory(JobRunHistory jobRunHistory) {
-		// TODO Auto-generated method stub
-		return jobRunHistoryMapper.insertLobRunHistory(jobRunHistory);
-	}
-
-	@Override
-	public List<JobRunHistory> selJobRunHistoryByJobId(int id) {
-		// TODO Auto-generated method stub
-		return jobRunHistoryMapper.selJobRunHistoryByJobId(id);
-	}
-
 }

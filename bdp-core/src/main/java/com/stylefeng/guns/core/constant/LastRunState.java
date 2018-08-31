@@ -7,9 +7,9 @@ package com.stylefeng.guns.core.constant;
  */
 public enum LastRunState {
 	
-	  INPUT(0, "失败"),
-	  	SQL(1, "成功"),
-	    GO(2, "运行中");
+	  FAIL(0, "失败"),
+	  	SUCCESS(1, "成功"),
+	    RUNNING(2, "运行中");
 		
 	    int code;
 	    String name;

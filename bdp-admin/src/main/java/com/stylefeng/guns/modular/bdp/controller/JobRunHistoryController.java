@@ -1,12 +1,19 @@
 package com.stylefeng.guns.modular.bdp.controller;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.constant.LastRunState;
+import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
+import com.stylefeng.guns.modular.bdp.service.IJobSetService;
+import com.stylefeng.guns.modular.system.model.JobInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +40,12 @@ public class JobRunHistoryController extends BaseController {
 
     @Autowired
     private IJobRunHistoryService jobRunHistoryService;
+
+    @Autowired
+    private IJobInfoService jobInfoService;
+
+    @Autowired
+    private IJobSetService jobSetService;
 
     /**
      * 跳转到首页
@@ -76,13 +89,17 @@ public class JobRunHistoryController extends BaseController {
     @RequestMapping(value = "/list/{id}")
     @ResponseBody
     public Object list(String condition,@PathVariable Integer id) {
-    	System.out.println(id);
+
+        Wrapper<JobRunHistory> wrapper = new EntityWrapper<>();
+        wrapper = wrapper.like("params", condition);
+        List<JobRunHistory> list;
     	if(id!=null){
-    		return jobRunHistoryService.selJobRunHistoryByJobId(id);
+            list= jobRunHistoryService.selectList(wrapper.eq("job_info_id",id));
     	}else{
-    		return jobRunHistoryService.selectList(null);
+            list= jobRunHistoryService.selectList(wrapper);
     	}
-        
+        fillInfo(list);
+    	return list;
     }
 
     /**
@@ -98,10 +115,23 @@ public class JobRunHistoryController extends BaseController {
      */
     @RequestMapping(value = "/list")
     @ResponseBody
-    public Object jobRunHistoryLists() {
-        return jobRunHistoryService.selectList(null);
+    public Object jobRunHistoryLists(String condition) {
+        Wrapper<JobRunHistory> wrapper = new EntityWrapper<>();
+        wrapper = wrapper.like("params", condition);
+        List<JobRunHistory> list= jobRunHistoryService.selectList(wrapper);
+        fillInfo(list);
+        return list;
     }
-    
+
+    private void fillInfo(List<JobRunHistory> list) {
+        for (JobRunHistory item :list){
+            JobInfo info=jobInfoService.selectById(item.getJobInfoId());
+            item.setJobName(info.getName());
+            item.setJobSetName(jobSetService.selectById(info.getJobSetId()).getName());
+            item.setStateName(LastRunState.ObjOf(item.getState()).getName());
+        }
+    }
+
     /**
      * 新增
      */

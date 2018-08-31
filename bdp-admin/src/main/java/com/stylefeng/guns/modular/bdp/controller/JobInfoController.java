@@ -212,18 +212,8 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object rungoJobInfo(JobInfo jobInfo) {
         //启用状态
-    	jobInfo.setLastRunState(2);
-        boolean b = jobInfoService.updateById(jobInfo);
-        if(b){
-        	JobRunHistory history = new JobRunHistory();
-            long random = (long) ((Math.random() + 1) * 100000);
-            history.setNum(System.currentTimeMillis()+random);
-            history.setParams(String.valueOf(jobInfo.getLastRunTime()));
-            history.setState(2);
-            history.setTime(new Date());
-            history.setJobInfoId(jobInfo.getId());
-            jobRunHistoryService.insertLobRunHistory(history);
-        }
+    	jobInfo.setLastRunState(LastRunState.RUNNING.getCode());
+        jobInfoService.updateById(jobInfo);
         return SUCCESS_TIP;
     }
 

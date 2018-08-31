@@ -6,16 +6,17 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public  final class ProcUtil {
+public  class ProcUtil {
 
-    private static JenkinsServer jenkins;
+    private  JenkinsServer jenkins;
 
-    static {
+    public ProcUtil(String url,String user,String token) {
         try {
-            jenkins = new JenkinsServer(new URI(Constant.URL), Constant.USER,Constant.TOKEN);
-        } catch (URISyntaxException e) {
+            jenkins = new JenkinsServer(new URI(url), user,token);
+        } catch (Exception e) {
         }
     }
+
 
 
     /***
@@ -23,10 +24,10 @@ public  final class ProcUtil {
      * @param procName
      * @throws IOException
      */
-    public static void createProject(String procName) throws IOException {
+    public void createProject(String procName) throws IOException {
         jenkins.createFolder(procName);
     }
-    public static void deleteProject(String procName) throws IOException {
+    public void deleteProject(String procName) throws IOException {
         jenkins.deleteJob(procName);
     }
     public static void main(String[] args) throws IOException {

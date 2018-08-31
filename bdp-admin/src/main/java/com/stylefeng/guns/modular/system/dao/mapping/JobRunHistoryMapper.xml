@@ -18,31 +18,4 @@
     <sql id="Base_Column_List">
         id, num, params, state, cost, time, log, job_info_id
     </sql>
-
-	<insert id="insertLobRunHistory" parameterType="com.stylefeng.guns.modular.system.model.JobRunHistory">
-		INSERT INTO 
-			job_run_history (
-				num,
-				params,
-				state,
-				cost,
-				time,
-				log,
-				job_info_id
-				) VALUES (
-				<if test="num!=null and num!=''">#{num},</if>
-				<if test="params!=null and params!=''">#{params},</if>
-				<if test="state!=null and state!=''">#{state},</if>
-				#{cost},
-				<if test="time!=null">#{time},</if>
-				#{log},
-				<if test="jobInfoId!=null and jobInfoId!=''">#{jobInfoId}</if>
-				)
-	</insert>
-
-
-	<!-- 根据任务id查询任务运行历史信息 -->
-	<select id="selJobRunHistoryByJobId" parameterType="int" resultMap="BaseResultMap">
-			SELECT * FROM job_run_history WHERE job_info_id = #{_parameter}
-	</select>
 </mapper>

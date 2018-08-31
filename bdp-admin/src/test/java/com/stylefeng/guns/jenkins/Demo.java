@@ -10,7 +10,7 @@ public class Demo {
         public static void main(String[] args) throws IOException, DocumentException {
 
 //        ProcUtil.createProject("zenith");
-            JobUtil jobUtil=new JobUtil("zenith");
+//            JobUtil jobUtil=new JobUtil("zenith");
 
 //
 //        jobUtil.deleteJob("test1");
