@@ -108,7 +108,9 @@ public class JobInfoController extends BaseController {
             if (info.getModPer()!=null) {
                 info.setModPerName(userService.selectById(info.getModPer()).getName());
             }
-
+            if (info.getUserInfoId()!=null) {
+                info.setUserInfoName(userService.selectById(info.getUserInfoId()).getName());
+            }
             if (info.getJobSetId()!=null) {
                 info.setJobSetName(jobSetService.selectById(info.getJobSetId()).getName());
             }

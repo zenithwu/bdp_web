@@ -25,7 +25,7 @@ JobInfo.initColumn = function () {
             {title: '上次运行状态', field: 'lastRunStateName', visible: true, align: 'center', valign: 'middle'},
             {title: '上次运行时间', field: 'lastRunTime', visible: true, align: 'center', valign: 'middle'},
             {title: '上次运行耗时', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
-            {title: '所属人id', field: 'userInfoName', visible: true, align: 'center', valign: 'middle'},
+            {title: '所属人', field: 'userInfoName', visible: true, align: 'center', valign: 'middle'},
             {title: '所属任务集', field: 'jobSetName', visible: true, align: 'center', valign: 'middle'}
     ];
 };
