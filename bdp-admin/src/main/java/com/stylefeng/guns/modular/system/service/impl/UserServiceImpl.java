@@ -45,4 +45,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public User getByAccount(String account) {
         return this.baseMapper.getByAccount(account);
     }
+
+	@Override
+	public int findUserCount() {
+		// TODO Auto-generated method stub
+		return this.baseMapper.findUserCount();
+	}
 }

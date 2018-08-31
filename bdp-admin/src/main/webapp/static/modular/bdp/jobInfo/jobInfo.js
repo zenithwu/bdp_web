@@ -66,7 +66,7 @@ JobInfo.jobRunHistory = function () {
     if (this.check()) {
         var index = layer.open({
             type: 2,
-            title: '任务信息详情',
+            title: '运行历史',
             area: ['90%', '90%'], //宽高
             fix: false, //不固定
             maxmin: true,

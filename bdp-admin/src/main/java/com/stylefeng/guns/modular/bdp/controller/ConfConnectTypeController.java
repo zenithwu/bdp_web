@@ -3,6 +3,8 @@ package com.stylefeng.guns.modular.bdp.controller;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.constant.JobStatus;
+import com.stylefeng.guns.core.constant.JobType;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import org.springframework.stereotype.Controller;
@@ -10,10 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.stylefeng.guns.modular.system.model.ConfConnectType;
+import com.stylefeng.guns.modular.system.model.JobInfo;
+import com.stylefeng.guns.modular.system.service.IUserService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 
 /**
@@ -30,6 +37,8 @@ public class ConfConnectTypeController extends BaseController {
 
     @Autowired
     private IConfConnectTypeService confConnectTypeService;
+    @Autowired
+    private IUserService userService;
 
     /**
      * 跳转到配置连接类型首页
@@ -66,7 +75,12 @@ public class ConfConnectTypeController extends BaseController {
     public Object list(String condition) {
         Wrapper<ConfConnectType> wrapper = new EntityWrapper<>();
         wrapper = wrapper.like("name", condition);
-        return confConnectTypeService.selectList(wrapper);
+        List<ConfConnectType> list=confConnectTypeService.selectList(wrapper);
+        for (ConfConnectType info:list) {
+          
+                info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());                                 
+        }
+        return list;
     }
 
     /**

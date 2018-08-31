@@ -18,9 +18,9 @@ JobSet.initColumn = function () {
             {title: '任务集名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
             {title: '任务集描述', field: 'desc', visible: true, align: 'center', valign: 'middle'},
             {title: '创建时间', field: 'createTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '创建用户', field: 'createPer', visible: true, align: 'center', valign: 'middle'},
+            {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '修改用户', field: 'modPer', visible: true, align: 'center', valign: 'middle'}
+            {title: '修改用户', field: 'modPerName', visible: true, align: 'center', valign: 'middle'}
     ];
 };
 
@@ -75,15 +75,21 @@ JobSet.openJobSetDetail = function () {
  */
 JobSet.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Feng.ctxPath + "/jobSet/delete", function (data) {
-            Feng.success("删除成功!");
-            JobSet.table.refresh();
-        }, function (data) {
-            Feng.error("删除失败!" + data.responseJSON.message + "!");
-        });
-        ajax.set("jobSetId",this.seItem.id);
-        ajax.start();
+    	var queren = function(){
+
+            var ajax = new $ax(Feng.ctxPath + "/jobSet/delete", function (data) {
+                Feng.success("删除成功!");
+                JobSet.table.refresh();
+            }, function (data) {
+                Feng.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("jobSetId",JobSet.seItem.id);
+            ajax.start();
+        
+    	}
+    	  Feng.confirm("确认删除"+JobSet.seItem.name+"吗?",queren);
     }
+  
 };
 
 /**

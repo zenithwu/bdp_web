@@ -42,4 +42,8 @@ public interface UserMapper extends BaseMapper<User> {
      * 通过账号获取用户
      */
     User getByAccount(@Param("account") String account);
+    
+    //统计用户个数
+    int findUserCount();
+    
 }

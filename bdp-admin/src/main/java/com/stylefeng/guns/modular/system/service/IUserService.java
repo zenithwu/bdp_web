@@ -28,6 +28,9 @@ public interface IUserService extends IService<User> {
      */
     int changePwd(@Param("userId") Integer userId, @Param("pwd") String pwd);
 
+    
+    //统计用户个数
+    int findUserCount();
     /**
      * 根据条件查询用户列表
      */

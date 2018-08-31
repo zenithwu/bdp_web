@@ -129,4 +129,33 @@ public class JobSet extends Model<JobSet> {
         ", modPer=" + modPer +
         "}";
     }
+    
+
+
+    public String getCreatePerName() {
+        return createPerName;
+    }
+
+    public void setCreatePerName(String createPerName) {
+        this.createPerName = createPerName;
+    }
+    public String getModPerName() {
+        return modPerName;
+    }
+
+    public void setModPerName(String modPerName) {
+        this.modPerName = modPerName;
+    }
+    /**
+     * 创建用户
+     */
+    @TableField(exist=false)
+    private String createPerName;
+
+    /**
+     * 修改用户
+     */
+    @TableField(exist=false)
+    private String modPerName;
+    
 }

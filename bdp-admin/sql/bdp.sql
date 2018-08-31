@@ -498,7 +498,6 @@ CREATE TABLE IF NOT EXISTS `bdp`.`job_stat` (
   `success` INT NULL COMMENT '成功次数',
   `fail` INT NULL COMMENT '失败次数',
   `running` INT NULL COMMENT '运行中',
-  `count` INT NULL COMMENT '新增任务数',
   PRIMARY KEY (`id`))
 ENGINE = InnoDB DEFAULT CHARSET=utf8 
 COMMENT = '任务的统计表';

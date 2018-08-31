@@ -14,4 +14,10 @@ import java.util.List;
 public interface IConfConnectTypeService extends IService<ConfConnectType> {
 	
 	public List<ConfConnectType> selectAllConfConnectType();
+	/**
+	 * 根据id查询 配置连接类型
+	 * @param id
+	 * @return
+	 */
+	ConfConnectType selConfConnectTypeById(int id);
 }

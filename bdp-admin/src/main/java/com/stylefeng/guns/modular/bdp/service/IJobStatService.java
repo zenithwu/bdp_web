@@ -1,6 +1,12 @@
 package com.stylefeng.guns.modular.bdp.service;
 
 import com.stylefeng.guns.modular.system.model.JobStat;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.service.IService;
 
 /**
@@ -12,5 +18,7 @@ import com.baomidou.mybatisplus.service.IService;
  * @since 2018-08-27
  */
 public interface IJobStatService extends IService<JobStat> {
-
+	Map<String,Object> findStatCount();
+	Map<String,Object> findStatCountNow();
+	List<Map<String,Object>> findSevenDays();
 }

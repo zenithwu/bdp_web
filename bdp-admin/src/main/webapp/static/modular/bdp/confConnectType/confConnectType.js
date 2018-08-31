@@ -18,7 +18,7 @@ ConfConnectType.initColumn = function () {
             {title: '连接类型名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
             {title: '连接类型描述', field: 'desc', visible: true, align: 'center', valign: 'middle'},
             {title: '创建时间', field: 'createTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '创建用户', field: 'createPer', visible: true, align: 'center', valign: 'middle'},
+            {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
             {title: '修改用户', field: 'modPer', visible: true, align: 'center', valign: 'middle'}
     ];
@@ -75,14 +75,17 @@ ConfConnectType.openConfConnectTypeDetail = function () {
  */
 ConfConnectType.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Feng.ctxPath + "/confConnectType/delete", function (data) {
-            Feng.success("删除成功!");
-            ConfConnectType.table.refresh();
-        }, function (data) {
-            Feng.error("删除失败!" + data.responseJSON.message + "!");
-        });
-        ajax.set("confConnectTypeId",this.seItem.id);
-        ajax.start();
+        var queren =function(){
+        	var ajax = new $ax(Feng.ctxPath + "/confConnectType/delete", function (data) {
+                Feng.success("删除成功!");
+                ConfConnectType.table.refresh();
+            }, function (data) {
+                Feng.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("confConnectTypeId",ConfConnectType.seItem.id);
+            ajax.start();
+        }
+        Feng.confirm("确认删除"+ConfConnectType.seItem.createPerName+"吗?",queren);
     }
 };
 

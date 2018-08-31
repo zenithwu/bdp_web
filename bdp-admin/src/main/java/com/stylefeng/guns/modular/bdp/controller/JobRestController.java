@@ -87,7 +87,6 @@ public class JobRestController extends BaseController {
                             if (jobStat == null) {
                                 jobStat = new JobStat();
                                 jobStat.setRunning(1);
-                                jobStat.setCount(0);
                                 jobStat.setFail(0);
                                 jobStat.setSuccess(0);
                                 jobStat.setStatDate(DateTimeKit.parseDate(stat_date));

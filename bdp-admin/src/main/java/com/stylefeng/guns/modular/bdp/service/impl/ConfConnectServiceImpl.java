@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * <p>
  * 配置连接表 服务实现类
@@ -20,9 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ConfConnectServiceImpl extends ServiceImpl<ConfConnectMapper, ConfConnect> implements IConfConnectService {
 	@Autowired
 	private ConfConnectMapper confConnectMapper;
-	
-	public ConfConnect selectByJobInfoId(Integer jobInfoId) {
-		
+
+	public List<ConfConnect> selectByJobInfoId(Integer jobInfoId) {
+
 		return confConnectMapper.selectByJobInfoId(jobInfoId);
 	}
 }

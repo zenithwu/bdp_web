@@ -208,4 +208,30 @@ public class ConfConnect extends Model<ConfConnect> {
         ", modPer=" + modPer +
         "}";
     }
+    public String getCreatePerName() {
+        return createPerName;
+    }
+
+    public void setCreatePerName(String createPerName) {
+        this.createPerName = createPerName;
+    }
+
+	public String getTypeIdName() {
+		return typeIdName;
+	}
+
+	public void setTypeIdName(String typeIdName) {
+		this.typeIdName = typeIdName;
+	}
+
+	/**
+     * 创建用户
+     */
+    @TableField(exist=false)
+    private String createPerName;
+    /**
+     * 连接类型
+     */
+    @TableField(exist=false)
+    private String typeIdName;
 }

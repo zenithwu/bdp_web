@@ -81,9 +81,9 @@ public class JobInfoController extends BaseController {
     public String jobInfoUpdate(@PathVariable Integer jobInfoId, Model model) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
         List<JobInfoConf> jobInfoConfList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
-        ConfConnect confConnect = confConnectService.selectByJobInfoId(jobInfoId);
+        List<ConfConnect> confConnect = confConnectService.selectByJobInfoId(jobInfoId);
         List<ConfConnectType> allConfConnectType = confConnectTypeService.selectAllConfConnectType();
-        
+
         model.addAttribute("item",jobInfo);
         model.addAttribute("jobInfoConfList",jobInfoConfList);
         model.addAttribute("confConnect",confConnect);
@@ -225,5 +225,13 @@ public class JobInfoController extends BaseController {
             return SUCCESS_TIP;
         }
     }
-
+    /**
+     * 新增任务信息
+     */
+    @RequestMapping(value = "/count")
+    @ResponseBody
+    public int count() {
+        return jobInfoService.selectCount(null
+        );
+    }
 }

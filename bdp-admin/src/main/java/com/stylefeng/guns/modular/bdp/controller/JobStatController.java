@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,7 +66,7 @@ public class JobStatController extends BaseController {
     public Object list(String condition) {
         return jobStatService.selectList(null);
     }
-
+    
     /**
      * 新增
      */
@@ -82,7 +86,29 @@ public class JobStatController extends BaseController {
         jobStatService.deleteById(jobStatId);
         return SUCCESS_TIP;
     }
+    //查询总的成功，失败，进行中
+    @RequestMapping(value = "/findStatCount")
+    @ResponseBody
+    public Map<String,Object> findStatCount() {
+        return jobStatService.findStatCount();
+    }
 
+
+    //当天数据
+    @RequestMapping(value = "/findStatCountNow")
+    @ResponseBody
+    public Map<String,Object> findStatCountNow() {
+        return jobStatService.findStatCountNow();
+    }
+
+
+    //查询近七天数据
+    @RequestMapping(value = "/findSevenDays")
+    @ResponseBody
+    public List<Map<String,Object>> findSevenDays() {
+    		
+        return jobStatService.findSevenDays();
+    }
     /**
      * 修改
      */

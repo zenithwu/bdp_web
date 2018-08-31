@@ -18,9 +18,13 @@
     <sql id="Base_Column_List">
         id, name, type, desc, create_time, create_per, mod_time, mod_per
     </sql>
-    
-	<select id="selectAllConfConnectType" resultMap="BaseResultMap">
+
+    <select id="selectAllConfConnectType" resultMap="BaseResultMap">
 		select id,`name`,type
 		from conf_connect_type
+	</select>
+
+    <select id="selConfConnectTypeById" parameterType="int" resultMap="BaseResultMap">
+		SELECT * FROM conf_connect_type WHERE id = #{_parameter}
 	</select>
 </mapper>

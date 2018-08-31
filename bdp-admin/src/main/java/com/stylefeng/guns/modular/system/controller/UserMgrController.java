@@ -247,7 +247,12 @@ public class UserMgrController extends BaseController {
         this.userService.setStatus(userId, ManagerStatus.DELETED.getCode());
         return SUCCESS_TIP;
     }
-
+    //统计用户个数
+    @RequestMapping(value = "/findUserCount")
+    @ResponseBody
+    public int findStatCount() {
+        return userService.findUserCount();
+    }
     /**
      * 查看管理员详情
      */

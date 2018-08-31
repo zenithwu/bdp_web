@@ -19,10 +19,16 @@ import java.util.List;
 @Service
 public class ConfConnectTypeServiceImpl extends ServiceImpl<ConfConnectTypeMapper, ConfConnectType> implements IConfConnectTypeService {
 	@Autowired
-	private ConfConnectTypeMapper confConnectTypeMapper; 
-	
+	private ConfConnectTypeMapper confConnectTypeMapper;
+
 	public List<ConfConnectType> selectAllConfConnectType(){
 		return confConnectTypeMapper.selectAllConfConnectType();
-		
+
+	}
+
+	@Override
+	public ConfConnectType selConfConnectTypeById(int id) {
+		// TODO Auto-generated method stub
+		return confConnectTypeMapper.selConfConnectTypeById(id);
 	}
 }

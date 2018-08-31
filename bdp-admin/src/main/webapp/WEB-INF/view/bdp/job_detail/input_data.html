@@ -20,10 +20,11 @@
             <p>这是任务描述这是任务描述</p>
         </div>
         <div class="panel-body fl">
-            <div class="btn-group">
+           <!--  <div class="btn-group">
                 <button type="button" class="btn btn-outline btn-border-le-radius btn-select">执行方法</button>
                 <button type="button" class="btn btn-outline btn-border-ri-radius">任务历史</button>
-            </div>
+            </div> -->
+            
             <!--表格-->
             <div class="tabler-model3 fl">
                 <div class="title">输入设置</div>
@@ -32,10 +33,10 @@
                         <label class="col-th col-th3 fl">数据源类型</label>
                         <div class="col-input">
                             <!--<input type="text" class="form-control" placeholder="mysql" />-->
-                            <select class="form-control">
-                                <option>mysql</option>
-                                <option>mysql-1</option>
-                                <option>mysql-2</option>
+                            <select class="form-control" id="ConfConnectType">
+                            @for(ConfConnectType in allConfConnectType){
+		                        <option value=${ConfConnectType.id}>${ConfConnectType.name}</option>
+		                    @}
                             </select>
                         </div>
                     </div>
@@ -43,12 +44,14 @@
                         <label class="col-th col-th3 fl">数据源连接</label>
                         <div class="col-input">
                             <select class="form-control">
-                                <option>mysql_123.222.222</option>
-                                <option>mysql_123.222.222-1</option>
-                                <option>mysql_123.222.222-2</option>
+                                 @for(ConfConnect in confConnect){
+		                        <option value=${ConfConnect.id}>${ConfConnect.name}</option>
+		                    	@}
                             </select>
                         </div>
                     </div>
+                    
+                   <div id="database">
                     <div class="form-group">
                         <label class="col-th col-th3 fl">输入方式</label>
                         <div class="col-input">
@@ -64,8 +67,18 @@
                             <textarea class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'"></textarea>
                         </div>
                     </div>
+                   </div>
+                    
+                    <div class="form-group" id="filelocation">
+                        <label class="col-th col-th3 fl">文件位置</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'" />
+                        </div>
+                    </div>
+                    
                 </form>
             </div>
+            
             <div class="tabler-model3 fl">
                 <div class="title">输出设置</div>
                 <form>
@@ -118,46 +131,20 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="test1,test2" />
+                            <!-- <input type="text" class="form-control" placeholder="test1,test2" /> -->
+                             <select class="form-control">
+                                 @for(jobInfoConfList in jobInfoConfList){
+		                        <option value=${jobInfoConfList.id}>${jobInfoConfList.value}</option>
+		                        @}
+		                     </select>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="panel-body fl">
-            <div class="tabler-model3 fl">
-                <div class="title">输入设置</div>
-                <form>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据源类型</label>
-                        <div class="col-input">
-                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
-                            <select class="form-control">
-                                <option>mysql</option>
-                                <option>mysql-1</option>
-                                <option>mysql-2</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据源连接</label>
-                        <div class="col-input">
-                            <select class="form-control">
-                                <option>mysql_123.222.222</option>
-                                <option>mysql_123.222.222-1</option>
-                                <option>mysql_123.222.222-2</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">文件位置</label>
-                        <div class="col-input">
-                            <input type="text" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'" />
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="tabler-model3 fr">
+        
+       <div class="panel-body fl">
+       <div class="tabler-model3">
                 <div class="title">高级设置</div>
                 <form>
                     <div class="form-group">
@@ -184,6 +171,7 @@
                     </div>
                 </form>
             </div>
+            
             <!--保存-->
             <div class="btn-group fr mtop total-btn">
                 <button class="btn btn-save">保存</button>
@@ -192,6 +180,38 @@
     </div>
 </div>
 </body>
+<script type="text/javascript">
+	$(function(){
+	getType();		
+  	$("#ConfConnectType").change(function(){
+			var options=$("#ConfConnectType option:selected");
+			getType();
+			hideShow();
+		})
+	})
+	
+	function getType(){
+		var option=$("#ConfConnectType option:selected");
+		$.post( Feng.ctxPath + '/confConnectType/selConfConnectTypeById',{
+			id:option.val()
+		},function(res){
+			type = res.type;
+			hideShow();
+		},"json")
+	}
+	
+	function hideShow(){
+		if(type==0){
+			$("#filelocation").hide();
+		}else{
+			$("#filelocation").show();
+		}
+		if(type==1){
+			$("#database").hide();
+		}else{
+			$("#database").show();
+		}
+	}
+</script>
 </html>
-
 @}

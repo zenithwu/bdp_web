@@ -10,10 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import com.stylefeng.guns.modular.system.model.JobSet;
+import com.stylefeng.guns.modular.system.service.IUserService;
+import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 
 /**
@@ -30,6 +36,10 @@ public class JobSetController extends BaseController {
 
     @Autowired
     private IJobSetService jobSetService;
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private IConfConnectService confConnectService;
 
     /**
      * 跳转到任务集首页
@@ -66,7 +76,12 @@ public class JobSetController extends BaseController {
     public Object list(String condition) {
         Wrapper<JobSet> wrapper = new EntityWrapper<>();
         wrapper = wrapper.like("name", condition);
-        return jobSetService.selectList(wrapper);
+        List<JobSet> list=jobSetService.selectList(wrapper);
+        for (JobSet job:list) {
+            	job.setCreatePerName(userService.selectById(job.getCreatePer()).getName());
+            	/*job.setModPerName(userService.selectById(job.getModPer()).getName());*/
+        }
+        return list;
     }
 
     /**

@@ -16,14 +16,14 @@ ConfConnect.initColumn = function () {
         {field: 'selectItem', radio: true},
             {title: '编号', field: 'id', visible: true, align: 'center', valign: 'middle'},
             {title: '连接名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
-            {title: '连接类型', field: 'typeId', visible: true, align: 'center', valign: 'middle'},
+            {title: '连接类型', field: 'typeIdName', visible: true, align: 'center', valign: 'middle'},
             {title: '主机名', field: 'host', visible: true, align: 'center', valign: 'middle'},
             {title: '端口', field: 'port', visible: true, align: 'center', valign: 'middle'},
             {title: '用户名称', field: 'username', visible: true, align: 'center', valign: 'middle'},
             {title: '数据库名称', field: 'dbname', visible: true, align: 'center', valign: 'middle'},
             {title: '描述', field: 'desc', visible: true, align: 'center', valign: 'middle'},
             {title: '创建时间', field: 'createTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '创建用户', field: 'createPer', visible: true, align: 'center', valign: 'middle'},
+            {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
             {title: '修改用户', field: 'modPer', visible: true, align: 'center', valign: 'middle'}
     ];
@@ -80,14 +80,17 @@ ConfConnect.openConfConnectDetail = function () {
  */
 ConfConnect.delete = function () {
     if (this.check()) {
-        var ajax = new $ax(Feng.ctxPath + "/confConnect/delete", function (data) {
-            Feng.success("删除成功!");
-            ConfConnect.table.refresh();
-        }, function (data) {
-            Feng.error("删除失败!" + data.responseJSON.message + "!");
-        });
-        ajax.set("confConnectId",this.seItem.id);
-        ajax.start();
+        var queren=function(){
+        	var ajax = new $ax(Feng.ctxPath + "/confConnect/delete", function (data) {
+                Feng.success("删除成功!");
+                ConfConnect.table.refresh();
+            }, function (data) {
+                Feng.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("confConnectId",ConfConnect.seItem.id);
+            ajax.start();
+        }
+        Feng.confirm("确认删除"+ConfConnect.seItem.createPerName+"吗?",queren);
     }
 };
 

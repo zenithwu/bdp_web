@@ -23,12 +23,12 @@
     <sql id="Base_Column_List">
         id, name, type_id, host, port, username, password, dbname, desc, create_time, create_per, mod_time, mod_per
     </sql>
-	
-	<select id="selectByJobInfoId" resultMap="BaseResultMap">
+
+    <select id="selectByJobInfoId" resultMap="BaseResultMap">
 		SELECT t3.*
-		FROM job_info t1 
-			LEFT JOIN job_info_conf t2 ON t1.id = t2.job_info_id 
-			LEFT JOIN conf_connect t3 ON t3.`name` = t2.`value`
+		FROM job_info t1
+			INNER JOIN job_info_conf t2 ON t1.id = t2.job_info_id
+			INNER JOIN conf_connect t3 ON t3.`name` = t2.`value`
 		WHERE t1.id = #{jobInfoId}
 	</select>
 </mapper>

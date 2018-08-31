@@ -10,11 +10,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.stylefeng.guns.modular.system.model.ConfConnect;
+import com.stylefeng.guns.modular.system.model.ConfConnectType;
+import com.stylefeng.guns.modular.system.service.IUserService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
+import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 
 /**
  * 配置连接控制器
@@ -30,6 +36,10 @@ public class ConfConnectController extends BaseController {
 
     @Autowired
     private IConfConnectService confConnectService;
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private IConfConnectTypeService contypeService;
 
     /**
      * 跳转到配置连接首页
@@ -64,9 +74,15 @@ public class ConfConnectController extends BaseController {
     @RequestMapping(value = "/list")
     @ResponseBody
     public Object list(String condition) {
-        Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("name", condition);
-        return confConnectService.selectList(wrapper);
+    	 Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
+         wrapper = wrapper.like("name", condition);
+         List<ConfConnect> list=confConnectService.selectList(wrapper);
+         for (ConfConnect info:list) {
+           
+        	    info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
+            	info.setTypeIdName(contypeService.selectById(info.getTypeId()).getName());                              
+         }
+         return list;
     }
 
     /**

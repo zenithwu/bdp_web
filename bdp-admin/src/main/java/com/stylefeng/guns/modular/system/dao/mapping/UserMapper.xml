@@ -20,7 +20,9 @@
 		<result column="createtime" property="createtime" />
 		<result column="version" property="version" />
 	</resultMap>
-
+	<select id="findUserCount" resultType="int">
+			select count(id) as CountUser from sys_user 
+	</select>
 	<sql id="Base_Column_List">
 		id, account, name, birthday, sex, email, avatar,
 		phone, roleid,

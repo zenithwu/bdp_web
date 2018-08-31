@@ -5,7 +5,7 @@
 			<input id="id" value="${item.id}" type="hidden"/>
             <div class="row">
                 <div class="col-sm-12">
-                	<#input id="lastRunTime" name="时间参数" underline="true"/>
+                	<#input id="lastRunTime" readonly="true" name="时间参数" underline="true"/>
                 </div>
             </div>
 
@@ -20,4 +20,10 @@
     </div>
 </div>
 <script src="${ctxPath}/static/modular/bdp/jobInfo/jobInfo_info.js"></script>
+<script>
+laydate.render({
+    elem: '#lastRunTime'
+    ,type: 'datetime'
+});
+</script>
 @}

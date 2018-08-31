@@ -3,6 +3,8 @@ package com.stylefeng.guns.modular.system.dao;
 import com.stylefeng.guns.modular.system.model.ConfConnect;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 配置连接表 Mapper 接口
@@ -12,5 +14,5 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * @since 2018-08-22
  */
 public interface ConfConnectMapper extends BaseMapper<ConfConnect> {
-	public ConfConnect selectByJobInfoId(Integer jobInfoId);
+	public List<ConfConnect> selectByJobInfoId(Integer jobInfoId);
 }

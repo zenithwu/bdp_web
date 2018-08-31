@@ -16,4 +16,11 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  */
 public interface ConfConnectTypeMapper extends BaseMapper<ConfConnectType> {
 	public List<ConfConnectType> selectAllConfConnectType();
+
+	/**
+	 * 根据id查询 配置连接类型
+	 * @param id
+	 * @return
+	 */
+	ConfConnectType selConfConnectTypeById(int id);
 }

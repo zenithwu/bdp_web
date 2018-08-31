@@ -9,12 +9,21 @@
         <result column="success" property="success" />
         <result column="fail" property="fail" />
         <result column="running" property="running" />
-        <result column="count" property="count" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, stat_date, success, fail, running, count
+        id, stat_date, success, fail, running
     </sql>
+	<select id="findStatCount" resultType="map">
+		select ifnull(SUM(success),0) success,ifnull(SUM(fail),0) fail,ifnull(SUM(running),0) running from job_stat
+	</select>
 
+	<select id="findStatCountNow" resultType="map" parameterType="int" >
+		select ifnull(SUM(success),0) success,ifnull(SUM(fail),0) fail,ifnull(SUM(running),0) running from job_stat where TO_DAYS(stat_date)=TO_DAYS(NOW())
+	</select>
+	
+	<select id="findSevenDays" resultType="map">
+		select stat_date,success,fail,running from (select stat_date,success,fail,running from job_stat ORDER BY stat_date desc limit 7) as a order by stat_date
+	</select>
 </mapper>

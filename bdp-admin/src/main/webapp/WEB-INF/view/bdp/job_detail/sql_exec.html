@@ -20,10 +20,10 @@
             <p>这是任务描述这是任务描述</p>
         </div>
         <div class="panel-body fl">
-            <div class="btn-group">
+           <!--  <div class="btn-group">
                 <button type="button" class="btn btn-outline btn-border-le-radius btn-select">执行方法</button>
                 <button type="button" class="btn btn-outline btn-border-ri-radius">任务历史</button>
-            </div>
+            </div> -->
             <!--表格-->
             <div class="textarea-model fl">
                 <div class="title">HQL语句</div>
@@ -44,7 +44,12 @@
                     <div class="form-group">
                         <label class="col-th fl">依赖执行</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="test1,test2" />
+                            <!-- <input type="text" class="form-control" placeholder="test1,test2" /> -->
+                            <select class="form-control">
+                                 @for(jobInfoConfList in jobInfoConfList){
+		                        <option value=${jobInfoConfList.id}>${jobInfoConfList.value}</option>
+		                        @}
+		                     </select>
                         </div>
                     </div>
                 </form>

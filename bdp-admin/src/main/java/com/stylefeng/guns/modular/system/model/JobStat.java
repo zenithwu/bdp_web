@@ -43,11 +43,6 @@ public class JobStat extends Model<JobStat> {
      * 运行中
      */
     private Integer running;
-    /**
-     * 新增任务数
-     */
-    private Integer count;
-
 
     public Integer getId() {
         return id;
@@ -89,14 +84,6 @@ public class JobStat extends Model<JobStat> {
         this.running = running;
     }
 
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
-
     @Override
     protected Serializable pkVal() {
         return this.id;
@@ -110,7 +97,6 @@ public class JobStat extends Model<JobStat> {
         ", success=" + success +
         ", fail=" + fail +
         ", running=" + running +
-        ", count=" + count +
         "}";
     }
 }
