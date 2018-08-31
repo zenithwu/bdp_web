@@ -4,8 +4,10 @@ import com.stylefeng.guns.modular.system.model.ConfConnectType;
 import com.stylefeng.guns.modular.system.dao.ConfConnectTypeMapper;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
 /**
  * <p>
  * 配置连接类型表 服务实现类
@@ -16,5 +18,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ConfConnectTypeServiceImpl extends ServiceImpl<ConfConnectTypeMapper, ConfConnectType> implements IConfConnectTypeService {
-
+	@Autowired
+	private ConfConnectTypeMapper confConnectTypeMapper; 
+	
+	public List<ConfConnectType> selectAllConfConnectType(){
+		return confConnectTypeMapper.selectAllConfConnectType();
+		
+	}
 }

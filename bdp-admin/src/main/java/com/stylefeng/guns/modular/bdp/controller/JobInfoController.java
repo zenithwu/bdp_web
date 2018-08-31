@@ -11,17 +11,13 @@ import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
-import com.stylefeng.guns.core.util.DateUtil;
+import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
+import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
 import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
-import com.stylefeng.guns.modular.bdp.service.impl.JobInfoConfServiceImpl;
-import com.stylefeng.guns.modular.bdp.service.impl.JobRunHistoryServiceImpl;
-import com.stylefeng.guns.modular.system.model.JobInfo;
-import com.stylefeng.guns.modular.system.model.JobInfoConf;
-import com.stylefeng.guns.modular.system.model.JobRunHistory;
-import com.stylefeng.guns.modular.system.model.JobSet;
+import com.stylefeng.guns.modular.system.model.*;
 import com.stylefeng.guns.modular.system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,6 +52,10 @@ public class JobInfoController extends BaseController {
     private IJobInfoConfService jobInfoConfService;
     @Autowired
     private IJobRunHistoryService jobRunHistoryService;
+    @Autowired
+    private IConfConnectService confConnectService;
+    @Autowired
+    private IConfConnectTypeService confConnectTypeService;
     /**
      * 跳转到任务信息首页
      */
@@ -82,7 +80,14 @@ public class JobInfoController extends BaseController {
     @RequestMapping("/jobInfo_update/{jobInfoId}")
     public String jobInfoUpdate(@PathVariable Integer jobInfoId, Model model) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
+        List<JobInfoConf> jobInfoConfList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+        ConfConnect confConnect = confConnectService.selectByJobInfoId(jobInfoId);
+        List<ConfConnectType> allConfConnectType = confConnectTypeService.selectAllConfConnectType();
+        
         model.addAttribute("item",jobInfo);
+        model.addAttribute("jobInfoConfList",jobInfoConfList);
+        model.addAttribute("confConnect",confConnect);
+        model.addAttribute("allConfConnectType",allConfConnectType);
         LogObjectHolder.me().set(jobInfo);
         String pageName=JobType.ObjOf(jobInfo.getTypeId()).getPage();
         return DETAIL + pageName;
@@ -171,13 +176,8 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/enableJobInfo")
     @ResponseBody
     public Object enableJobInfo(@RequestParam Integer jobInfoId){
-    	List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
-        if(icList.size()>0 && icList != null){
-        	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
-        }else{
-        	jobInfoService.enableJobInfo(jobInfoId);
-        	return SUCCESS_TIP;
-        }
+        jobInfoService.enableJobInfo(jobInfoId);
+        return SUCCESS_TIP;
     }
     
     
@@ -213,10 +213,17 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/rungoJobInfo")
     @ResponseBody
     public Object rungoJobInfo(JobInfo jobInfo) {
-        //启用状态
-    	jobInfo.setLastRunState(LastRunState.RUNNING.getCode());
-        jobInfoService.updateById(jobInfo);
-        return SUCCESS_TIP;
+
+        JobInfo job=jobInfoService.selectById(jobInfo.getId());
+
+        if(JobStatus.DEACTIVE.getCode()==job.getEnable()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_NOTRUN);
+        }else {
+            //启用状态
+            job.setLastRunState(LastRunState.RUNNING.getCode());
+            jobInfoService.updateById(job);
+            return SUCCESS_TIP;
+        }
     }
 
 }

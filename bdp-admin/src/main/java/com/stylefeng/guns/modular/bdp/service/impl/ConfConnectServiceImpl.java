@@ -6,6 +6,8 @@ import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * <p>
  * 配置连接表 服务实现类
@@ -16,5 +18,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ConfConnectServiceImpl extends ServiceImpl<ConfConnectMapper, ConfConnect> implements IConfConnectService {
-
+	@Autowired
+	private ConfConnectMapper confConnectMapper;
+	
+	public ConfConnect selectByJobInfoId(Integer jobInfoId) {
+		
+		return confConnectMapper.selectByJobInfoId(jobInfoId);
+	}
 }

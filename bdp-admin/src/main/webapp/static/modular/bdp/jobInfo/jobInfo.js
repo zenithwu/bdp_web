@@ -67,14 +67,14 @@ JobInfo.jobRunHistory = function () {
         var index = layer.open({
             type: 2,
             title: '任务信息详情',
-            // area: ['800px', '420px'], //宽高
+            area: ['90%', '90%'], //宽高
             fix: false, //不固定
-            maxmin: false,
+            maxmin: true,
             content: Feng.ctxPath + '/jobRunHistory/jobRunHistoryList'
         });
         this.layerIndex = index;
         //最大化
-        layer.full(index)
+        // layer.full(index)
     }
 };
 
@@ -87,14 +87,13 @@ JobInfo.openJobInfoDetail = function () {
         var index = layer.open({
             type: 2,
             title: '任务信息详情',
-            // area: ['800px', '420px'], //宽高
+            area: ['90%', '90%'], //宽高
             fix: false, //不固定
-            maxmin: false,
+            maxmin: true,
             content: Feng.ctxPath + '/jobInfo/jobInfo_update/' + JobInfo.seItem.id
         });
         this.layerIndex = index;
         //最大化
-        layer.full(index)
     }
 };
 
@@ -166,14 +165,12 @@ JobInfo.runJobInfo = function () {
         var index = layer.open({
             type: 2,
             title: '运行任务参数信息',
-            // area: ['800px', '420px'], //宽高
+            area: ['400px', '300px'], //宽高
             fix: false, //不固定
             maxmin: false,
             content: Feng.ctxPath + '/jobInfo/runJobInfo/' + JobInfo.seItem.id
         });
         this.layerIndex = index;
-        //最大化
-        layer.full(index)
     }
 };
 

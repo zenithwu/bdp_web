@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * @since 2018-08-22
  */
 public interface ConfConnectMapper extends BaseMapper<ConfConnect> {
-
+	public ConfConnect selectByJobInfoId(Integer jobInfoId);
 }

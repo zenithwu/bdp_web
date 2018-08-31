@@ -12,5 +12,6 @@ import com.baomidou.mybatisplus.service.IService;
  * @since 2018-08-22
  */
 public interface IConfConnectService extends IService<ConfConnect> {
+	public ConfConnect selectByJobInfoId(Integer jobInfoId);
 
 }

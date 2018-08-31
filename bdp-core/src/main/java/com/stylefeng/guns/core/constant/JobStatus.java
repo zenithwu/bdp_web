@@ -7,8 +7,8 @@ package com.stylefeng.guns.core.constant;
  */
 public enum JobStatus {
 
-    INPUT(0, "启用"),
-    SQL(1, "禁用");
+    ACTIVE(0, "启用"),
+    DEACTIVE(1, "禁用");
 
     int code;
     String name;

@@ -21,6 +21,6 @@ public interface JobInfoConfMapper extends BaseMapper<JobInfoConf> {
 	 * @param id
 	 * @return
 	 */
-	List<JobInfoConf> selJobInfoConfByJobInfoId(int id);
+	List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id);
 	
 }

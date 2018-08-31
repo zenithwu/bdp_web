@@ -1,6 +1,9 @@
 package com.stylefeng.guns.modular.system.dao;
 
 import com.stylefeng.guns.modular.system.model.ConfConnectType;
+
+import java.util.List;
+
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 /**
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * @since 2018-08-27
  */
 public interface ConfConnectTypeMapper extends BaseMapper<ConfConnectType> {
-
+	public List<ConfConnectType> selectAllConfConnectType();
 }

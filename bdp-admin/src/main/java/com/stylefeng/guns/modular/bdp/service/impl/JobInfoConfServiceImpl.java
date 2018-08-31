@@ -25,7 +25,7 @@ public class JobInfoConfServiceImpl extends ServiceImpl<JobInfoConfMapper, JobIn
 	private JobInfoConfMapper jobInfoConfMapper;
 	
 	@Override
-	public List<JobInfoConf> selJobInfoConfByJobInfoId(int id) {
+	public List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id) {
 		// TODO Auto-generated method stub
 		return jobInfoConfMapper.selJobInfoConfByJobInfoId(id);
 	}
