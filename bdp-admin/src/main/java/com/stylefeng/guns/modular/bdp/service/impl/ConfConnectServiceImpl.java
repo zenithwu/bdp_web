@@ -20,11 +20,5 @@ import java.util.List;
  */
 @Service
 public class ConfConnectServiceImpl extends ServiceImpl<ConfConnectMapper, ConfConnect> implements IConfConnectService {
-	@Autowired
-	private ConfConnectMapper confConnectMapper;
 
-	public List<ConfConnect> selectByJobInfoId(Integer jobInfoId) {
-
-		return confConnectMapper.selectByJobInfoId(jobInfoId);
-	}
 }

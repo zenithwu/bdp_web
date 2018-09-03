@@ -6,6 +6,7 @@ import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,11 @@ public class JobInfoConfServiceImpl extends ServiceImpl<JobInfoConfMapper, JobIn
 		// TODO Auto-generated method stub
 		return jobInfoConfMapper.selJobInfoConfByJobInfoId(id);
 	}
+	@Override
+	public List<JobInfoConf> selJobDependByJobId(Integer id) {
+		// TODO Auto-generated method stub
+		return jobInfoConfMapper.selJobDependByJobId(id);
+	}
+
 
 }

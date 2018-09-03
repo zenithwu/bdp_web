@@ -14,6 +14,5 @@ import java.util.List;
  * @since 2018-08-22
  */
 public interface IConfConnectService extends IService<ConfConnect> {
-	public List<ConfConnect> selectByJobInfoId(Integer jobInfoId);
 
 }

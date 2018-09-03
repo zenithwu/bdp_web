@@ -40,7 +40,7 @@ body{background: #e4e7ea;font-family:"微软雅黑";}
 	margin-bottom: 0;
 	color: #77818e;
 }
-.panel-body {padding: 1% 2%;background: #fff;width: 96%;}
+.panel-body {padding: 1% 2%;background: #fff;width: 100%;}
 .b-info {border-color: #6887ff;}
 .btn-outline {
     border-width: 1px;

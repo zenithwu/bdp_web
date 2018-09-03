@@ -24,6 +24,7 @@ h2 {
 
 h3 {
     font-size: 16px;
+    color: #e6e6e6;
 }
 
 h4 {
@@ -2099,11 +2100,11 @@ table.dataTable thead .sorting:after {
     border-radius: 1px;
     color: inherit;
     display: block;
-    padding: 6px 12px;
+    padding: 20px 12px;
     -webkit-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     width: 100%;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .form-control:focus,
@@ -4172,7 +4173,8 @@ table.table-mail tr td {
 }
 
 .black-bg {
-    background-color: #262626;
+    /*background-color: #262626;*/
+    background: url('patterns/login-op.jpg');
 }
 
 .panel-primary {
@@ -4816,11 +4818,13 @@ body.modal-open {
 }
 
 .logo-name {
-    color: #e6e6e6;
+    color: #fff;
     font-size: 180px;
     font-weight: 800;
-    letter-spacing: -10px;
+    letter-spacing: 20px;
     margin-bottom: 0px;
+    position: relative;
+    right: 15%;
 }
 
 .middle-box h1 {

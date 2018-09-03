@@ -11,11 +11,11 @@ import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
+import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
-import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 import com.stylefeng.guns.modular.system.model.*;
 import com.stylefeng.guns.modular.system.service.IUserService;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,8 +51,6 @@ public class JobInfoController extends BaseController {
     private IUserService userService;
     @Autowired
     private IJobInfoConfService jobInfoConfService;
-    @Autowired
-    private IJobRunHistoryService jobRunHistoryService;
     @Autowired
     private IConfConnectService confConnectService;
     @Autowired
@@ -80,17 +79,56 @@ public class JobInfoController extends BaseController {
     @RequestMapping("/jobInfo_update/{jobInfoId}")
     public String jobInfoUpdate(@PathVariable Integer jobInfoId, Model model) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
+        String pageName=JobType.ObjOf(jobInfo.getTypeId()).getPage();
+
+        //查询任务的所有参数
         List<JobInfoConf> jobInfoConfList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
-        List<ConfConnect> confConnect = confConnectService.selectByJobInfoId(jobInfoId);
+        JobConfig jobConfig=JobConfig.listToJobConfig(jobInfoConfList);
+        model.addAttribute("item",jobInfo);
+        model.addAttribute("jobConfig",jobConfig);
+
+        switch(jobInfo.getTypeId()){
+            //数据接入
+            case 1:{
+                showInputData(model, jobConfig);
+            }
+                break;
+            default:
+                break;
+        }
+        LogObjectHolder.me().set(jobInfo);
+        return DETAIL + pageName;
+    }
+
+    private void showInputData(Model model, JobConfig jobConfig) {
+        //所有连接类型
         List<ConfConnectType> allConfConnectType = confConnectTypeService.selectAllConfConnectType();
 
-        model.addAttribute("item",jobInfo);
-        model.addAttribute("jobInfoConfList",jobInfoConfList);
-        model.addAttribute("confConnect",confConnect);
+        //查询该连接所属的类型下的所有的连接
+        List<ConfConnect> connects=new ArrayList<>();
+        if(jobConfig.getInput_connect_id()!=null){
+            ConfConnect connect=  confConnectService.selectById(jobConfig.getInput_connect_id());
+            if(connect!=null) {
+                //设置连接类型id
+                jobConfig.setInput_connect_type(connect.getTypeId());
+                //查询该连接所属的类型下的所有的连接
+                Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
+                wrapper = wrapper.eq("type_id", connect.getTypeId());
+                connects = confConnectService.selectList(wrapper);
+            }
+        }
+
+        //查询输出的数据库集合
+        List<String> dbList=HiveUtil.getDataBases();
+        //查询输出的该数据库的所有的表的集合
+        List<String> tableList=new ArrayList<>();
+        if(jobConfig.getOutput_db_name()!=null){
+            tableList=HiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
+        }
         model.addAttribute("allConfConnectType",allConfConnectType);
-        LogObjectHolder.me().set(jobInfo);
-        String pageName=JobType.ObjOf(jobInfo.getTypeId()).getPage();
-        return DETAIL + pageName;
+        model.addAttribute("connects",connects);
+        model.addAttribute("dbList",dbList);
+        model.addAttribute("tableList",tableList);
     }
 
     /**
@@ -150,7 +188,7 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Object delete(@RequestParam Integer jobInfoId) {
-       List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+       List<JobInfoConf> icList = jobInfoConfService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
         }else{
@@ -168,7 +206,7 @@ public class JobInfoController extends BaseController {
         jobInfoService.updateById(jobInfo);
         return SUCCESS_TIP;
     }
-    
+
     /**
      * 启用任务
      * @return
@@ -188,7 +226,7 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/disableJobInfo")
     @ResponseBody
     public Object disableJobInfo(@RequestParam Integer jobInfoId){
-    	List<JobInfoConf> icList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
+    	List<JobInfoConf> icList = jobInfoConfService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
         }else{
@@ -233,5 +271,17 @@ public class JobInfoController extends BaseController {
     public int count() {
         return jobInfoService.selectCount(null
         );
+    }
+
+
+
+    /**
+     * 保存任务配置
+     */
+    @RequestMapping(value = "/saveInputData")
+    @ResponseBody
+    public Object saveInputData(JobConfig jobConfig) {
+
+        return SUCCESS_TIP;
     }
 }

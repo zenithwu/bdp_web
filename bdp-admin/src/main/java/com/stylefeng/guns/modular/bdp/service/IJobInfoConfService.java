@@ -3,6 +3,7 @@ package com.stylefeng.guns.modular.bdp.service;
 import com.stylefeng.guns.modular.system.model.JobInfoConf;
 
 import java.util.List;
+import java.util.Map;
 
 import com.baomidou.mybatisplus.service.IService;
 
@@ -21,4 +22,6 @@ public interface IJobInfoConfService extends IService<JobInfoConf> {
 	 * @return
 	 */
 	List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id);
+
+	List<JobInfoConf> selJobDependByJobId(Integer id);
 }

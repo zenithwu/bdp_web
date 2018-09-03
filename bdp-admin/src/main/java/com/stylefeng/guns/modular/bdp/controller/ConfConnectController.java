@@ -127,4 +127,17 @@ public class ConfConnectController extends BaseController {
     public Object detail(@PathVariable("confConnectId") Integer confConnectId) {
         return confConnectService.selectById(confConnectId);
     }
+
+
+    /**
+     * 根据类型获取类型下的数据源list
+     */
+    @RequestMapping(value = "/listByTypeId/{confConnectTypeId}")
+    @ResponseBody
+    public Object seListBy(@PathVariable("confConnectTypeId") Integer confConnectTypeId) {
+        Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
+        wrapper = wrapper.eq("type_id", confConnectTypeId);
+        return confConnectService.selectList(wrapper);
+    }
+
 }

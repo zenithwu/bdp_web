@@ -3,6 +3,7 @@ package com.stylefeng.guns.modular.system.dao;
 import com.stylefeng.guns.modular.system.model.JobInfoConf;
 
 import java.util.List;
+import java.util.Map;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
@@ -22,5 +23,6 @@ public interface JobInfoConfMapper extends BaseMapper<JobInfoConf> {
 	 * @return
 	 */
 	List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id);
+	List<JobInfoConf> selJobDependByJobId(Integer id);
 	
 }
