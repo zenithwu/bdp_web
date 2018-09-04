@@ -12,6 +12,7 @@
         <result column="username" property="username" />
         <result column="password" property="password" />
         <result column="dbname" property="dbname" />
+        <result column="driver_class" property="driverClass" />
         <result column="desc" property="desc" />
         <result column="create_time" property="createTime" />
         <result column="create_per" property="createPer" />
@@ -21,6 +22,6 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, type_id, host, port, username, password, dbname, desc, create_time, create_per, mod_time, mod_per
+        id, name, type_id, host, port, username, password, dbname, driver_class,desc, create_time, create_per, mod_time, mod_per
     </sql>
 </mapper>

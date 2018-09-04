@@ -1,5 +1,8 @@
 package com.stylefeng.guns.modular.system.model;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -358,16 +361,42 @@ public class JobConfig{
         if (list == null)
             return null;
 
-        Map<String,String> map=new HashMap<>();
+        Map<String,Object> map=new HashMap<>();
         for (JobInfoConf conf:list
              ) {
             map.put(conf.getKey(),conf.getValue());
         }
         return mapToJobConfig(map);
+    }
+
+
+
+
+
+
+    public static List<JobInfoConf> jobConfigTolist(JobConfig jobConfig) {
+        if(jobConfig == null)
+            return null;
+
+        Map<Object,Object> map= new org.apache.commons.beanutils.BeanMap(jobConfig);
+        List<JobInfoConf> list=new ArrayList<>();
+        for (Object k:map.keySet()
+             ) {
+
+            if(map.get(k) !=null && !("".equals(map.get(k))) && !("class".equals(k))) {
+                JobInfoConf conf = new JobInfoConf();
+                conf.setKey(String.valueOf(k));
+                conf.setValue(String.valueOf(map.get(k)));
+                conf.setJobInfoId(jobConfig.getJobId());
+                list.add(conf);
+            }
+        }
+        return  list;
 
     }
 
-    public static JobConfig mapToJobConfig(Map<String, String> map) {
+
+    public static JobConfig mapToJobConfig(Map<String, Object> map) {
         if (map == null)
             return null;
 

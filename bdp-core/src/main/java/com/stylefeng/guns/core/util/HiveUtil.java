@@ -55,8 +55,8 @@ public class HiveUtil {
 
         List<String> list=new ArrayList<>();
         try{
-            PreparedStatement sta = con.prepareStatement("use "+dbName);
-            ResultSet result = sta.executeQuery("show tables");
+            PreparedStatement sta = con.prepareStatement(String.format("show tables in %s",dbName));
+            ResultSet result = sta.executeQuery();
             while(result.next()){
                 list.add(result.getString(1));
             }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
+import com.stylefeng.guns.core.util.HiveUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -134,10 +135,18 @@ public class ConfConnectController extends BaseController {
      */
     @RequestMapping(value = "/listByTypeId/{confConnectTypeId}")
     @ResponseBody
-    public Object seListBy(@PathVariable("confConnectTypeId") Integer confConnectTypeId) {
+    public Object listByTypeId(@PathVariable("confConnectTypeId") Integer confConnectTypeId) {
         Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
         wrapper = wrapper.eq("type_id", confConnectTypeId);
         return confConnectService.selectList(wrapper);
     }
 
+    /**
+     * 根据类型获取类型下的数据源list
+     */
+    @RequestMapping(value = "/listHiveTableBydbName/{dbName}")
+    @ResponseBody
+    public Object listHiveTableBydbName(@PathVariable("dbName") String dbName) {
+        return HiveUtil.getTablesByDbName(dbName);
+    }
 }

@@ -1,5 +1,8 @@
 package com.stylefeng.guns.modular.bdp.service.impl;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.stylefeng.guns.modular.system.dao.JobInfoMapper;
+import com.stylefeng.guns.modular.system.model.JobInfo;
 import com.stylefeng.guns.modular.system.model.JobInfoConf;
 import com.stylefeng.guns.modular.system.dao.JobInfoConfMapper;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
@@ -24,16 +27,15 @@ public class JobInfoConfServiceImpl extends ServiceImpl<JobInfoConfMapper, JobIn
 
 	@Autowired
 	private JobInfoConfMapper jobInfoConfMapper;
-	
+
 	@Override
 	public List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id) {
 		// TODO Auto-generated method stub
 		return jobInfoConfMapper.selJobInfoConfByJobInfoId(id);
 	}
 	@Override
-	public List<JobInfoConf> selJobDependByJobId(Integer id) {
-		// TODO Auto-generated method stub
-		return jobInfoConfMapper.selJobDependByJobId(id);
+	public void upsertKVByJobId(List<JobInfoConf> jobInfoConfList) {
+		jobInfoConfMapper.upsertKVByJobId(jobInfoConfList);
 	}
 
 

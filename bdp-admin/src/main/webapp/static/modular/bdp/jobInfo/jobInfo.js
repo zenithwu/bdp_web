@@ -78,11 +78,10 @@ JobInfo.jobRunHistory = function () {
     }
 };
 
-
 /**
- * 打开查看任务信息详情
+ * 打开查看任务信息配置页面
  */
-JobInfo.openJobInfoDetail = function () {
+JobInfo.openJobInfoConfig = function () {
     if (this.check()) {
         var index = layer.open({
             type: 2,
@@ -90,12 +89,15 @@ JobInfo.openJobInfoDetail = function () {
             area: ['90%', '90%'], //宽高
             fix: false, //不固定
             maxmin: true,
-            content: Feng.ctxPath + '/jobInfo/jobInfo_update/' + JobInfo.seItem.id
+            content: Feng.ctxPath + '/jobInfo/jobInfo_config/' + JobInfo.seItem.id
         });
         this.layerIndex = index;
         //最大化
     }
 };
+
+
+
 
 /**
  * 删除任务信息
@@ -165,7 +167,7 @@ JobInfo.runJobInfo = function () {
         var index = layer.open({
             type: 2,
             title: '运行任务参数信息',
-            area: ['400px', '300px'], //宽高
+            area: ['600px', '500px'], //宽高
             fix: false, //不固定
             maxmin: false,
             content: Feng.ctxPath + '/jobInfo/runJobInfo/' + JobInfo.seItem.id

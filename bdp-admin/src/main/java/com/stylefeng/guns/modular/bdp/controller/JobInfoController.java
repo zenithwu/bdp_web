@@ -2,7 +2,9 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.base.tips.ErrorTip;
 import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
 import com.stylefeng.guns.core.constant.JobStatus;
 import com.stylefeng.guns.core.constant.JobType;
@@ -12,6 +14,8 @@ import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
+import com.stylefeng.guns.core.util.jenkins.JobUtil;
+import com.stylefeng.guns.core.util.jenkins.ProcUtil;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoConfService;
@@ -19,6 +23,8 @@ import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 import com.stylefeng.guns.modular.system.model.*;
 import com.stylefeng.guns.modular.system.service.IUserService;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,8 +33,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务信息控制器
@@ -55,6 +64,9 @@ public class JobInfoController extends BaseController {
     private IConfConnectService confConnectService;
     @Autowired
     private IConfConnectTypeService confConnectTypeService;
+    @Autowired
+    private JenkinsConfig jenkinsConfig;
+
     /**
      * 跳转到任务信息首页
      */
@@ -72,12 +84,11 @@ public class JobInfoController extends BaseController {
         super.setAttr("jobSetList",jobSets);
         return PREFIX + "jobInfo_add.html";
     }
-
     /**
      * 跳转到修改任务信息
      */
-    @RequestMapping("/jobInfo_update/{jobInfoId}")
-    public String jobInfoUpdate(@PathVariable Integer jobInfoId, Model model) {
+    @RequestMapping("/jobInfo_config/{jobInfoId}")
+    public String jobInfo_config(@PathVariable Integer jobInfoId, Model model) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
         String pageName=JobType.ObjOf(jobInfo.getTypeId()).getPage();
 
@@ -86,15 +97,9 @@ public class JobInfoController extends BaseController {
         JobConfig jobConfig=JobConfig.listToJobConfig(jobInfoConfList);
         model.addAttribute("item",jobInfo);
         model.addAttribute("jobConfig",jobConfig);
-
-        switch(jobInfo.getTypeId()){
-            //数据接入
-            case 1:{
-                showInputData(model, jobConfig);
-            }
-                break;
-            default:
-                break;
+        ////数据接入 和 数据推送
+        if(jobInfo.getTypeId()==JobType.INPUT.getCode()|| jobInfo.getTypeId()==JobType.OUTPUT.getCode()){
+            showInputData(model, jobConfig);
         }
         LogObjectHolder.me().set(jobInfo);
         return DETAIL + pageName;
@@ -177,9 +182,23 @@ public class JobInfoController extends BaseController {
            jobInfo.setUserInfoId(ShiroKit.getUser().getId());
            //启用状态
            jobInfo.setEnable(0);
-           jobInfoService.insert(jobInfo);
+           if(jobInfoService.insert(jobInfo)){
+               JobUtil jobUtil=new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+               try {
+                   jobUtil.createJob(jobInfo.getName(),jobInfo.getDesc(),wrapShell(""));
+                   return SUCCESS_TIP;
+               } catch (IOException e) {
+                   return new ErrorTip(500,e.getMessage());
+               }
+
+           }
            return SUCCESS_TIP;
        }
+    }
+
+    private String wrapShell(String shell){
+        return jenkinsConfig.getBegin().replace("%%","$") +shell
+                +jenkinsConfig.getEnd().replace("%%","$");
     }
 
     /**
@@ -188,23 +207,25 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Object delete(@RequestParam Integer jobInfoId) {
-       List<JobInfoConf> icList = jobInfoConfService.selJobDependByJobId(jobInfoId);
+        JobInfo jobInfo=jobInfoService.selectById(jobInfoId);
+       List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
         }else{
-        	jobInfoService.deleteById(jobInfoId);
+        	if(jobInfoService.deleteById(jobInfoId)) {
+                if(jobInfoConfService.delete(new EntityWrapper<JobInfoConf>().eq("job_info_id", jobInfoId))){
+
+                    JobUtil jobUtil=new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+                    try {
+                        jobUtil.deleteJob(jobInfo.getName());
+                        return SUCCESS_TIP;
+                    } catch (IOException e) {
+                        return new ErrorTip(500,e.getMessage());
+                    }
+                }
+            }
         	return SUCCESS_TIP;
         }
-    }
-
-    /**
-     * 修改任务信息
-     */
-    @RequestMapping(value = "/update")
-    @ResponseBody
-    public Object update(JobInfo jobInfo) {
-        jobInfoService.updateById(jobInfo);
-        return SUCCESS_TIP;
     }
 
     /**
@@ -214,7 +235,16 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/enableJobInfo")
     @ResponseBody
     public Object enableJobInfo(@RequestParam Integer jobInfoId){
-        jobInfoService.enableJobInfo(jobInfoId);
+        JobInfo jobInfo=jobInfoService.selectById(jobInfoId);
+        if(jobInfoService.enableJobInfo(jobInfoId)>0){
+            JobUtil jobUtil=new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+            try {
+                jobUtil.enableJob(jobInfo.getName());
+                return SUCCESS_TIP;
+            } catch (Exception e) {
+                return new ErrorTip(500,e.getMessage());
+            }
+        }
         return SUCCESS_TIP;
     }
     
@@ -226,11 +256,21 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/disableJobInfo")
     @ResponseBody
     public Object disableJobInfo(@RequestParam Integer jobInfoId){
-    	List<JobInfoConf> icList = jobInfoConfService.selJobDependByJobId(jobInfoId);
+        JobInfo jobInfo=jobInfoService.selectById(jobInfoId);
+        List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
         }else{
-        	jobInfoService.disableJobInfo(jobInfoId);
+        	if(jobInfoService.disableJobInfo(jobInfoId)>0){
+
+                JobUtil jobUtil=new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+                try {
+                    jobUtil.disableJob(jobInfo.getName());
+                    return SUCCESS_TIP;
+                } catch (Exception e) {
+                    return new ErrorTip(500,e.getMessage());
+                }
+            }
         	return SUCCESS_TIP;
         }
     }
@@ -246,11 +286,12 @@ public class JobInfoController extends BaseController {
     }
     
     /**
-     * 新增任务信息
+     * 执行任务信息
      */
     @RequestMapping(value = "/rungoJobInfo")
     @ResponseBody
     public Object rungoJobInfo(JobInfo jobInfo) {
+        String time_hour=DateTimeKit.formatDateTime(jobInfo.getLastRunTime());
 
         JobInfo job=jobInfoService.selectById(jobInfo.getId());
 
@@ -259,12 +300,23 @@ public class JobInfoController extends BaseController {
         }else {
             //启用状态
             job.setLastRunState(LastRunState.RUNNING.getCode());
-            jobInfoService.updateById(job);
+            if(jobInfoService.updateById(job)){
+
+                JobUtil jobUtil=new JobUtil(jobSetService.selectById(job.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+                try {
+                    Map<String,String> params=new HashMap<>();
+                    params.put("time_hour",time_hour);
+                    jobUtil.runJob(job.getName(),params);
+                    return SUCCESS_TIP;
+                } catch (Exception e) {
+                    return new ErrorTip(500,e.getMessage());
+                }
+            }
             return SUCCESS_TIP;
         }
     }
     /**
-     * 新增任务信息
+     * 统计任务信息
      */
     @RequestMapping(value = "/count")
     @ResponseBody
@@ -276,11 +328,50 @@ public class JobInfoController extends BaseController {
 
 
     /**
-     * 保存任务配置
+     * 保存数据接入任务配置
      */
-    @RequestMapping(value = "/saveInputData")
+    @RequestMapping(value = "/saveData")
     @ResponseBody
     public Object saveInputData(JobConfig jobConfig) {
+        //转换特殊字符
+//        jobConfig.setSql_statment(StringEscapeUtils.unescapeHtml(jobConfig.getSql_statment()));
+
+        jobInfoConfService.upsertKVByJobId(JobConfig.jobConfigTolist(jobConfig));
+        JobInfo jobInfo=jobInfoService.selectById(jobConfig.getJobId());
+        jobInfo.setModPer(ShiroKit.getUser().getId());
+        jobInfo.setModTime(DateTimeKit.date());
+        JobUtil jobUtil=new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(),jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+        if(jobInfoService.updateById(jobInfo)){
+            String shell="";
+            switch (jobInfo.getTypeId()){
+
+                //数据接入
+                case 1: {
+
+                    break;}
+                    //SQL
+                case 2: {
+                        shell=String.format("echo \"\"\"%s\"\"\" > script.hql \nhive -f script.hql",jobConfig.getSql_statment());
+                    try {
+                        jobUtil.setJobCmd(jobInfo.getName(),wrapShell(shell));
+                    } catch (Exception e) {
+                        return new ErrorTip(500,e.getMessage());
+                    }
+                    break;}
+                    //程序执行
+                case 3: {
+
+
+                    break;}
+                    //数据推送
+                case 4: {
+
+
+                    break;}
+                default:
+                    break;
+            }
+        }
 
         return SUCCESS_TIP;
     }

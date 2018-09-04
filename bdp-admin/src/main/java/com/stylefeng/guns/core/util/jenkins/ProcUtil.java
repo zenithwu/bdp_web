@@ -30,6 +30,7 @@ public  class ProcUtil {
     public void deleteProject(String procName) throws IOException {
         jenkins.deleteJob(procName);
     }
+
     public static void main(String[] args) throws IOException {
 //        ProcUtil.createProject("zenith1");
 //        ProcUtil.deleteProject("zenith1");

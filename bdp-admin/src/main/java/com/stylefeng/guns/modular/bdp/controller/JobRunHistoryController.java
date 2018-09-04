@@ -91,7 +91,7 @@ public class JobRunHistoryController extends BaseController {
     public Object list(String condition,@PathVariable Integer id) {
 
         Wrapper<JobRunHistory> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("params", condition);
+        wrapper = wrapper.like("params", condition).orderBy("id");
         List<JobRunHistory> list;
     	if(id!=null){
             list= jobRunHistoryService.selectList(wrapper.eq("job_info_id",id));
@@ -168,6 +168,10 @@ public class JobRunHistoryController extends BaseController {
     @RequestMapping(value = "/detail/{jobRunHistoryId}")
     @ResponseBody
     public Object detail(@PathVariable("jobRunHistoryId") Integer jobRunHistoryId) {
-        return jobRunHistoryService.selectById(jobRunHistoryId);
+
+        JobRunHistory history=jobRunHistoryService.selectById(jobRunHistoryId);
+        //转为浏览器识别的换行符
+        history.setLog(history.getLog().replace("\n","</br>"));
+        return history;
     }
 }

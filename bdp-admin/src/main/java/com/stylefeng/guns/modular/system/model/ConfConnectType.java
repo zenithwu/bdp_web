@@ -38,6 +38,20 @@ public class ConfConnectType extends Model<ConfConnectType> {
      * 连接类型描述
      */
     private String desc;
+
+    public String getDriverClass() {
+        return driverClass;
+    }
+
+    public void setDriverClass(String driverClass) {
+        this.driverClass = driverClass;
+    }
+
+    /**
+     * 驱动类
+     */
+    @TableField("driver_class")
+    private String driverClass;
     /**
      * 创建时间
      */

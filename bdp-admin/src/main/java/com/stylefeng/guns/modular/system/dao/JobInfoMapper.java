@@ -3,6 +3,8 @@ package com.stylefeng.guns.modular.system.dao;
 import com.stylefeng.guns.modular.system.model.JobInfo;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 任务信息表 Mapper 接口
@@ -32,4 +34,6 @@ public interface JobInfoMapper extends BaseMapper<JobInfo> {
 	 * @return
 	 */
 	JobInfo selJobInfoByName(String name);
+
+	List<JobInfo> selJobDependByJobId(Integer id);
 }

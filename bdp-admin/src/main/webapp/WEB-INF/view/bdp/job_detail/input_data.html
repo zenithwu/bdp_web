@@ -48,8 +48,7 @@
                             </select>
                         </div>
                     </div>
-                    
-                   <div id="database">
+
                     <div class="form-group">
                         <label class="col-th col-th3 fl">输入方式</label>
                         <div class="col-input">
@@ -65,17 +64,16 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">sql语句/表名</label>
+                        <label class="col-th col-th3 fl">sql语句/数据表</label>
                         <div class="col-input">
                             <textarea id="input_input_content" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
-                   </div>
-                    
+
                     <div class="form-group">
                         <label class="col-th col-th3 fl">文件位置</label>
                         <div class="col-input">
-                            <input type="text" id="input_file_position" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'"  value="${jobConfig.input_file_position}"/>
+                            <input type="text" id="input_file_position" class="form-control" placeholder=""  value="${jobConfig.input_file_position}"/>
                         </div>
                     </div>
                     
@@ -88,9 +86,9 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据库</label>
                         <div class="col-input">
-                            <select class="form-control" id="input_db_name">
+                            <select class="form-control" id="output_db_name">
                                 @for(db_name in dbList){
-                                @if(jobConfig !=null && jobConfig.input_db_name == db_name){
+                                @if(jobConfig !=null && jobConfig.output_db_name == db_name){
                                 <option value=${db_name} selected="selected">${db_name}</option>
                                 @}else{
                                 <option value=${db_name}>${db_name}</option>
@@ -102,9 +100,9 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据表</label>
                         <div class="col-input">
-                            <select class="form-control" id="input_table_name">
+                            <select class="form-control" id="output_table_name">
                                 @for(tableName in tableList){
-                                @if(jobConfig !=null && jobConfig.input_table_name==tableName){
+                                @if(jobConfig !=null && jobConfig.output_table_name==tableName){
                                 <option value=${tableName} selected="selected">${tableName}</option>
                                 @}else{
                                 <option value=${tableName}>${tableName}</option>
@@ -190,7 +188,7 @@
             
             <!--保存-->
             <div class="btn-group fr mtop total-btn">
-                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobInputDataConf.save()"/>
+                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
             </div>
         </div>
     </div>
@@ -198,12 +196,20 @@
 </body>
 <script type="text/javascript">
     $(function() {
+        showInConnect();
+        showHiveTable();
+
         $("#input_connect_type").change(function(){
-        		getType();
+            showInConnect();
         	})
         })
 
-        function getType(){
+        $("#output_db_name").change(function(){
+            showHiveTable();
+        })
+
+
+    function showInConnect(){
         	var option=$("#input_connect_type option:selected");
             $.get( Feng.ctxPath + '/confConnect/listByTypeId/'+option.val(),{
         	},function(res){
@@ -214,12 +220,26 @@
                     options=options+"<option value="+res[i].id+">"+res[i].name+"</option>"
                 }
                 $("#input_connect_id").html(options)
-
-
-
         	},"json")
     }
+
+
+    function showHiveTable(){
+
+        var option=$("#output_db_name option:selected");
+
+        $.get( Feng.ctxPath + '/confConnect/listHiveTableBydbName/'+option.val(),{
+        },function(res){
+            var options=""
+            for (var i=0;i<res.length;i++)
+            {
+                options=options+"<option value="+res[i]+">"+res[i]+"</option>"
+            }
+            $("#output_table_name").html(options)
+        },"json")
+    }
+
 </script>
-<script src="${ctxPath}/static/modular/bdp/jobInfo/jobConf.js"></script>
+<script src="${ctxPath}/static/modular/bdp/jobInfo/JobConf.js"></script>
 </html>
 @}

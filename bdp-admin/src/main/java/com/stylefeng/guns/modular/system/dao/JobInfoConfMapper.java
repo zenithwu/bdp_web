@@ -23,6 +23,6 @@ public interface JobInfoConfMapper extends BaseMapper<JobInfoConf> {
 	 * @return
 	 */
 	List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id);
-	List<JobInfoConf> selJobDependByJobId(Integer id);
-	
+	void upsertKVByJobId(List<JobInfoConf> jobInfoConfList);
+
 }

@@ -389,6 +389,7 @@ CREATE TABLE IF NOT EXISTS `bdp`.`conf_connect_type` (
   `id` INT NOT NULL AUTO_INCREMENT COMMENT '编号',
   `name` VARCHAR(100) NULL COMMENT '连接类型名称',
   `type` INT NULL COMMENT '类型编号 0 rdbms 1 ftp',
+  `driver_class` VARCHAR(100) NULL COMMENT '驱动类',
   `desc` VARCHAR(100) NULL COMMENT '连接类型描述',
   `create_time` DATETIME NULL COMMENT '创建时间',
   `create_per` INT NULL COMMENT '创建用户',
@@ -484,7 +485,8 @@ CREATE TABLE IF NOT EXISTS `bdp`.`job_info_conf` (
   `key` VARCHAR(100) NULL COMMENT '配置的键',
   `value` VARCHAR(255) NULL COMMENT '配置的值',
   `job_info_id` INT NOT NULL COMMENT '任务的编号',
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`),
+  UNIQUE KEY kj (`key`,`job_info_id`))
 ENGINE = InnoDB DEFAULT CHARSET=utf8 
 COMMENT = '任务信息配置表';
 

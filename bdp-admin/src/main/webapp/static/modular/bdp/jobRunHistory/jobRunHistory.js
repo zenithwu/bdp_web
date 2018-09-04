@@ -15,7 +15,7 @@ JobRunHistory.initColumn = function () {
     return [
         {field: 'selectItem', radio: true},
             {title: '编号', field: 'id', visible: false, align: 'center', valign: 'middle'},
-            {title: '运行编号', field: 'num', visible: false, align: 'center', valign: 'middle'},
+            {title: '运行编号', field: 'num', visible: true, align: 'center', valign: 'middle'},
             {title: '任务集', field: 'jobSetName', visible: true, align: 'center', valign: 'middle'},
             {title: '任务名称', field: 'jobName', visible: true, align: 'center', valign: 'middle'},
             {title: '运行参数', field: 'params', visible: true, align: 'center', valign: 'middle'},

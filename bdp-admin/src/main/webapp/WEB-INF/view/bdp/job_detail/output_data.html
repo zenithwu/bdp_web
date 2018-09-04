@@ -5,40 +5,73 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
-   <!--  <script type="text/javascript">
-       $(function(){
-    	   $("#TaskHistory")
-    	   
-       })
-    </script> -->
 </head>
 <body>
 <div class="contentpanel">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4 class="panel-title">任务名称</h4>
-            <p>这是任务描述这是任务描述</p>
+            <input id="jobId" value="${item.id}" hidden="hidden">
+            <h4 class="panel-title">${item.name}</h4>
+            <p>${item.desc}</p>
         </div>
         <div class="panel-body fl">
             <!--表格-->
             <div class="tabler-model3 fl">
-            
+
                 <div class="title">输入设置</div>
                 <form>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">输入方式</label>
                         <div class="col-input">
-                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
-                            <select class="form-control">
-                                <option>sql语句</option>
+                            <select class="form-control" id="input_input_type">
+                                @if(jobConfig !=null && jobConfig.input_input_type=='sql语句'){
                                 <option>表名称</option>
+                                <option selected="selected">sql语句</option>
+                                @}else{
+                                <option selected="selected">表名称</option>
+                                <option>sql语句</option>
+                                @}
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">sql语句/表名</label>
+                        <label class="col-th col-th3 fl">数据库</label>
                         <div class="col-input">
-                            <textarea class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'"></textarea>
+                            <select class="form-control" id="input_db_name">
+                                @for(db_name in dbList){
+                                @if(jobConfig !=null && jobConfig.input_db_name == db_name){
+                                <option value=${db_name} selected="selected">${db_name}</option>
+                                @}else{
+                                <option value=${db_name}>${db_name}</option>
+                                @}
+                                @}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据表</label>
+                        <div class="col-input">
+                            <select class="form-control" id="input_table_name">
+                                @for(tableName in tableList){
+                                @if(jobConfig !=null && jobConfig.input_table_name==tableName){
+                                <option value=${tableName} selected="selected">${tableName}</option>
+                                @}else{
+                                <option value=${tableName}>${tableName}</option>
+                                @}
+                                @}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">数据分区</label>
+                        <div class="col-input">
+                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1" id="output_data_partition" value="${jobConfig.output_data_partition}"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-th col-th3 fl">sql语句</label>
+                        <div class="col-input">
+                            <textarea id="input_input_content" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
                 </form>
@@ -49,46 +82,55 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据源类型</label>
                         <div class="col-input">
-                            <select class="form-control">
-                                <option>mysql</option>
-                                <option>mysql-1</option>
-                                <option>mysql-2</option>
+                            <select class="form-control" id="output_connect_type">
+                                @for(ConfConnectType in allConfConnectType){
+                                @if(jobConfig !=null && jobConfig.output_connect_type == ConfConnectType.id){
+                                <option value=${ConfConnectType.id} selected="selected">${ConfConnectType.name}</option>
+                                @}else{
+                                <option value=${ConfConnectType.id}>${ConfConnectType.name}</option>
+                                @}
+                                @}
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据源连接</label>
                         <div class="col-input">
-                            <select class="form-control">
-                                <option>mysql-123.222.222</option>
-                                <option>mysql-123.222.222-1</option>
-                                <option>mysql-123.222.222-2</option>
+                            <select class="form-control" id="output_connect_id">
+                                @for(connect in connects){
+                                @if(jobConfig !=null && jobConfig.output_connect_id==connect.id){
+                                <option value=${connect.id} selected="selected">${connect.name}</option>
+                                @}else{
+                                <option value=${connect.id}>${connect.name}</option>
+                                @}
+                                @}
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据表</label>
                         <div class="col-input">
-                            <select class="form-control">
-                                <option>t_result_sss</option>
-                                <option>t_result_sss-1</option>
-                                <option>t_result_sss-2</option>
-                            </select>
+                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1" id="output_table_name" value="${jobConfig.output_table_name}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">写入模式</label>
                         <div class="col-input">
-                            <select class="form-control">
-                                <option>覆盖</option>
+                            <select class="form-control" id="output_write_model">
+                                @if(jobConfig !=null && jobConfig.output_write_model=='覆盖'){
                                 <option>追加</option>
+                                <option selected="selected">覆盖</option>
+                                @}else{
+                                <option selected="selected">追加</option>
+                                <option>覆盖</option>
+                                @}
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">前置语句</label>
                         <div class="col-input">
-                            <textarea class="form-control" placeholder="delete from tables where time ='{yyyy-mm-dd}'"></textarea>
+                            <textarea class="form-control" placeholder="delete from tables where time ='{yyyy-mm-dd}'" id="output_pre_statment">${jobConfig.output_pre_statment}</textarea>
                         </div>
                     </div>
                 </form>
@@ -99,72 +141,73 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">定时执行</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="H/15 * * * *" />
+                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"  value="${jobConfig.schedule_crontab}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                           <!--  <input type="text" class="form-control" placeholder="test1,test2" /> -->
-                            <select class="form-control">
-                                 @for(jobInfoConfList in jobInfoConfList){
-		                        <option value=${jobInfoConfList.id}>${jobInfoConfList.value}</option>
-		                        @}
-		                     </select>
+                            <input type="text" id="schedule_depend" class="form-control" value="${jobConfig.schedule_depend}"/>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
         <div class="panel-body fl">
-            <div class="tabler-model3 fl">
-                <form>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">输入方式</label>
-                        <div class="col-input">
-                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
-                            <select class="form-control">
-                                <option>表名称</option>
-                                <option>SQL语句</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据库</label>
-                        <div class="col-input">
-                            <select class="form-control">
-                                <option>ods</option>
-                                <option>ods-1</option>
-                                <option>ods-2</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据表</label>
-                        <div class="col-input">
-                            <select class="form-control">
-                                <option>t_ods_bbbbb</option>
-                                <option>t_ods_bbbbb-1</option>
-                                <option>t_ods_bbbbb-2</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据分区</label>
-                        <div class="col-input">
-                            <input type="text" class="form-control" placeholder="state_date={yyyy-mm-dd},type=1" />
-                        </div>
-                    </div>
-                </form>
-            </div>
             <!--保存-->
             <div class="btn-group fr mtop total-btn">
-                <button class="btn btn-save">保存</button>
+                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
             </div>
         </div>
     </div>
 </div>
 </body>
+<script type="text/javascript">
+    $(function() {
+        showOutConnect();
+        showHiveTable();
+
+        $("#output_connect_type").change(function(){
+            showConnect();
+        })
+    })
+
+    $("#input_db_name").change(function(){
+        showHiveTable();
+    })
+
+
+    function showOutConnect(){
+        var option=$("#output_connect_type option:selected");
+        $.get( Feng.ctxPath + '/confConnect/listByTypeId/'+option.val(),{
+        },function(res){
+
+            var options=""
+            for (var i=0;i<res.length;i++)
+            {
+                options=options+"<option value="+res[i].id+">"+res[i].name+"</option>"
+            }
+            $("#output_connect_id").html(options)
+        },"json")
+    }
+
+
+    function showHiveTable(){
+
+        var option=$("#input_db_name option:selected");
+
+        $.get( Feng.ctxPath + '/confConnect/listHiveTableBydbName/'+option.val(),{
+        },function(res){
+            var options=""
+            for (var i=0;i<res.length;i++)
+            {
+                options=options+"<option value="+res[i]+">"+res[i]+"</option>"
+            }
+            $("#input_table_name").html(options)
+        },"json")
+    }
+</script>
+<script src="${ctxPath}/static/modular/bdp/jobInfo/JobConf.js"></script>
 </html>
 
 @}

@@ -4,14 +4,17 @@
         <div class="form-horizontal">
 
             <div class="row">
-                <div class="col-sm-12">
-                    <#select id="type" name="任务类型" underline="true" value="${item.type}">
+                <div class="col-sm-6 br">
+                    <#select id="type" name="类别" underline="true" value="${item.type}">
                     <option value="0">RDBMS</option>
                     <option value="1">FTP</option>
-                    </#select>
-                    <#input id="name" name="连接类型名称" value="${item.name}" underline="true"/>
-                    <#input id="desc" name="连接类型描述" value="${item.desc}" underline="true"/>
+                </#select>
+                <#input id="desc" name="连接类型名称" value="${item.name}" underline="true"/>
                 </div>
+            <div class="col-sm-6">
+            <#input id="desc" name="连接类型描述" value="${item.desc}" underline="true"/>
+            <#input id="driverClass" name="驱动类" value="${item.driverClass}" underline="true"/>
+        </div>
 
                 <div class="col-sm-12" hidden="hidden">
                     <#input id="id" name="编号" value="${item.id}" underline="false"/>

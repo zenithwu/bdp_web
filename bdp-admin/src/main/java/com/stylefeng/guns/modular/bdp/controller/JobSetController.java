@@ -2,15 +2,19 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.base.tips.ErrorTip;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
+import com.stylefeng.guns.core.util.jenkins.ProcUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +37,15 @@ import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 public class JobSetController extends BaseController {
 
     private String PREFIX = "/bdp/jobSet/";
-
+    @Autowired
+    private JenkinsConfig jenkinsConfig;
     @Autowired
     private IJobSetService jobSetService;
     @Autowired
     private IUserService userService;
-    @Autowired
-    private IConfConnectService confConnectService;
+
+
+
 
     /**
      * 跳转到任务集首页
@@ -92,8 +98,16 @@ public class JobSetController extends BaseController {
     public Object add(JobSet jobSet) {
         jobSet.setCreatePer(ShiroKit.getUser().getId());
         jobSet.setCreateTime(DateTimeKit.date());
-        jobSetService.insert(jobSet);
-        return SUCCESS_TIP;
+        if(jobSetService.insert(jobSet)){
+            try {
+                ProcUtil procUtil=new ProcUtil(jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+                procUtil.createProject(jobSet.getName());
+                return SUCCESS_TIP;
+            } catch (IOException e) {
+                return new ErrorTip(500,e.getMessage());
+            }
+        }
+        return new ErrorTip(500,"添加失败");
     }
 
     /**
@@ -102,8 +116,18 @@ public class JobSetController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Object delete(@RequestParam Integer jobSetId) {
-        jobSetService.deleteById(jobSetId);
-        return SUCCESS_TIP;
+
+        JobSet js=jobSetService.selectById(jobSetId);
+        if(jobSetService.deleteById(jobSetId)){
+            try {
+                ProcUtil procUtil=new ProcUtil(jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken());
+                procUtil.deleteProject(js.getName());
+                return SUCCESS_TIP;
+            } catch (IOException e) {
+                return new ErrorTip(500,e.getMessage());
+            }
+        }
+        return new ErrorTip(500,"删除失败");
     }
 
     /**

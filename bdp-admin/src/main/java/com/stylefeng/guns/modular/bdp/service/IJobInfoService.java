@@ -3,6 +3,8 @@ package com.stylefeng.guns.modular.bdp.service;
 import com.stylefeng.guns.modular.system.model.JobInfo;
 import com.baomidou.mybatisplus.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 任务信息表 服务类
@@ -33,4 +35,11 @@ public interface IJobInfoService extends IService<JobInfo> {
 	 * @return
 	 */
 	JobInfo selJobInfoByName(String name);
+
+	/**
+	 * 查询引用此任务的任务
+	 * @param id
+	 * @return
+	 */
+	public List<JobInfo> selJobDependByJobId(Integer id);
 }

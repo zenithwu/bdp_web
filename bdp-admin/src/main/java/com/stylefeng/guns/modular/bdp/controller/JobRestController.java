@@ -132,7 +132,8 @@ public class JobRestController extends BaseController {
                         Wrapper<JobInfo> jiWrapper = new EntityWrapper<>();
                         JobInfo jobInfo = jobInfoService.selectOne(jiWrapper.eq("name", jobName).eq("job_set_id",jobSet.getId()));
                         if (jobInfo!=null){
-
+                            //等待执行完毕
+                            Thread.sleep(5000);
                             BuildWithDetails buildWithDetails=new JobUtil(procName,jenkinsConfig.getUrl(),jenkinsConfig.getUser(),jenkinsConfig.getToken())
                                     .getJob(jobName)
                                     .getBuildByNumber(Integer.valueOf(buildNum))

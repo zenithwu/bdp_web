@@ -10,36 +10,32 @@
 <div class="contentpanel">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4 class="panel-title">任务名称</h4>
-            <p>这是任务描述这是任务描述</p>
+            <input id="jobId" value="${item.id}" hidden="hidden">
+            <h4 class="panel-title">${item.name}</h4>
+            <p>${item.desc}</p>
         </div>
         <div class="panel-body fl">
                 <!--表格-->
             <div class="textarea-model fl">
                 <div class="title">HQL语句</div>
-                <textarea class="textarea">insert into ods.t_ods_sfsfsf select *** where {yyyy-mm-dd}</textarea>
+                <textarea class="textarea" id="sql_statment">${jobConfig.sql_statment}</textarea>
                 <div class="btn-group fr mtop">
-                    <button class="btn btn-save">保存</button>
+                    <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
                 </div>
             </div>
             <div class="tabler-model fl">
                 <div class="title">调度设置</div>
                 <form>
                     <div class="form-group">
-                        <label class="col-th fl">定时执行</label>
+                        <label class="col-th col-th3 fl">定时执行</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="H/15 * * * *" />
+                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"  value="${jobConfig.schedule_crontab}"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-th fl">依赖执行</label>
+                        <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                            <!-- <input type="text" class="form-control" placeholder="test1,test2" /> -->
-                            <select class="form-control">
-                                 @for(jobInfoConfList in jobInfoConfList){
-		                        <option value=${jobInfoConfList.id}>${jobInfoConfList.value}</option>
-		                        @}
-		                     </select>
+                            <input type="text" id="schedule_depend" class="form-control" value="${jobConfig.schedule_depend}"/>
                         </div>
                     </div>
                 </form>
@@ -48,6 +44,7 @@
     </div>
 </div>
 </body>
+<script src="${ctxPath}/static/modular/bdp/jobInfo/JobConf.js"></script>
 </html>
 
 @}

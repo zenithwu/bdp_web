@@ -23,5 +23,5 @@ public interface IJobInfoConfService extends IService<JobInfoConf> {
 	 */
 	List<JobInfoConf> selJobInfoConfByJobInfoId(Integer id);
 
-	List<JobInfoConf> selJobDependByJobId(Integer id);
+	void upsertKVByJobId(List<JobInfoConf> jobInfoConfList);
 }
