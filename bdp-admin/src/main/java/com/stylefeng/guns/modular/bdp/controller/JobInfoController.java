@@ -197,8 +197,19 @@ public class JobInfoController extends BaseController {
     }
 
     private String wrapShell(String shell){
-        return jenkinsConfig.getBegin().replace("%%","$") +shell
-                +jenkinsConfig.getEnd().replace("%%","$");
+        String begin="source /etc/profile\n" +
+                "param=${time_hour}\n" +
+                "stat_date=`date +%Y-%m-%d`\n" +
+                "if [ -z '%param' ]; then\n" +
+                "param=`date +%Y-%m-%d %H:%M:%S`\n" +
+                "fi\n" +
+                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \""+jenkinsConfig.getBegin()+"\"\n" +
+                "function run(){\n";
+        String end="\n}\n" +
+                "run && (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \""+jenkinsConfig.getEnd()+"\" &) " +
+                "|| (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \""+jenkinsConfig.getEnd()+"\" & exit 1)";
+
+        return begin+shell+end;
     }
 
     /**
@@ -208,6 +219,10 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object delete(@RequestParam Integer jobInfoId) {
         JobInfo jobInfo=jobInfoService.selectById(jobInfoId);
+        if(jobInfo.getLastRunState()==LastRunState.RUNNING.getCode()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
+        }
+
        List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
@@ -257,6 +272,9 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object disableJobInfo(@RequestParam Integer jobInfoId){
         JobInfo jobInfo=jobInfoService.selectById(jobInfoId);
+        if(jobInfo.getLastRunState()==LastRunState.RUNNING.getCode()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
+        }
         List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
         if(icList.size()>0 && icList != null){
         	throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
@@ -295,6 +313,9 @@ public class JobInfoController extends BaseController {
 
         JobInfo job=jobInfoService.selectById(jobInfo.getId());
 
+        if(job.getLastRunState()==LastRunState.RUNNING.getCode()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
+        }
         if(JobStatus.DEACTIVE.getCode()==job.getEnable()){
             throw new GunsException(BizExceptionEnum.JOBINFO_NOTRUN);
         }else {

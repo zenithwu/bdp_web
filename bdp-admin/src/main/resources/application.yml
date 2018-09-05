@@ -46,8 +46,8 @@ spring:
       url: http://192.168.0.204:8080/
       user: rest_api
       token: rest_api
-      begin: "param=%%{time_hour}\nstat_date=`date +%Y-%m-%d`\nif [ -z '%param' ]; then\nparam=`date +%Y-%m-%d %H:%M:%S`\nfi\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}&params=%%{param}\" \"http://192.168.0.203:8080/rest/job_begin\"\n"
-      end: "\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}\" \"http://192.168.0.203:8080/rest/job_end\" &"
+      begin: http://192.168.0.203:8080/rest/job_begin
+      end: http://192.168.0.203:8080/rest/job_end
 
 #多数据源情况的配置
 guns:
@@ -74,8 +74,8 @@ spring:
       url: http://192.168.0.203:8080/
       user: rest_api
       token: rest_api
-      begin: "param=%%{time_hour}\nstat_date=`date +%Y-%m-%d`\nif [ -z '%param' ]; then\nparam=`date +%Y-%m-%d %H:%M:%S`\nfi\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}&params=%%{param}\" \"http://192.168.0.203:8080/rest/job_begin\"\n"
-      end: "\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}\" \"http://192.168.0.203:8080/rest/job_end\" &"
+      begin: http://192.168.0.203:8080/rest/job_begin
+      end: http://192.168.0.203:8080/rest/job_end
 
 ---
 
@@ -90,8 +90,8 @@ spring:
       url: http://192.168.0.203:8080/
       user: rest_api
       token: rest_api
-      begin: "param=%%{time_hour}\nstat_date=`date +%Y-%m-%d`\nif [ -z '%param' ]; then\nparam=`date +%Y-%m-%d %H:%M:%S`\nfi\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}&params=%%{param}\" \"http://192.168.0.203:8080/rest/job_begin\"\n"
-      end: "\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}\" \"http://192.168.0.203:8080/rest/job_end\" &"
+      begin: http://192.168.0.203:8080/rest/job_begin
+      end: http://192.168.0.203:8080/rest/job_end
 ---
 
 spring:
@@ -105,5 +105,5 @@ spring:
       url: http://192.168.0.203:8080/
       user: rest_api
       token: rest_api
-      begin: "param=%%{time_hour}\nstat_date=`date +%Y-%m-%d`\nif [ -z '%param' ]; then\nparam=`date +%Y-%m-%d %H:%M:%S`\nfi\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}&params=%%{param}\" \"http://192.168.0.203:8080/rest/job_begin\"\n"
-      end: "\ncurl -d \"jobName=%%{JOB_NAME}&number=%%{BUILD_NUMBER}&stat_date=%%{stat_date}\" \"http://192.168.0.203:8080/rest/job_end\" &"
+      begin: http://192.168.0.203:8080/rest/job_begin
+      end: http://192.168.0.203:8080/rest/job_end
