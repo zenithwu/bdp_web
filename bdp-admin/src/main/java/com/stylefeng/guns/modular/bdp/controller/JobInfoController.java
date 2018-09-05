@@ -355,8 +355,7 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object saveInputData(JobConfig jobConfig) {
         //转换特殊字符
-//        jobConfig.setSql_statment(StringEscapeUtils.unescapeHtml(jobConfig.getSql_statment()));
-
+        jobConfig.setSql_statment(unescapeHtml(jobConfig.getSql_statment()));
         jobInfoConfService.upsertKVByJobId(JobConfig.jobConfigTolist(jobConfig));
         JobInfo jobInfo=jobInfoService.selectById(jobConfig.getJobId());
         jobInfo.setModPer(ShiroKit.getUser().getId());
@@ -395,5 +394,13 @@ public class JobInfoController extends BaseController {
         }
 
         return SUCCESS_TIP;
+    }
+
+    private String unescapeHtml(String str){
+        if(str!=null) {
+            return StringEscapeUtils.unescapeHtml(str.replaceAll("& #", "&#"));
+        }else {
+            return null;
+        }
     }
 }
