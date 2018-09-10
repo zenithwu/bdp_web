@@ -89,23 +89,32 @@ public class JobXML {
      * @param params time_hour
      */
     public JobXML setUpstreams(String projects,String params){
-        Element triggers =this.jobXml.getRootElement().element("triggers");
-        if (null==triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger")){
-            Element ele=triggers.addElement("org.lonkar.jobfanin.FanInReverseBuildTrigger")
-                    .addAttribute("plugin",Constant.PLUGIN_VERSION);
+        Element triggers = this.jobXml.getRootElement().element("triggers");
+        if(StringUtils.isNotEmpty(projects)) {
+            if (null == triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger")) {
+                Element ele = triggers.addElement("org.lonkar.jobfanin.FanInReverseBuildTrigger")
+                        .addAttribute("plugin", Constant.PLUGIN_VERSION);
 
-            ele.addElement("upstreamProjects").setText(projects);
-            ele.addElement("upstreamParams").setText(params);
-            ele.addElement("spec");
-            Element threshold=ele.addElement("threshold");
-            threshold.addElement("name").setText("SUCCESS");
-            threshold.addElement("ordinal").setText("0");
-            threshold.addElement("color").setText("BLUE");
-            threshold.addElement("completeBuild").setText("true");
+                ele.addElement("upstreamProjects").setText(projects);
+                ele.addElement("upstreamParams").setText(params);
+                ele.addElement("spec");
+                Element threshold = ele.addElement("threshold");
+                threshold.addElement("name").setText("SUCCESS");
+                threshold.addElement("ordinal").setText("0");
+                threshold.addElement("color").setText("BLUE");
+                threshold.addElement("completeBuild").setText("true");
+            } else {
+                Element procEle = triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger");
+                procEle.element("upstreamProjects").setText(projects);
+                procEle.element("upstreamParams").setText(params);
+            }
         }else{
-            Element procEle=triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger");
-            procEle.element("upstreamProjects").setText(projects);
-            procEle.element("upstreamParams").setText(params);
+
+            //删除 依赖设置
+            if (null != triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger")) {
+                triggers.remove(triggers.element("org.lonkar.jobfanin.FanInReverseBuildTrigger"));
+            }
+
         }
         return this;
     }
@@ -134,11 +143,20 @@ public class JobXML {
     }
 
     public JobXML setCrontab(String crontab){
-        Element triggers =this.jobXml.getRootElement().element("triggers");
-        if (null==triggers.element("hudson.triggers.TimerTrigger")){
-            triggers.addElement("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
+
+        Element triggers = this.jobXml.getRootElement().element("triggers");
+        if(StringUtils.isNotEmpty(crontab)) {
+            if (null == triggers.element("hudson.triggers.TimerTrigger")) {
+                triggers.addElement("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
+            } else {
+                triggers.element("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
+            }
         }else{
-            triggers.element("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
+            //删除crontab
+            if (null != triggers.element("hudson.triggers.TimerTrigger")) {
+                triggers.remove(triggers.element("hudson.triggers.TimerTrigger"));
+            }
+
         }
         return this;
     }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
+    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css"/>
 </head>
 <body>
 <div class="contentpanel">
@@ -24,12 +24,12 @@
                         <label class="col-th col-th3 fl">输入方式</label>
                         <div class="col-input">
                             <select class="form-control" id="input_input_type">
-                                @if(jobConfig !=null && jobConfig.input_input_type=='sql语句'){
-                                <option>表名称</option>
-                                <option selected="selected">sql语句</option>
+                                @if(jobConfig !=null && jobConfig.input_input_type=='tablename'){
+                                <option selected="selected" value="tablename">表名称</option>
+                                <option value="sql">sql语句</option>
                                 @}else{
-                                <option selected="selected">表名称</option>
-                                <option>sql语句</option>
+                                <option value="tablename">表名称</option>
+                                <option selected="selected" value="sql">sql语句</option>
                                 @}
                             </select>
                         </div>
@@ -65,13 +65,15 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据分区</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1" id="output_data_partition" value="${jobConfig.output_data_partition}"/>
+                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1"
+                                   id="output_data_partition" value="${jobConfig.output_data_partition}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">sql语句</label>
                         <div class="col-input">
-                            <textarea id="input_input_content" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
+                            <textarea id="input_input_content" class="form-control" rows="10"
+                                      placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
                 </form>
@@ -110,19 +112,20 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据表</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1" id="output_table_name" value="${jobConfig.output_table_name}"/>
+                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1"
+                                   id="output_table_name" value="${jobConfig.output_table_name}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">写入模式</label>
                         <div class="col-input">
                             <select class="form-control" id="output_write_model">
-                                @if(jobConfig !=null && jobConfig.output_write_model=='覆盖'){
-                                <option>追加</option>
-                                <option selected="selected">覆盖</option>
+                                @if(jobConfig !=null && jobConfig.output_write_model=='append'){
+                                <option selected="selected" value="append">追加</option>
+                                <option value="overwrite">覆盖</option>
                                 @}else{
-                                <option selected="selected">追加</option>
-                                <option>覆盖</option>
+                                <option value="append">追加</option>
+                                <option selected="selected" value="overwrite">覆盖</option>
                                 @}
                             </select>
                         </div>
@@ -130,7 +133,9 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">前置语句</label>
                         <div class="col-input">
-                            <textarea class="form-control" placeholder="delete from tables where time ='{yyyy-mm-dd}'" id="output_pre_statment">${jobConfig.output_pre_statment}</textarea>
+                            <textarea class="form-control" rows="10"
+                                      placeholder="delete from tables where time ='{yyyy-mm-dd}'"
+                                      id="output_pre_statment">${jobConfig.output_pre_statment}</textarea>
                         </div>
                     </div>
                 </form>
@@ -141,13 +146,15 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">定时执行</label>
                         <div class="col-input">
-                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"  value="${jobConfig.schedule_crontab}"/>
+                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"
+                                   value="${jobConfig.schedule_crontab}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                            <input type="text" id="schedule_depend" class="form-control" value="${jobConfig.schedule_depend}"/>
+                            <input type="text" id="schedule_depend" class="form-control"
+                                   value="${jobConfig.schedule_depend}"/>
                         </div>
                     </div>
                 </form>
@@ -163,48 +170,44 @@
 </div>
 </body>
 <script type="text/javascript">
-    $(function() {
+    $(function () {
         showOutConnect();
         showHiveTable();
 
-        $("#output_connect_type").change(function(){
+        $("#output_connect_type").change(function () {
             showConnect();
         })
     })
 
-    $("#input_db_name").change(function(){
+    $("#input_db_name").change(function () {
         showHiveTable();
     })
 
 
-    function showOutConnect(){
-        var option=$("#output_connect_type option:selected");
-        $.get( Feng.ctxPath + '/confConnect/listByTypeId/'+option.val(),{
-        },function(res){
+    function showOutConnect() {
+        var option = $("#output_connect_type option:selected");
+        $.get(Feng.ctxPath + '/confConnect/listByTypeId/' + option.val(), {}, function (res) {
 
-            var options=""
-            for (var i=0;i<res.length;i++)
-            {
-                options=options+"<option value="+res[i].id+">"+res[i].name+"</option>"
+            var options = ""
+            for (var i = 0; i < res.length; i++) {
+                options = options + "<option value=" + res[i].id + ">" + res[i].name + "</option>"
             }
             $("#output_connect_id").html(options)
-        },"json")
+        }, "json")
     }
 
 
-    function showHiveTable(){
+    function showHiveTable() {
 
-        var option=$("#input_db_name option:selected");
+        var option = $("#input_db_name option:selected");
 
-        $.get( Feng.ctxPath + '/confConnect/listHiveTableBydbName/'+option.val(),{
-        },function(res){
-            var options=""
-            for (var i=0;i<res.length;i++)
-            {
-                options=options+"<option value="+res[i]+">"+res[i]+"</option>"
+        $.get(Feng.ctxPath + '/confConnect/listHiveTableBydbName/' + option.val(), {}, function (res) {
+            var options = ""
+            for (var i = 0; i < res.length; i++) {
+                options = options + "<option value=" + res[i] + ">" + res[i] + "</option>"
             }
             $("#input_table_name").html(options)
-        },"json")
+        }, "json")
     }
 </script>
 <script src="${ctxPath}/static/modular/bdp/jobInfo/jobConf.js"></script>

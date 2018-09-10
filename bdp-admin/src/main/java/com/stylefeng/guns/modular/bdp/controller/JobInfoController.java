@@ -30,10 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 任务信息控制器
@@ -370,7 +367,17 @@ public class JobInfoController extends BaseController {
             if(! jobUtil.ifJobExists(jobInfo.getName())){
                 jobUtil.createJob(jobInfo.getName(),"desc","");
             }
-        } catch (IOException e) {
+            jobUtil.setJobCronTab(jobInfo.getName(),jobConfig.getSchedule_crontab());
+            if(StringUtils.isNotEmpty(jobConfig.getSchedule_crontab())) {
+                //如果已经有了定时crontab忽略依赖设置
+                jobUtil.setDependsJob(jobInfo.getName(), "");
+            }else{
+                //jenkins中存储的格式不要前后的逗号
+                jobUtil.setDependsJob(jobInfo.getName(), jobConfig.getSchedule_depend().replaceFirst(",", ""));
+            }
+
+
+        } catch (Exception e) {
             return new ErrorTip(500, e.getMessage());
         }
 
@@ -410,7 +417,37 @@ public class JobInfoController extends BaseController {
                 }
                 //数据推送
                 case 4: {
+                    List<String> cmdList = new ArrayList<String>();
+                    Map<String, String> jdbcUrl = createJdbcUrl(jobConfig);
+                    String sql_statement = null;
 
+                    // 构造SQL statement
+                    if (jobConfig.getInput_input_type().equals("sql")) {// sql方式
+                        sql_statement = jobConfig.getInput_input_content();
+                    } else { // 表方式
+
+                    }
+                    // 构造命令
+                    cmdList.add("/bin/spark2-submit");
+                    cmdList.add("--class com.jp863.scala.ExportHiveToMysql");
+                    cmdList.add("--jars /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar,/opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar");
+                    cmdList.add("hdfs:///spark-lib/spark-help-1.0.0.jar");
+                    if (sql_statement != null) {
+                        cmdList.add("\'" + sql_statement + "\'");
+                    }
+                    if (jobConfig.getOutput_table_name() != null) {
+                        cmdList.add(jobConfig.getOutput_table_name());
+                    }
+                    cmdList.add(jdbcUrl.get("url"));
+                    cmdList.add(jdbcUrl.get("user"));
+                    cmdList.add(jdbcUrl.get("password"));
+                    shell = String.join(" ", cmdList.toArray(new String[cmdList.size()]));
+
+                    try {
+                        jobUtil.setJobCmd(jobInfo.getName(), wrapShell(shell));
+                    } catch (Exception e) {
+                        return new ErrorTip(500, e.getMessage());
+                    }
 
                     break;
                 }
@@ -420,6 +457,26 @@ public class JobInfoController extends BaseController {
         }
 
         return SUCCESS_TIP;
+    }
+
+    private Map<String, String> createJdbcUrl(JobConfig jobConfig) {
+        ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
+
+        Map<String, String> urlParms = new HashMap<String, String>();
+
+        ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
+        String url = null;
+        if (confConnectType.getType().equals(0)) { // rdbms
+            // 此处不能判断到数据库的类型, 只支持mysql
+            url = String.format("jdbc:mysql://%s:%s/%s", conf.getHost(), conf.getPort(), conf.getDbname());
+        } else { // ftp
+
+        }
+        urlParms.put("url", url);
+        urlParms.put("user", conf.getUsername());
+        urlParms.put("password", conf.getPassword());
+
+        return urlParms;
     }
 
 

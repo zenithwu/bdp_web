@@ -383,7 +383,7 @@ public class JobConfig{
         for (Object k:map.keySet()
              ) {
 
-            if(map.get(k) !=null && !("".equals(map.get(k))) && !("class".equals(k))) {
+            if(map.get(k) !=null && !("class".equals(k))) {
                 JobInfoConf conf = new JobInfoConf();
                 conf.setKey(String.valueOf(k));
                 conf.setValue(String.valueOf(map.get(k)));
