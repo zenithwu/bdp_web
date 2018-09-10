@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css" />
+    <link rel="stylesheet" href="${ctxPath}/static/css/me-style.css"/>
 </head>
 <body>
 <div class="contentpanel">
@@ -24,13 +24,13 @@
                         <div class="col-input">
                             <!--<input type="text" class="form-control" placeholder="mysql" />-->
                             <select class="form-control" id="input_connect_type">
-                            @for(ConfConnectType in allConfConnectType){
+                                @for(ConfConnectType in allConfConnectType){
                                 @if(jobConfig !=null && jobConfig.input_connect_type == ConfConnectType.id){
                                 <option value=${ConfConnectType.id} selected="selected">${ConfConnectType.name}</option>
                                 @}else{
                                 <option value=${ConfConnectType.id}>${ConfConnectType.name}</option>
                                 @}
-		                    @}
+                                @}
                             </select>
                         </div>
                     </div>
@@ -50,36 +50,24 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">输入方式</label>
+                        <label class="col-th col-th3 fl">sql语句</label>
                         <div class="col-input">
-                            <select class="form-control" id="input_input_type">
-                                @if(jobConfig !=null && jobConfig.input_input_type=='sql语句'){
-                                <option>表名称</option>
-                                <option selected="selected">sql语句</option>
-                                @}else{
-                                <option selected="selected">表名称</option>
-                                <option>sql语句</option>
-                                @}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">sql语句/数据表</label>
-                        <div class="col-input">
-                            <textarea id="input_input_content" class="form-control" placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
+                            <textarea id="input_input_content" class="form-control"
+                                      placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-th col-th3 fl">文件位置</label>
                         <div class="col-input">
-                            <input type="text" id="input_file_position" class="form-control" placeholder=""  value="${jobConfig.input_file_position}"/>
+                            <input type="text" id="input_file_position" class="form-control" placeholder=""
+                                   value="${jobConfig.input_file_position}"/>
                         </div>
                     </div>
-                    
+
                 </form>
             </div>
-            
+
             <div class="tabler-model3 fl">
                 <div class="title">输出设置</div>
                 <form>
@@ -115,12 +103,12 @@
                         <label class="col-th col-th3 fl">写入模式</label>
                         <div class="col-input">
                             <select class="form-control" id="output_write_model">
-                                @if(jobConfig !=null && jobConfig.output_write_model=='覆盖'){
-                                <option>追加</option>
-                                <option selected="selected">覆盖</option>
+                                @if(jobConfig !=null && jobConfig.output_write_model=='append'){
+                                <option selected="selected" value="append">追加</option>
+                                <option value="overwrite">覆盖</option>
                                 @}else{
-                                <option selected="selected">追加</option>
-                                <option>覆盖</option>
+                                <option value="append">追加</option>
+                                <option selected="selected" value="overwrite">覆盖</option>
                                 @}
                             </select>
                         </div>
@@ -128,7 +116,8 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据分区</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1" id="output_data_partition" value="${jobConfig.output_data_partition}"/>
+                            <input type="text" class="form-control" placeholder="pt1={yyyy-mm},pt2={yyyy-mm-dd}"
+                                   id="output_data_partition" value="${jobConfig.output_data_partition}"/>
                         </div>
                     </div>
                 </form>
@@ -139,21 +128,23 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">定时执行</label>
                         <div class="col-input">
-                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"  value="${jobConfig.schedule_crontab}"/>
+                            <input type="text" id="schedule_crontab" class="form-control" placeholder="H/15 * * * *"
+                                   value="${jobConfig.schedule_crontab}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                            <input type="text" id="schedule_depend" class="form-control" value="${jobConfig.schedule_depend}"/>
+                            <input type="text" id="schedule_depend" class="form-control"
+                                   value="${jobConfig.schedule_depend}"/>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        
-       <div class="panel-body fl">
-       <div class="tabler-model3">
+
+        <div class="panel-body fl">
+            <div class="tabler-model3">
                 <div class="title">高级设置</div>
                 <form>
                     <div class="form-group">
@@ -161,12 +152,12 @@
                         <div class="col-input">
                             <!--<input type="text" class="form-control" placeholder="mysql" />-->
                             <select class="form-control" id="hight_resource">
-                                @if(jobConfig !=null && jobConfig.hight_resource=='本地资源'){
-                                <option>集群资源</option>
-                                <option selected="selected">本地资源</option>
+                                @if(jobConfig !=null && jobConfig.hight_resource=='cluster'){
+                                <option selected="selected" value="cluster">集群资源</option>
+                                <option value="local">本地资源</option>
                                 @}else{
-                                <option selected="selected">集群资源</option>
-                                <option>本地资源</option>
+                                <option value="cluster">集群资源</option>
+                                <option selected="selected" value="local">本地资源</option>
                                 @}
                             </select>
                         </div>
@@ -174,18 +165,20 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">线程数</label>
                         <div class="col-input">
-                            <input id="hight_thread" type="text" class="form-control" placeholder="2" value="${jobConfig.hight_thread}" />
+                            <input id="hight_thread" type="text" class="form-control" placeholder="1"
+                                   value="${jobConfig.hight_thread}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-th col-th3 fl">文件数</label>
                         <div class="col-input">
-                            <input id="hight_file_num" type="text" class="form-control" placeholder="10"  value="${jobConfig.hight_file_num}"/>
+                            <input id="hight_file_num" type="text" class="form-control" placeholder="1"
+                                   value="${jobConfig.hight_file_num}"/>
                         </div>
                     </div>
                 </form>
             </div>
-            
+
             <!--保存-->
             <div class="btn-group fr mtop total-btn">
                 <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
@@ -195,48 +188,44 @@
 </div>
 </body>
 <script type="text/javascript">
-    $(function() {
+    $(function () {
         showInConnect();
-        showHiveTable();
+//        showHiveTable();
 
-        $("#input_connect_type").change(function(){
+        $("#input_connect_type").change(function () {
             showInConnect();
-        	})
         })
+    })
 
-        $("#output_db_name").change(function(){
-            showHiveTable();
-        })
+    $("#output_db_name").change(function () {
+        showHiveTable();
+    })
 
 
-    function showInConnect(){
-        	var option=$("#input_connect_type option:selected");
-            $.get( Feng.ctxPath + '/confConnect/listByTypeId/'+option.val(),{
-        	},function(res){
+    function showInConnect() {
+        var option = $("#input_connect_type option:selected");
+        $.get(Feng.ctxPath + '/confConnect/listByTypeId/' + option.val(), {}, function (res) {
 
-                var options=""
-                for (var i=0;i<res.length;i++)
-                {
-                    options=options+"<option value="+res[i].id+">"+res[i].name+"</option>"
-                }
-                $("#input_connect_id").html(options)
-        	},"json")
+            var options = ""
+            for (var i = 0; i < res.length; i++) {
+                options = options + "<option value=" + res[i].id + ">" + res[i].name + "</option>"
+            }
+            $("#input_connect_id").html(options)
+        }, "json")
     }
 
 
-    function showHiveTable(){
+    function showHiveTable() {
 
-        var option=$("#output_db_name option:selected");
+        var option = $("#output_db_name option:selected");
 
-        $.get( Feng.ctxPath + '/confConnect/listHiveTableBydbName/'+option.val(),{
-        },function(res){
-            var options=""
-            for (var i=0;i<res.length;i++)
-            {
-                options=options+"<option value="+res[i]+">"+res[i]+"</option>"
+        $.get(Feng.ctxPath + '/confConnect/listHiveTableBydbName/' + option.val(), {}, function (res) {
+            var options = ""
+            for (var i = 0; i < res.length; i++) {
+                options = options + "<option value=" + res[i] + ">" + res[i] + "</option>"
             }
             $("#output_table_name").html(options)
-        },"json")
+        }, "json")
     }
 
 </script>
