@@ -34,24 +34,13 @@ public class JenkinsConfig {
     private  String url;
     private  String user;
     private  String token;
+    private String rest_url;
 
-    public String getBegin() {
-        return begin;
+    public String getRest_url() {
+        return rest_url;
     }
 
-    public void setBegin(String begin) {
-        this.begin = begin;
+    public void setRest_url(String rest_url) {
+        this.rest_url = rest_url;
     }
-
-    public String getEnd() {
-        return end;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    private  String begin;
-    private  String end;
-
 }

@@ -121,13 +121,13 @@ public class JobInfoController extends BaseController {
                 connects = confConnectService.selectList(wrapper);
             }
         }
-
+        HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
         //查询输出的数据库集合
-        List<String> dbList = HiveUtil.getDataBases();
+        List<String> dbList = hiveUtil.getDataBases();
         //查询输出的该数据库的所有的表的集合
         List<String> tableList = new ArrayList<>();
         if (jobConfig.getOutput_db_name() != null) {
-            tableList = HiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
+            tableList = hiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
         }
         model.addAttribute("allConfConnectType", allConfConnectType);
         model.addAttribute("connects", connects);
@@ -202,11 +202,11 @@ public class JobInfoController extends BaseController {
                 "if [ -z '%param' ]; then\n" +
                 "param=`date +%Y-%m-%d %H:%M:%S`\n" +
                 "fi\n" +
-                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getBegin() + "\"\n" +
+                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url()+ "/rest/job_begin\"\n" +
                 "function run(){\n";
         String end = "\n}\n" +
-                "run && (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getEnd() + "\" &) " +
-                "|| (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getEnd() + "\" & exit 1)";
+                "run && (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_end\" &) " +
+                "|| (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_end\" & exit 1)";
 
         return begin + shell + end;
     }
@@ -321,7 +321,7 @@ public class JobInfoController extends BaseController {
             throw new GunsException(BizExceptionEnum.JOBINFO_NOTRUN);
         } else {
             //启用状态
-//            job.setLastRunState(LastRunState.RUNNING.getCode());
+
             if (jobInfoService.updateById(job)) {
 
                 JobUtil jobUtil = new JobUtil(jobSetService.selectById(job.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
@@ -329,6 +329,8 @@ public class JobInfoController extends BaseController {
                     Map<String, String> params = new HashMap<>();
                     params.put("time_hour", time_hour);
                     jobUtil.runJob(job.getName(), params);
+                    //修改最近一次执行状态为运行中
+                    job.setLastRunState(LastRunState.RUNNING.getCode());
                     return SUCCESS_TIP;
                 } catch (Exception e) {
                     return new ErrorTip(500, e.getMessage());
@@ -362,7 +364,17 @@ public class JobInfoController extends BaseController {
         jobInfo.setModPer(ShiroKit.getUser().getId());
         jobInfo.setModTime(DateTimeKit.date());
         JobUtil jobUtil = new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
-        String beelineCmd = hiveConfig.getBeeline() + jobConfig.getOutput_db_name();
+
+        //job在jenkins里不存在则创建一个
+        try {
+            if(! jobUtil.ifJobExists(jobInfo.getName())){
+                jobUtil.createJob(jobInfo.getName(),"desc","");
+            }
+        } catch (IOException e) {
+            return new ErrorTip(500, e.getMessage());
+        }
+
+        String beelineCmd = hiveConfig.getBeeline()+" "+hiveConfig.getUrl() + jobConfig.getOutput_db_name();
         if (jobInfoService.updateById(jobInfo)) {
             String shell = "";
             switch (jobInfo.getTypeId()) {

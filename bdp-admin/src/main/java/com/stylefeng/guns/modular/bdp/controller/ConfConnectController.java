@@ -2,6 +2,7 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.stylefeng.guns.config.properties.HiveConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
@@ -41,7 +42,8 @@ public class ConfConnectController extends BaseController {
     private IUserService userService;
     @Autowired
     private IConfConnectTypeService contypeService;
-
+    @Autowired
+    private HiveConfig hiveConfig;
     /**
      * 跳转到配置连接首页
      */
@@ -55,6 +57,9 @@ public class ConfConnectController extends BaseController {
      */
     @RequestMapping("/confConnect_add")
     public String confConnectAdd() {
+
+        List<ConfConnectType> typeList = contypeService.selectList(null);
+        super.setAttr("typeList", typeList);
         return PREFIX + "confConnect_add.html";
     }
 
@@ -64,6 +69,8 @@ public class ConfConnectController extends BaseController {
     @RequestMapping("/confConnect_update/{confConnectId}")
     public String confConnectUpdate(@PathVariable Integer confConnectId, Model model) {
         ConfConnect confConnect = confConnectService.selectById(confConnectId);
+        List<ConfConnectType> typeList = contypeService.selectList(null);
+        model.addAttribute("typeList", typeList);
         model.addAttribute("item",confConnect);
         LogObjectHolder.me().set(confConnect);
         return PREFIX + "confConnect_edit.html";
@@ -147,6 +154,7 @@ public class ConfConnectController extends BaseController {
     @RequestMapping(value = "/listHiveTableBydbName/{dbName}")
     @ResponseBody
     public Object listHiveTableBydbName(@PathVariable("dbName") String dbName) {
-        return HiveUtil.getTablesByDbName(dbName);
+        HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
+        return hiveUtil.getTablesByDbName(dbName);
     }
 }

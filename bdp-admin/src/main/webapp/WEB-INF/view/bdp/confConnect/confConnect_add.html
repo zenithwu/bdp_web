@@ -6,7 +6,12 @@
             <div class="row">
                 <div class="col-sm-6 b-r">
                     <#input id="name" name="连接名称" underline="false"/>
-                    <#input id="typeId" name="连接类型" underline="false"/>
+                    <#select id="typeId" name="连接类型" underline="false">
+                    @for(type in typeList){
+                    <option value=${type.id}>${type.name}</option>
+                    @}
+                </#select>
+
                     <#input id="username" name="用户名称" underline="false"/>
                     <#input id="password"  type="password" name="密码" underline="true"/>
                 </div>

@@ -46,10 +46,11 @@ spring:
       url: http://192.168.0.204:8080
       user: rest_api
       token: rest_api
-      begin: http://192.168.0.203:8080/rest/job_begin
-      end: http://192.168.0.203:8080/rest/job_end
+      rest_url: http://192.168.0.203:8080
   hive:
-      beeline: /bin/beeline -n hdfs -p hdfs -u jdbc:hive2://bdata003:10000/
+      beeline: /bin/beeline -n hdfs -p hdfs -u
+      url: jdbc:hive2://bdata003:10000/
+
 
 
 
@@ -75,13 +76,14 @@ spring:
     db-name: bdp #用来搜集数据库的所有表
     filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.203:8080/
+      url: http://192.168.0.204:8080
       user: rest_api
       token: rest_api
-      begin: http://192.168.0.203:8080/rest/job_begin
-      end: http://192.168.0.203:8080/rest/job_end
+      rest_url: http://192.168.0.203:8080
   hive:
-      beeline: beeline -n hive -p hive -u jdbc:hive2://bdata003:10000/
+      beeline: /bin/beeline -n hdfs -p hdfs -u
+      url: jdbc:hive2://bdata003:10000/
+
 
 ---
 
@@ -93,13 +95,14 @@ spring:
     password: bdp
     filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.203:8080/
+      url: http://192.168.0.204:8080
       user: rest_api
       token: rest_api
-      begin: http://192.168.0.203:8080/rest/job_begin
-      end: http://192.168.0.203:8080/rest/job_end
+      rest_url: http://192.168.0.203:8080
   hive:
-      beeline: beeline -n hive -p hive -u jdbc:hive2://bdata003:10000/
+      beeline: /bin/beeline -n hdfs -p hdfs -u
+      url: jdbc:hive2://bdata003:10000/
+
 
 ---
 
@@ -111,11 +114,12 @@ spring:
       password: bdp
       filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.203:8080/
+      url: http://192.168.0.204:8080
       user: rest_api
       token: rest_api
-      begin: http://192.168.0.203:8080/rest/job_begin
-      end: http://192.168.0.203:8080/rest/job_end
+      rest_url: http://192.168.0.203:8080
   hive:
-      beeline: beeline -n hive -p hive -u jdbc:hive2://bdata003:10000/
+      beeline: /bin/beeline -n hdfs -p hdfs -u
+      url: jdbc:hive2://bdata003:10000/
+
 

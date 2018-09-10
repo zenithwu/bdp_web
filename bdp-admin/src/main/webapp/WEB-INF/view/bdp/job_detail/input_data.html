@@ -190,7 +190,10 @@
 <script type="text/javascript">
     $(function () {
         showInConnect();
-//        showHiveTable();
+
+        if ( $("#output_table_name").val()==null){
+            showHiveTable();
+        }
 
         $("#input_connect_type").change(function () {
             showInConnect();

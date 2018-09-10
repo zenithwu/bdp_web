@@ -11,16 +11,21 @@ import java.util.List;
 public class HiveUtil {
 
 
-    private static Logger log = LoggerFactory.getLogger(HiveUtil.class);
-    private static Connection con;
+    private  Logger log = LoggerFactory.getLogger(HiveUtil.class);
+    private  Connection con;
 
-    static {
+
+
+    public  HiveUtil(String serverUrl){
+
         try {
             Class.forName("org.apache.hive.jdbc.HiveDriver");
-            con = DriverManager.getConnection("jdbc:hive2://bdata003:10000/","hdfs","hdfs");
+            con = DriverManager.getConnection(serverUrl,"hdfs","hdfs");
+//            con = DriverManager.getConnection("jdbc:hive2://bdata003:10000/","hdfs","hdfs");
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+
     }
 
     /**
@@ -29,7 +34,7 @@ public class HiveUtil {
      * @author wuzhanwei
      * @Date 2018/08/30 下午4:15
      */
-    public static List<String> getDataBases( ) {
+    public  List<String> getDataBases( ) {
 
         List<String> list=new ArrayList<>();
 
@@ -51,7 +56,7 @@ public class HiveUtil {
      * @author wuzhanwei
      * @Date 2018/08/30 下午4:15
      */
-    public static List<String> getTablesByDbName(String dbName ) {
+    public  List<String> getTablesByDbName(String dbName ) {
 
         List<String> list=new ArrayList<>();
         try{
@@ -69,7 +74,7 @@ public class HiveUtil {
     public static void main(String[] args) throws ClassNotFoundException {
 
 //        System.out.println(getDataBases());
-        System.out.println(getTablesByDbName("default"));
+//        System.out.println(getTablesByDbName("default"));
 
 
     }
