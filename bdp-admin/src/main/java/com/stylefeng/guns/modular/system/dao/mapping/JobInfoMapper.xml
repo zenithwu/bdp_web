@@ -44,7 +44,7 @@
     <select id="selJobDependByJobId" parameterType="int" resultMap="BaseResultMap">
 
     SELECT a.* FROM job_info a inner join job_info b on a.job_set_id=b.job_set_id and b.id=#{_parameter}
-    inner join  job_info_conf c on  c.`key`="schedule_depend"  and c.job_info_id =a.id and c.value like concat('%',b.name,'%')
+    inner join  job_info_conf c on  c.`key`="schedule_depend"  and c.job_info_id =a.id and c.value like concat('%,',b.name,',%')
 
 	</select>
 

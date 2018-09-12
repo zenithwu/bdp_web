@@ -1,7 +1,5 @@
 package com.stylefeng.guns.modular.system.model;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +113,7 @@ public class JobConfig{
     //spark.driver.memory
     private String  resource_dm;
     //spark.driver.cores
-    private String  resource_sc;
+    private String resource_dc;
     //spark.executor.memory
     private String  resource_em;
     //spark.executor.cores
@@ -313,12 +311,12 @@ public class JobConfig{
         this.resource_dm = resource_dm;
     }
 
-    public String getResource_sc() {
-        return resource_sc;
+    public String getResource_dc() {
+        return resource_dc;
     }
 
-    public void setResource_sc(String resource_sc) {
-        this.resource_sc = resource_sc;
+    public void setResource_dc(String resource_dc) {
+        this.resource_dc = resource_dc;
     }
 
     public String getResource_em() {

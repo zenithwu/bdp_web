@@ -15,6 +15,7 @@ import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
+import com.stylefeng.guns.core.util.JobConfUtil;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.*;
 import com.stylefeng.guns.modular.system.model.*;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.*;
+
+import static com.stylefeng.guns.core.common.exception.BizExceptionEnum.SERVER_ERROR;
 
 /**
  * 任务信息控制器
@@ -181,10 +184,10 @@ public class JobInfoController extends BaseController {
             if (jobInfoService.insert(jobInfo)) {
                 JobUtil jobUtil = new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
                 try {
-                    jobUtil.createJob(jobInfo.getName(), jobInfo.getDesc(), wrapShell(""));
+                    jobUtil.createJob(jobInfo.getName(), jobInfo.getDesc(), JobConfUtil.wrapShell("",jenkinsConfig));
                     return SUCCESS_TIP;
                 } catch (IOException e) {
-                    return new ErrorTip(500, e.getMessage());
+                    throw new GunsException(SERVER_ERROR);
                 }
 
             }
@@ -192,21 +195,8 @@ public class JobInfoController extends BaseController {
         }
     }
 
-    private String wrapShell(String shell) {
-        String begin = "source /etc/profile\n" +
-                "param=${time_hour}\n" +
-                "stat_date=`date +%Y-%m-%d`\n" +
-                "if [ -z '%param' ]; then\n" +
-                "param=`date +%Y-%m-%d %H:%M:%S`\n" +
-                "fi\n" +
-                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url()+ "/rest/job_begin\"\n" +
-                "function run(){\n";
-        String end = "\n}\n" +
-                "run && (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_end\" &) " +
-                "|| (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_end\" & exit 1)";
 
-        return begin + shell + end;
-    }
+
 
     /**
      * 删除任务信息
@@ -231,7 +221,7 @@ public class JobInfoController extends BaseController {
                         jobUtil.deleteJob(jobInfo.getName());
                         return SUCCESS_TIP;
                     } catch (IOException e) {
-                        return new ErrorTip(500, e.getMessage());
+                        throw new GunsException(SERVER_ERROR);
                     }
                 }
             }
@@ -254,7 +244,7 @@ public class JobInfoController extends BaseController {
                 jobUtil.enableJob(jobInfo.getName());
                 return SUCCESS_TIP;
             } catch (Exception e) {
-                return new ErrorTip(500, e.getMessage());
+                throw new GunsException(SERVER_ERROR);
             }
         }
         return SUCCESS_TIP;
@@ -284,7 +274,7 @@ public class JobInfoController extends BaseController {
                     jobUtil.disableJob(jobInfo.getName());
                     return SUCCESS_TIP;
                 } catch (Exception e) {
-                    return new ErrorTip(500, e.getMessage());
+                    throw new GunsException(SERVER_ERROR);
                 }
             }
             return SUCCESS_TIP;
@@ -330,7 +320,7 @@ public class JobInfoController extends BaseController {
                     job.setLastRunState(LastRunState.RUNNING.getCode());
                     return SUCCESS_TIP;
                 } catch (Exception e) {
-                    return new ErrorTip(500, e.getMessage());
+                    throw new GunsException(SERVER_ERROR);
                 }
             }
             return SUCCESS_TIP;
@@ -356,6 +346,23 @@ public class JobInfoController extends BaseController {
     public Object saveInputData(JobConfig jobConfig) {
         //转换特殊字符
         jobConfig.setSql_statment(unescapeHtml(jobConfig.getSql_statment()));
+
+        if(StringUtils.isNotEmpty(jobConfig.getSchedule_depend())){
+            //检测依赖的正确性
+
+            for (String jobName:jobConfig.getSchedule_depend().split(",")
+                 ) {
+
+            }
+
+            //入库的时候依赖前面增加逗号
+
+
+
+
+        }
+
+
         jobInfoConfService.upsertKVByJobId(JobConfig.jobConfigTolist(jobConfig));
         JobInfo jobInfo = jobInfoService.selectById(jobConfig.getJobId());
         jobInfo.setModPer(ShiroKit.getUser().getId());
@@ -378,7 +385,7 @@ public class JobInfoController extends BaseController {
 
 
         } catch (Exception e) {
-            return new ErrorTip(500, e.getMessage());
+            throw new GunsException(SERVER_ERROR);
         }
 
         String beelineCmd = hiveConfig.getBeeline()+" "+hiveConfig.getUrl() + jobConfig.getOutput_db_name();
@@ -388,14 +395,14 @@ public class JobInfoController extends BaseController {
 
                 //数据接入
                 case 1: {
-                    String configFile = genConfigFile(jobConfig);
+                    String configFile = JobConfUtil.genConfigFile(jobConfig,confConnectService);
                     shell = String.format("echo \"\"\"%s\"\"\" > config.yml\n" +
                             "embulk run config.yml\n" +
                             "%s -e 'msck repair table %s.%s'\n", configFile, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
                     try {
-                        jobUtil.setJobCmd(jobInfo.getName(), wrapShell(shell));
+                        jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
-                        return new ErrorTip(500, e.getMessage());
+                        throw new GunsException(SERVER_ERROR);
                     }
                     break;
                 }
@@ -403,22 +410,26 @@ public class JobInfoController extends BaseController {
                 case 2: {
                     shell = String.format("echo \"\"\"%s\"\"\" > script.hql \n%s -f script.hql", jobConfig.getSql_statment(),beelineCmd);
                     try {
-                        jobUtil.setJobCmd(jobInfo.getName(), wrapShell(shell));
+                        jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
-                        return new ErrorTip(500, e.getMessage());
+                        throw new GunsException(SERVER_ERROR);
                     }
                     break;
                 }
                 //程序执行
                 case 3: {
-
-
+                    try {
+                        shell=JobConfUtil.gentProcExeShell(jobConfig,jenkinsConfig);
+                        jobUtil.setJobCmd(jobInfo.getName(), shell);
+                    } catch (Exception e) {
+                        throw new GunsException(SERVER_ERROR);
+                    }
                     break;
                 }
                 //数据推送
                 case 4: {
-                    List<String> cmdList = new ArrayList<String>();
-                    Map<String, String> jdbcUrl = createJdbcUrl(jobConfig);
+                    List<String> cmdList = new ArrayList<>();
+                    Map<String, String> jdbcUrl = JobConfUtil.createJdbcUrl(jobConfig,confConnectService,confConnectTypeService);
                     String sql_statement = null;
 
                     // 构造SQL statement
@@ -444,9 +455,9 @@ public class JobInfoController extends BaseController {
                     shell = String.join(" ", cmdList.toArray(new String[cmdList.size()]));
 
                     try {
-                        jobUtil.setJobCmd(jobInfo.getName(), wrapShell(shell));
+                        jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
-                        return new ErrorTip(500, e.getMessage());
+                        throw new GunsException(SERVER_ERROR);
                     }
 
                     break;
@@ -459,83 +470,7 @@ public class JobInfoController extends BaseController {
         return SUCCESS_TIP;
     }
 
-    private Map<String, String> createJdbcUrl(JobConfig jobConfig) {
-        ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
 
-        Map<String, String> urlParms = new HashMap<String, String>();
-
-        ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
-        String url = null;
-        if (confConnectType.getType().equals(0)) { // rdbms
-            // 此处不能判断到数据库的类型, 只支持mysql
-            url = String.format("jdbc:mysql://%s:%s/%s", conf.getHost(), conf.getPort(), conf.getDbname());
-        } else { // ftp
-
-        }
-        urlParms.put("url", url);
-        urlParms.put("user", conf.getUsername());
-        urlParms.put("password", conf.getPassword());
-
-        return urlParms;
-    }
-
-
-    private String genConfigFile(JobConfig jobConfig) {
-        ConfConnect conf = confConnectService.selectById(jobConfig.getInput_connect_id());
-        String mysql2HDFS = null;
-
-        // sql查询, jobConfig.getInput_input_type().equals("sql")
-        String tabAndLoc = genTableLocation(jobConfig);
-        mysql2HDFS = String.format("exec: {max_threads: 8, min_output_tasks: 1}\n" +
-                        "in:\n" +
-                        "  type: mysql\n" +
-                        "  driver_path: /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar\n" +
-                        "  host: %s\n" +
-                        "  port: %s\n" +
-                        "  user: %s\n" +
-                        "  password: %s\n" +
-                        "  database: %s\n" +
-                        "  query: %s\n" +
-                        "  use_raw_query_with_incremental: false\n" +
-                        "  options: {useLegacyDatetimeCode: false, serverTimezone: CST}\n" +
-                        "out:\n" +
-                        "  type: hdfs\n" +
-                        "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
-                        "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
-                        "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
-                        "  path_prefix: /user/hive/warehouse/%s/\n" +
-                        "  file_ext: text\n" +
-                        "  mode: %s\n" +
-                        "  formatter: {type: jsonl, encoding: UTF-8}",
-                conf.getHost(),
-                conf.getPort(),
-                conf.getUsername(),
-                conf.getPassword(),
-                conf.getDbname(),
-                jobConfig.getInput_input_content(),
-                tabAndLoc,
-                jobConfig.getOutput_write_model()
-        );
-
-        return mysql2HDFS;
-    }
-
-    private String genTableLocation(JobConfig jobConfig) {
-        String partition = null;
-        String tabName = "default".equals(jobConfig.getOutput_db_name()) ? jobConfig.getOutput_table_name() : jobConfig.getOutput_db_name() + ".db/" + jobConfig.getOutput_table_name();
-
-        // partition
-        if (jobConfig.getOutput_data_partition() != null) {
-            ArrayList<String> arrayList = new ArrayList<String>();
-
-            for (String item : StringUtils.split(jobConfig.getOutput_data_partition(), ",")) {
-                StringUtils.trimToNull(item);
-                arrayList.add(item);
-            }
-            partition = StringUtils.join(arrayList.toArray(), "/");
-        }
-        return (partition == null) ? tabName : tabName + "/" + partition;
-    }
 
     private String unescapeHtml(String str) {
         if (str != null) {

@@ -7,6 +7,7 @@ import com.stylefeng.guns.core.constant.LastRunState;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 import com.stylefeng.guns.modular.system.model.JobInfo;
+import com.stylefeng.guns.modular.system.model.JobSet;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -127,7 +128,12 @@ public class JobRunHistoryController extends BaseController {
         for (JobRunHistory item :list){
             JobInfo info=jobInfoService.selectById(item.getJobInfoId());
             item.setJobName(info.getName());
-            item.setJobSetName(jobSetService.selectById(info.getJobSetId()).getName());
+            if(info.getJobSetId()!=null) {
+                JobSet js=jobSetService.selectById(info.getJobSetId());
+                if(js!=null) {
+                    item.setJobSetName(js.getName());
+                }
+            }
             item.setStateName(LastRunState.ObjOf(item.getState()).getName());
         }
     }

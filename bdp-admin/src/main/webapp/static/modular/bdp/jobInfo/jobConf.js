@@ -51,7 +51,7 @@ JobConf.collectData = function() {
         .set('base_proc_main_args')
         .set('base_proc_main_file')
         .set('resource_dm')
-        .set('resource_sc')
+        .set('resource_dc')
         .set('resource_em')
         .set('resource_ec');
 }

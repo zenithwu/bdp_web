@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			form{width: 100%;  min-width: 800px;}
+            tr{
+            	display: flex;
+            	height: 45px;
+				line-height: 45px;
+            } 
+            .th{
+            	flex: 1;
+            	border: 1px solid #e1e2e1;
+            	border-bottom: none;
+            	border-left: none;
+            } 
+            td{
+            	flex: 1;
+            	border: 1px solid #e1e2e1;
+            	border-bottom: none;
+            	border-left: none;
+            }
+            .d{background-color: #f9f9f9;}
+            .title{margin-top: 40px; width: 100%;}
+            .title thead{position: absolute; width: 100%; min-width: 800px; background:#fff; height: 40px; line-height: 40px;border-left: 1px solid #ddd;}
+            .title thead tr{display: flex;}
+            .tab-content{margin-top: 40px; width: 100%; min-width: 800px;margin-left: 2px;border: 1px solid #ddd;border-top: none;}
+            .tab-content tbody{width: 100%; display: block; overflow-y: scroll;}
+		</style>
+	</head>
+
+	<body>
+		<form>
+			<table class="title">
+				<thead>
+					<tr style="">
+						<th class="th">列名称</th>
+						<th class="th">列类型</th>
+						<th class="th">列注释</th>
+						<th  style="width: 18px;"></th>
+					</tr>
+				</thead>
+			</table>
+			<table class="tab-content">
+				<tbody>
+					${table}
+				</tbody>
+			</table>
+		</form>
+
+		</table>
+		</form>
+	</body>
+
+</html>

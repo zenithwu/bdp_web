@@ -1,0 +1,33 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>任务数据表管理</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#NameCon id="condition" name="名称" />
+                            </div>
+                            <div class="col-sm-3">
+                                <#button name="搜索" icon="fa-search" clickFun="JobTableInfo.search()"/>
+                            </div>
+                        </div>
+                        <div class="hidden-xs" id="JobTableInfoTableToolbar" role="group">
+                            @if(shiro.hasPermission("/jobTableInfo/update")){
+                                <#button name="更新" icon="fa-edit" clickFun="JobTableInfo.openJobTableInfoDetail()" space="true"/>
+                            @}
+                            <#button name="记录详情" icon="fa-info" clickFun="JobTableInfo.detail()" space="true"/>
+                        </div>
+                        <#table id="JobTableInfoTable"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/bdp/jobTableInfo/jobTableInfo.js"></script>
+@}

@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.base.tips.ErrorTip;
+import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
+import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.jenkins.ProcUtil;
+import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
+import com.stylefeng.guns.modular.system.model.JobInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,6 +30,9 @@ import com.stylefeng.guns.modular.system.service.IUserService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 
+import static com.stylefeng.guns.core.common.exception.BizExceptionEnum.DEPEND_EXISTED;
+import static com.stylefeng.guns.core.common.exception.BizExceptionEnum.SERVER_ERROR;
+
 /**
  * 任务集控制器
  *
@@ -41,6 +48,9 @@ public class JobSetController extends BaseController {
     private JenkinsConfig jenkinsConfig;
     @Autowired
     private IJobSetService jobSetService;
+
+    @Autowired
+    private IJobInfoService jobInfoService;
     @Autowired
     private IUserService userService;
 
@@ -104,7 +114,7 @@ public class JobSetController extends BaseController {
                 procUtil.createProject(jobSet.getName());
                 return SUCCESS_TIP;
             } catch (IOException e) {
-                return new ErrorTip(500,e.getMessage());
+                throw new GunsException(SERVER_ERROR);
             }
         }
         return new ErrorTip(500,"添加失败");
@@ -117,6 +127,9 @@ public class JobSetController extends BaseController {
     @ResponseBody
     public Object delete(@RequestParam Integer jobSetId) {
 
+        if(jobInfoService.selectList(new EntityWrapper<JobInfo>().eq("job_set_id",String.valueOf(jobSetId))).size()>0){
+            throw new GunsException(BizExceptionEnum.DEPEND_EXISTED) ;
+        }
         JobSet js=jobSetService.selectById(jobSetId);
         if(jobSetService.deleteById(jobSetId)){
             try {
@@ -124,10 +137,11 @@ public class JobSetController extends BaseController {
                 procUtil.deleteProject(js.getName());
                 return SUCCESS_TIP;
             } catch (IOException e) {
-                return new ErrorTip(500,e.getMessage());
+                throw new GunsException(SERVER_ERROR);
             }
+        }else{
+            return SUCCESS_TIP;
         }
-        return new ErrorTip(500,"删除失败");
     }
 
     /**
