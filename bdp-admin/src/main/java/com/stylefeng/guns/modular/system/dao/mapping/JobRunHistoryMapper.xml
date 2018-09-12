@@ -18,4 +18,10 @@
     <sql id="Base_Column_List">
         id, num, params, state, cost, time, log, job_info_id
     </sql>
+
+
+    <!-- 根据任务id查询任务运行历史信息 -->
+    <select id="selectByParam" parameterType="int" resultMap="BaseResultMap">
+			SELECT * FROM job_run_history WHERE job_info_id = #{_parameter}
+	</select>
 </mapper>

@@ -40,6 +40,7 @@ public  class JobUtil {
     }
     public void updateJobDesc(String jobName,String desc) throws IOException {
         jenkins.getJob(proc,jobName).updateDescription(desc);
+
     }
     public void setJobCmd(String jobName,String cmd) throws IOException, DocumentException {
         jenkins.updateJob(proc,jobName,new JobXML().init(jenkins.getJobXml(proc,jobName)).setBuilders(cmd).getJobXml(),false);

@@ -21,7 +21,7 @@ public class JobConfUtil {
                 "if [ -z '%param' ]; then\n" +
                 "param=`date +%Y-%m-%d %H:%M:%S`\n" +
                 "fi\n" +
-                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_begin\"\n" +
+                "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_begin\" &\n" +
                 "function run(){\n";
         String end = "\n}\n" +
                 "run && (curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_end\" &) " +

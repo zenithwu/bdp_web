@@ -17,16 +17,10 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
 public interface JobRunHistoryMapper extends BaseMapper<JobRunHistory> {
 
 	/**
-	 * 任务运行添加运行历史
-	 * @param jobRunHistory
+	 * 根据param查询任务运行历史信息
+	 * @param param
 	 * @return
 	 */
-	int insertLobRunHistory(JobRunHistory jobRunHistory);
-	
-	/**
-	 * 根据任务id查询任务运行历史信息
-	 * @param id
-	 * @return
-	 */
-	List<JobRunHistory> selJobRunHistoryByJobId(int id);
+	List<JobRunHistory> selectByParam(String param);
+
 }

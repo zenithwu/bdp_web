@@ -16,4 +16,6 @@ import com.baomidou.mybatisplus.service.IService;
  */
 public interface IJobRunHistoryService extends IService<JobRunHistory> {
 
+    List<JobRunHistory> selectByParam(String param);
+
 }

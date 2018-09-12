@@ -16,6 +16,7 @@ import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.core.util.JobConfUtil;
+import com.stylefeng.guns.core.util.JDBCUtil;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.*;
 import com.stylefeng.guns.modular.system.model.*;
@@ -346,6 +347,8 @@ public class JobInfoController extends BaseController {
     public Object saveInputData(JobConfig jobConfig) {
         //转换特殊字符
         jobConfig.setSql_statment(unescapeHtml(jobConfig.getSql_statment()));
+        jobConfig.setInput_input_content(unescapeHtml(jobConfig.getInput_input_content()));
+        jobConfig.setOutput_pre_statment(unescapeHtml(jobConfig.getOutput_pre_statment()));
 
         if(StringUtils.isNotEmpty(jobConfig.getSchedule_depend())){
             //检测依赖的正确性
@@ -429,7 +432,10 @@ public class JobInfoController extends BaseController {
                 //数据推送
                 case 4: {
                     List<String> cmdList = new ArrayList<>();
-                    Map<String, String> jdbcUrl = JobConfUtil.createJdbcUrl(jobConfig,confConnectService,confConnectTypeService);
+
+                    ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
+                    ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
+                    Map<String, String> jdbcUrl = JDBCUtil.createJDBCUrl(conf, confConnectType.getType());
                     String sql_statement = null;
 
                     // 构造SQL statement

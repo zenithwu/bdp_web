@@ -20,4 +20,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobRunHistoryServiceImpl extends ServiceImpl<JobRunHistoryMapper, JobRunHistory> implements IJobRunHistoryService {
+
+    @Autowired
+    private JobRunHistoryMapper jobRunHistoryMapper;
+
+    @Override
+    public List<JobRunHistory> selectByParam(String param) {
+        return jobRunHistoryMapper.selectByParam(param);
+    }
 }
