@@ -117,9 +117,10 @@ public class JobRunHistoryController extends BaseController {
     @RequestMapping(value = "/list")
     @ResponseBody
     public Object jobRunHistoryLists(String condition) {
-        Wrapper<JobRunHistory> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("params", condition);
-        List<JobRunHistory> list= jobRunHistoryService.selectList(wrapper);
+        if(condition==null){
+            condition="";
+        }
+        List<JobRunHistory> list= jobRunHistoryService.selectByParam(condition);
         fillInfo(list);
         return list;
     }

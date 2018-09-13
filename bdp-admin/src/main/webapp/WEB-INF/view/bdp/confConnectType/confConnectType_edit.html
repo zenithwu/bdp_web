@@ -6,8 +6,13 @@
             <div class="row">
                 <div class="col-sm-6 br">
                     <#select id="type" name="类别" underline="true" value="${item.type}">
-                    <option value="0">RDBMS</option>
-                    <option value="1">FTP</option>
+                    @if(0==item.type){
+                    <option value=0 selected="selected">RDBMS</option>
+                    <option value=1>FTP</option>
+                    @}else{
+                    <option value=0>RDBMS</option>
+                    <option value=1 selected="selected">FTP</option>
+                    @}
                 </#select>
                 <#input id="name" name="连接类型名称" value="${item.name}" underline="true"/>
                 </div>

@@ -21,58 +21,9 @@
                 <div class="title">输入设置</div>
                 <form>
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">输入方式</label>
-                        <div class="col-input">
-                            <select class="form-control" id="input_input_type">
-                                @if(jobConfig !=null && jobConfig.input_input_type=='tablename'){
-                                <option selected="selected" value="tablename">表名称</option>
-                                <option value="sql">sql语句</option>
-                                @}else{
-                                <option value="tablename">表名称</option>
-                                <option selected="selected" value="sql">sql语句</option>
-                                @}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据库</label>
-                        <div class="col-input">
-                            <select class="form-control" id="input_db_name">
-                                @for(db_name in dbList){
-                                @if(jobConfig !=null && jobConfig.input_db_name == db_name){
-                                <option value=${db_name} selected="selected">${db_name}</option>
-                                @}else{
-                                <option value=${db_name}>${db_name}</option>
-                                @}
-                                @}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据表</label>
-                        <div class="col-input">
-                            <select class="form-control" id="input_table_name">
-                                @for(tableName in tableList){
-                                @if(jobConfig !=null && jobConfig.input_table_name==tableName){
-                                <option value=${tableName} selected="selected">${tableName}</option>
-                                @}else{
-                                <option value=${tableName}>${tableName}</option>
-                                @}
-                                @}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">数据分区</label>
-                        <div class="col-input">
-                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1"
-                                   id="output_data_partition" value="${jobConfig.output_data_partition}"/>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="col-th col-th3 fl">sql语句</label>
                         <div class="col-input">
-                            <textarea id="input_input_content" class="form-control" rows="10"
+                            <textarea id="input_input_content" class="form-control" rows="8"
                                       placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
@@ -112,7 +63,7 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">数据表</label>
                         <div class="col-input">
-                            <input type="text" class="form-control" placeholder="dt={yyyy-mm-dd},type=1"
+                            <input type="text" class="form-control" placeholder=""
                                    id="output_table_name" value="${jobConfig.output_table_name}"/>
                         </div>
                     </div>
@@ -133,7 +84,7 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">前置语句</label>
                         <div class="col-input">
-                            <textarea class="form-control" rows="10"
+                            <textarea class="form-control" rows="2"
                                       placeholder="delete from tables where time ='{yyyy-mm-dd}'"
                                       id="output_pre_statment">${jobConfig.output_pre_statment}</textarea>
                         </div>
@@ -172,16 +123,14 @@
 <script type="text/javascript">
     $(function () {
         showOutConnect();
-        showHiveTable();
+        // showHiveTable();
 
         $("#output_connect_type").change(function () {
-            showConnect();
+            showOutConnect();
         })
     })
 
-    $("#input_db_name").change(function () {
-        showHiveTable();
-    })
+
 
 
     function showOutConnect() {
@@ -196,19 +145,19 @@
         }, "json")
     }
 
-
-    function showHiveTable() {
-
-        var option = $("#input_db_name option:selected");
-
-        $.get(Feng.ctxPath + '/confConnect/listHiveTableBydbName/' + option.val(), {}, function (res) {
-            var options = ""
-            for (var i = 0; i < res.length; i++) {
-                options = options + "<option value=" + res[i] + ">" + res[i] + "</option>"
-            }
-            $("#input_table_name").html(options)
-        }, "json")
-    }
+    //
+    // function showHiveTable() {
+    //
+    //     var option = $("#input_db_name option:selected");
+    //
+    //     $.get(Feng.ctxPath + '/confConnect/listHiveTableBydbName/' + option.val(), {}, function (res) {
+    //         var options = ""
+    //         for (var i = 0; i < res.length; i++) {
+    //             options = options + "<option value=" + res[i] + ">" + res[i] + "</option>"
+    //         }
+    //         $("#input_table_name").html(options)
+    //     }, "json")
+    // }
 </script>
 <script src="${ctxPath}/static/modular/bdp/jobInfo/jobConf.js"></script>
 </html>

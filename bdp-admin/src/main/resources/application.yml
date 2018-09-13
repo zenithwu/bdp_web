@@ -50,7 +50,10 @@ spring:
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
-
+  bdpjob:
+      jobconfig: /bdp/jobconfig
+      joblib: /bdp/sparkLib
+      zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
 
 
 
@@ -83,6 +86,11 @@ spring:
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
+  bdpjob:
+      jobconfig: /bdp/jobconfig
+      joblib: /bdp/sparkLib
+      zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
+
 
 
 ---
@@ -102,8 +110,10 @@ spring:
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
-
-
+  bdpjob:
+      jobconfig: /bdp/jobconfig
+      joblib: /bdp/sparkLib
+      zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
 ---
 
 spring:
@@ -121,5 +131,8 @@ spring:
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
-
+  bdpjob:
+      jobconfig: /bdp/jobconfig
+      joblib: /bdp/sparkLib
+      zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
 

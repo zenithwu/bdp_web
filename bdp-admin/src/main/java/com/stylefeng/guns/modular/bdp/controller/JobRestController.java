@@ -78,7 +78,7 @@ public class JobRestController extends BaseController {
                         if (jobInfo != null) {
                             //任务最新状态
                             jobInfo.setLastRunState(LastRunState.RUNNING.getCode());
-                            jobInfo.setLastRunTime(DateTimeKit.parseDate(stat_date));
+                            jobInfo.setLastRunTime(DateTimeKit.parseDateTime(DateTimeKit.now()));
                             jobInfo.setLastRunCost(0l);
                             jobInfoService.updateById(jobInfo);
                             // job_stat 增加一个正在运行
@@ -100,7 +100,7 @@ public class JobRestController extends BaseController {
                             jobRunHistory.setParams(params);
                             jobRunHistory.setState(LastRunState.RUNNING.getCode());
                             jobRunHistory.setNum(Long.valueOf(buildNum));
-                            jobRunHistory.setTime(DateTimeKit.parseDate(stat_date));
+                            jobRunHistory.setTime(DateTimeKit.parseDateTime(DateTimeKit.now()));
                             jobRunHistoryService.insert(jobRunHistory);
                         }
 

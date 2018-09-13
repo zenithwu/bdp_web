@@ -2,14 +2,16 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.stylefeng.guns.config.properties.BdpJobConfig;
 import com.stylefeng.guns.config.properties.HiveConfig;
 import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
-import com.stylefeng.guns.core.base.tips.ErrorTip;
+import com.stylefeng.guns.core.common.exception.BizException;
 import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
 import com.stylefeng.guns.core.constant.JobStatus;
 import com.stylefeng.guns.core.constant.JobType;
 import com.stylefeng.guns.core.constant.LastRunState;
+import com.stylefeng.guns.core.constant.conTypeType;
 import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
@@ -65,7 +67,8 @@ public class JobInfoController extends BaseController {
     private JenkinsConfig jenkinsConfig;
     @Autowired
     private HiveConfig hiveConfig;
-
+    @Autowired
+    private BdpJobConfig bdpJobConfig;
     /**
      * 跳转到任务信息首页
      */
@@ -95,6 +98,19 @@ public class JobInfoController extends BaseController {
         //查询任务的所有参数
         List<JobInfoConf> jobInfoConfList = jobInfoConfService.selJobInfoConfByJobInfoId(jobInfoId);
         JobConfig jobConfig = JobConfig.listToJobConfig(jobInfoConfList);
+        //展示的时候将依赖的前后的逗号去掉
+        if(StringUtils.isNotEmpty(jobConfig.getSchedule_depend())){
+            String depends=jobConfig.getSchedule_depend();
+            if(depends.startsWith(",")) {
+                depends=depends.replaceFirst(",", "");
+            }
+            if(depends.endsWith(",")){
+                depends=depends.substring(0,depends.length()-1);
+            }
+            jobConfig.setSchedule_depend(depends);
+        }
+
+
         model.addAttribute("item", jobInfo);
         model.addAttribute("jobConfig", jobConfig);
         ////数据接入 和 数据推送
@@ -349,25 +365,23 @@ public class JobInfoController extends BaseController {
         jobConfig.setSql_statment(unescapeHtml(jobConfig.getSql_statment()));
         jobConfig.setInput_input_content(unescapeHtml(jobConfig.getInput_input_content()));
         jobConfig.setOutput_pre_statment(unescapeHtml(jobConfig.getOutput_pre_statment()));
-
+        JobInfo jobInfo = jobInfoService.selectById(jobConfig.getJobId());
         if(StringUtils.isNotEmpty(jobConfig.getSchedule_depend())){
-            //检测依赖的正确性
-
+            //入库的时候依赖前面增加逗号
+            StringBuilder sb=new StringBuilder(",");
             for (String jobName:jobConfig.getSchedule_depend().split(",")
                  ) {
-
+                //检测依赖的正确性
+                if(jobInfoService.selectCount(new EntityWrapper<JobInfo>().eq("name",jobName).eq("job_set_id",jobInfo.getJobSetId()))==0){
+                    throw new GunsException(new BizException(500,"依赖任务不存在"));
+                }
+                if(StringUtils.isNotEmpty(jobName)){
+                    sb.append(jobName+",");
+                }
             }
-
-            //入库的时候依赖前面增加逗号
-
-
-
-
+            jobConfig.setSchedule_depend(sb.toString());
         }
-
-
         jobInfoConfService.upsertKVByJobId(JobConfig.jobConfigTolist(jobConfig));
-        JobInfo jobInfo = jobInfoService.selectById(jobConfig.getJobId());
         jobInfo.setModPer(ShiroKit.getUser().getId());
         jobInfo.setModTime(DateTimeKit.date());
         JobUtil jobUtil = new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
@@ -398,10 +412,16 @@ public class JobInfoController extends BaseController {
 
                 //数据接入
                 case 1: {
-                    String configFile = JobConfUtil.genConfigFile(jobConfig,confConnectService);
+                    ConfConnect conf = confConnectService.selectById(jobConfig.getInput_connect_id());
+                    ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(conf.getTypeId());
+                    String configFile = JobConfUtil.genConfigFile(jobConfig,conf,confConnectType);
+                    String runCmd="embulk run config.yml ";
+                    if(confConnectType.getType().equals(conTypeType.FTP.getCode())){
+                        runCmd = "embulk guess -g jsonl config.yml -o guessed.yml && embulk run guessed.yml";
+
+                    }
                     shell = String.format("echo \"\"\"%s\"\"\" > config.yml\n" +
-                            "embulk run config.yml\n" +
-                            "%s -e 'msck repair table %s.%s'\n", configFile, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
+                            "%s && %s -e 'msck repair table %s.%s'\n", runCmd,configFile, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
@@ -422,7 +442,7 @@ public class JobInfoController extends BaseController {
                 //程序执行
                 case 3: {
                     try {
-                        shell=JobConfUtil.gentProcExeShell(jobConfig,jenkinsConfig);
+                        shell=JobConfUtil.gentProcExeShell(jobConfig,jenkinsConfig,bdpJobConfig);
                         jobUtil.setJobCmd(jobInfo.getName(), shell);
                     } catch (Exception e) {
                         throw new GunsException(SERVER_ERROR);
@@ -431,41 +451,20 @@ public class JobInfoController extends BaseController {
                 }
                 //数据推送
                 case 4: {
-                    List<String> cmdList = new ArrayList<>();
-
                     ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
                     ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
-                    Map<String, String> jdbcUrl = JDBCUtil.createJDBCUrl(conf, confConnectType.getType());
-                    String sql_statement = null;
-
-                    // 构造SQL statement
-                    if (jobConfig.getInput_input_type().equals("sql")) {// sql方式
-                        sql_statement = jobConfig.getInput_input_content();
-                    } else { // 表方式
-
-                    }
-                    // 构造命令
-                    cmdList.add("/bin/spark2-submit");
-                    cmdList.add("--class com.jp863.scala.ExportHiveToMysql");
-                    cmdList.add("--jars /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar,/opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar");
-                    cmdList.add("hdfs:///spark-lib/spark-help-1.0.0.jar");
-                    if (sql_statement != null) {
-                        cmdList.add("\'" + sql_statement + "\'");
-                    }
-                    if (jobConfig.getOutput_table_name() != null) {
-                        cmdList.add(jobConfig.getOutput_table_name());
-                    }
-                    cmdList.add(jdbcUrl.get("url"));
-                    cmdList.add(jdbcUrl.get("user"));
-                    cmdList.add(jdbcUrl.get("password"));
-                    shell = String.join(" ", cmdList.toArray(new String[cmdList.size()]));
-
+                    shell = JobConfUtil.genOutPutShell(jobConfig, conf, confConnectType);
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
                         throw new GunsException(SERVER_ERROR);
                     }
-
+                    //上传job配置文件到hdfs上
+                    try {
+                        JobConfUtil.upLoadJobConf(jobConfig,conf,confConnectType,bdpJobConfig.getZkurl(),bdpJobConfig.getJobconfig());
+                    } catch (Exception e) {
+                        throw new GunsException(new BizException(500,"上传配置文件失败!!!"));
+                    }
                     break;
                 }
                 default:
@@ -475,6 +474,7 @@ public class JobInfoController extends BaseController {
 
         return SUCCESS_TIP;
     }
+
 
 
 

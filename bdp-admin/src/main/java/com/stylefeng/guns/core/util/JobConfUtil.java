@@ -1,6 +1,10 @@
 package com.stylefeng.guns.core.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.stylefeng.guns.config.properties.BdpJobConfig;
 import com.stylefeng.guns.config.properties.JenkinsConfig;
+import com.stylefeng.guns.core.constant.JobType;
+import com.stylefeng.guns.core.constant.conTypeType;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.system.model.ConfConnect;
@@ -10,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JobConfUtil {
@@ -32,7 +37,7 @@ public class JobConfUtil {
 
 
 
-    public static String gentProcExeShell(JobConfig jobConfig,JenkinsConfig jenkinsConfig){
+    public static String gentProcExeShell(JobConfig jobConfig, JenkinsConfig jenkinsConfig, BdpJobConfig bdpJobConfig){
         String shell=String.format("spark2-submit --class %s \\\n" +
                 "--master yarn \\\n" +
                 "--deploy-mode cluster \\\n" +
@@ -41,11 +46,12 @@ public class JobConfUtil {
                 "--executor-memory %s \\\n" +
                 "--executor-cores %s \\\n" +
                 "--queue default \\\n" +
-                "hdfs:///spark-lib/%s",jobConfig.getBase_proc_main_class()
+                "hdfs://%s/%s",jobConfig.getBase_proc_main_class()
                 ,jobConfig.getResource_dm()
                 ,jobConfig.getResource_dc()
                 ,jobConfig.getResource_em()
                 ,jobConfig.getResource_ec()
+                ,bdpJobConfig.getJoblib()
                 ,jobConfig.getBase_proc_main_file());
         if (StringUtils.isNotEmpty(jobConfig.getBase_proc_main_in())){
                 shell=shell+" "+jobConfig.getBase_proc_main_in();
@@ -84,44 +90,83 @@ public class JobConfUtil {
     }
 
 
-    public static String genConfigFile(JobConfig jobConfig,IConfConnectService confConnectService) {
-        ConfConnect conf = confConnectService.selectById(jobConfig.getInput_connect_id());
-        String mysql2HDFS = null;
-
+    public static String genConfigFile(JobConfig jobConfig,ConfConnect conf,ConfConnectType confConnectType) {
+        String config = null;
         // sql查询, jobConfig.getInput_input_type().equals("sql")
         String tabAndLoc = genTableLocation(jobConfig);
-        mysql2HDFS = String.format("exec: {max_threads: 8, min_output_tasks: 1}\n" +
-                        "in:\n" +
-                        "  type: mysql\n" +
-                        "  driver_path: /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar\n" +
-                        "  host: %s\n" +
-                        "  port: %s\n" +
-                        "  user: %s\n" +
-                        "  password: %s\n" +
-                        "  database: %s\n" +
-                        "  query: %s\n" +
-                        "  use_raw_query_with_incremental: false\n" +
-                        "  options: {useLegacyDatetimeCode: false, serverTimezone: CST}\n" +
-                        "out:\n" +
-                        "  type: hdfs\n" +
-                        "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
-                        "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
-                        "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
-                        "  path_prefix: /user/hive/warehouse/%s/\n" +
-                        "  file_ext: text\n" +
-                        "  mode: %s\n" +
-                        "  formatter: {type: jsonl, encoding: UTF-8}",
-                conf.getHost(),
-                conf.getPort(),
-                conf.getUsername(),
-                conf.getPassword(),
-                conf.getDbname(),
-                jobConfig.getInput_input_content(),
-                tabAndLoc,
-                jobConfig.getOutput_write_model()
-        );
-
-        return mysql2HDFS;
+        if(StringUtils.isEmpty(jobConfig.getHight_thread())){
+            jobConfig.setHight_thread("1");
+        }
+        if(StringUtils.isEmpty(jobConfig.getHight_file_num())){
+            jobConfig.setHight_file_num("1");
+        }
+        //关系型数据的实现
+        if(confConnectType.getType().equals(conTypeType.RDBMS.getCode())) {
+            config = String.format("exec: {max_threads: %s, min_output_tasks: %s}\n" +
+                            "in:\n" +
+                            "  type: %s\n" +
+                            "  host: %s\n" +
+                            "  port: %s\n" +
+                            "  user: %s\n" +
+                            "  password: %s\n" +
+                            "  database: %s\n" +
+                            "  query: %s\n" +
+                            "  use_raw_query_with_incremental: false\n" +
+                            "  options: {useLegacyDatetimeCode: false, serverTimezone: CST}\n" +
+                            "out:\n" +
+                            "  type: hdfs\n" +
+                            "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
+                            "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
+                            "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
+                            "  path_prefix: /user/hive/warehouse/%s/\n" +
+                            "  file_ext: text\n" +
+                            "  mode: %s\n" +
+                            "  formatter: {type: jsonl, encoding: UTF-8}",
+                    jobConfig.getHight_thread(),
+                    jobConfig.getHight_file_num(),
+                    confConnectType.getName(),
+                    conf.getHost(),
+                    conf.getPort(),
+                    conf.getUsername(),
+                    conf.getPassword(),
+                    conf.getDbname(),
+                    jobConfig.getInput_input_content(),
+                    tabAndLoc,
+                    jobConfig.getOutput_write_model()
+            );
+        }else{
+            config = String.format("exec: {max_threads: %s, min_output_tasks: %s}\n" +
+                            "in:\n" +
+                            "  type: ftp\n" +
+                            "  host: %s\n" +
+                            "  port: %s\n" +
+                            "  user: %s\n" +
+                            "  password: \"%s\"\n" +
+                            "  path_prefix: %s\n" +
+                            "\n" +
+                            "  ssl: true\n" +
+                            "  ssl_verify: false\n"+
+                            "out:\n" +
+                            "  type: hdfs\n" +
+                            "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
+                            "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
+                            "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
+                            "  path_prefix: /user/hive/warehouse/%s/\n" +
+                            "  file_ext: text\n" +
+                            "  mode: %s\n" +
+                            "  formatter: {type: jsonl, encoding: UTF-8}",
+                    jobConfig.getHight_thread(),
+                    jobConfig.getHight_file_num(),
+                    conf.getHost(),
+                    conf.getPort(),
+                    conf.getUsername(),
+                    conf.getPassword(),
+                    jobConfig.getInput_file_position(),
+                    tabAndLoc,
+                    jobConfig.getOutput_write_model()
+            );
+        }
+        return config;
     }
 
     private static String genTableLocation(JobConfig jobConfig) {
@@ -140,5 +185,52 @@ public class JobConfUtil {
         }
         return (partition == null) ? tabName : tabName + "/" + partition;
     }
+
+
+    public static String genOutPutShell(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType) {
+        String shell;Map<String, String> jdbcUrl = JDBCUtil.createJDBCUrl(conf, confConnectType.getType());
+        String sql_statement = null;
+
+        // 构造SQL statement
+        sql_statement = jobConfig.getInput_input_content();
+        List<String> cmdList = new ArrayList<>();
+        // 构造命令
+        cmdList.add("/bin/spark2-submit");
+        cmdList.add("--class com.jp863.scala.ExportHiveToMysql");
+        cmdList.add("--jars /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar,/opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar");
+        cmdList.add("hdfs:///spark-lib/spark-help-1.0.0.jar");
+        if (sql_statement != null) {
+            cmdList.add("\'" + sql_statement + "\'");
+        }
+        if (jobConfig.getOutput_table_name() != null) {
+            cmdList.add(jobConfig.getOutput_table_name());
+        }
+        cmdList.add(jdbcUrl.get("url"));
+        cmdList.add(jdbcUrl.get("user"));
+        cmdList.add(jdbcUrl.get("password"));
+        shell = String.join(" ", cmdList.toArray(new String[cmdList.size()]));
+        return shell;
+    }
+
+    public static void upLoadJobConf(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType,String zkUrl,String conUrl) throws Exception {
+
+
+        JSONObject jsonObject= (JSONObject) JSONObject.toJSON(jobConfig);
+        jsonObject.put("type",confConnectType.getName());
+        jsonObject.put("host",conf.getHost());
+        jsonObject.put("port",conf.getPort());
+        jsonObject.put("username",conf.getUsername());
+        jsonObject.put("password",conf.getPassword());
+        jsonObject.put("dbname",conf.getDbname());
+        jsonObject.put("driverClass",confConnectType.getDriverClass());
+
+        HdfsUtil util=new HdfsUtil(zkUrl);
+        util.writeFile(jsonObject.toJSONString(),String.format("%s/jobid_%s.json",conUrl,jobConfig.getJobId()));
+
+
+
+    }
+
+
 
 }

@@ -4,16 +4,37 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix="spring.spark") //接收application.yml中的myProps下面的属性
-public class SparkConfig {
+@ConfigurationProperties(prefix="spring.bdpjob") //接收application.yml中的myProps下面的属性
+public class BdpJobConfig {
 
-    public String getUrl() {
-        return url;
+    public String getJobconfig() {
+        return jobconfig;
     }
 
-    private  String url;
-    private  String user;
-    private  String token;
-    private String rest_url;
+    public void setJobconfig(String jobconfig) {
+        this.jobconfig = jobconfig;
+    }
+
+    public String getJoblib() {
+        return joblib;
+    }
+
+    public void setJoblib(String joblib) {
+        this.joblib = joblib;
+    }
+
+    private  String jobconfig;
+    private  String joblib;
+
+    public String getZkurl() {
+        return zkurl;
+    }
+
+    public void setZkurl(String zkurl) {
+        this.zkurl = zkurl;
+    }
+
+    private  String zkurl;
+
 
 }

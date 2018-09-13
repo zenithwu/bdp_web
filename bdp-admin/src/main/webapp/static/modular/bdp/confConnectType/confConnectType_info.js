@@ -46,7 +46,7 @@ ConfConnectTypeInfoDlg.close = function() {
 ConfConnectTypeInfoDlg.collectData = function() {
     this
     .set('id')
-    .set('name')
+    .set('name').set('type')
     .set('desc')
         .set('driverClass')
     .set('createTime')

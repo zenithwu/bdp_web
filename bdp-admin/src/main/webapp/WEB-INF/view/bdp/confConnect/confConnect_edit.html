@@ -9,11 +9,15 @@
 
                     <#select id="typeId" name="连接类型" value="${item.typeId}" underline="false">
                     @for(type in typeList){
+                    @if(type.id==item.typeId){
+                    <option selected="selected" value=${type.id}>${type.name}</option>
+                    @}else{
                     <option value=${type.id}>${type.name}</option>
+                    @}
                     @}
                 </#select>
                     <#input id="username" name="用户名称" value="${item.username}" underline="false"/>
-                    <#input id="password" name="密码" value="${item.password}" underline="true"/>
+                    <#input id="password" name="密码" type="password"  value="${item.password}" underline="true"/>
 
                 </div>
 
