@@ -18,7 +18,6 @@ import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.core.util.JobConfUtil;
-import com.stylefeng.guns.core.util.JDBCUtil;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.*;
 import com.stylefeng.guns.modular.system.model.*;
@@ -34,7 +33,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.stylefeng.guns.core.common.exception.BizExceptionEnum.SERVER_ERROR;
 
@@ -453,7 +455,7 @@ public class JobInfoController extends BaseController {
                 case 4: {
                     ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
                     ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
-                    shell = JobConfUtil.genOutPutShell(jobConfig, conf, confConnectType);
+                    shell = JobConfUtil.genOutPutShell(jobConfig, conf, confConnectType,bdpJobConfig);
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {

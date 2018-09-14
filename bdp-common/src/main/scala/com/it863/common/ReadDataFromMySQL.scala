@@ -1,6 +1,5 @@
 package com.it863.common
 
-import com.it863.common.ReadDataFromHive
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession;
 

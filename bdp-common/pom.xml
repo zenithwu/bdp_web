@@ -43,6 +43,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${scala.bin.version}</artifactId>
             <version>${spark.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -50,8 +51,8 @@
             <version>${mysql.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
 
     </dependencies>
@@ -61,7 +62,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.1.6</version>
                 <configuration>
                     <scalaVersion>2.11.4</scalaVersion>
                     <recompileMode>all</recompileMode>
