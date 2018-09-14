@@ -25,7 +25,7 @@ ConfConnect.initColumn = function () {
             {title: '创建时间', field: 'createTime', visible: true, align: 'center', valign: 'middle'},
             {title: '创建用户', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '修改用户', field: 'modPer', visible: true, align: 'center', valign: 'middle'}
+            {title: '修改用户', field: 'modPerName', visible: true, align: 'center', valign: 'middle'}
     ];
 };
 

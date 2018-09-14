@@ -12,11 +12,12 @@
         <result column="create_per" property="createPer" />
         <result column="mod_time" property="modTime" />
         <result column="mod_per" property="modPer" />
+        <result column="driver_class" property="driverClass" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, type, desc, create_time, create_per, mod_time, mod_per
+        id, name, type, desc,driver_class, create_time, create_per, mod_time, mod_per
     </sql>
 
     <select id="selectAllConfConnectType" resultMap="BaseResultMap">

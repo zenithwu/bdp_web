@@ -92,7 +92,7 @@ public class JobRunHistoryController extends BaseController {
     public Object list(String condition,@PathVariable Integer id) {
 
         Wrapper<JobRunHistory> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("params", condition).orderBy("id");
+        wrapper = wrapper.like("params", condition).orderBy("id",false);
         List<JobRunHistory> list;
     	if(id!=null){
             list= jobRunHistoryService.selectList(wrapper.eq("job_info_id",id));

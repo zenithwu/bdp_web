@@ -80,6 +80,7 @@ public class ConfConnectTypeController extends BaseController {
         List<ConfConnectType> list=confConnectTypeService.selectList(wrapper);
         for (ConfConnectType info:list) {
            info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
+            info.setModPerName(userService.selectById(info.getModPer()).getName());
         }
         return list;
     }

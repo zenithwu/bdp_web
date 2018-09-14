@@ -122,8 +122,12 @@
 </body>
 <script type="text/javascript">
     $(function () {
-        showOutConnect();
+
         // showHiveTable();
+
+        if($("#output_connect_id").val()==null){
+            showOutConnect();
+        }
 
         $("#output_connect_type").change(function () {
             showOutConnect();

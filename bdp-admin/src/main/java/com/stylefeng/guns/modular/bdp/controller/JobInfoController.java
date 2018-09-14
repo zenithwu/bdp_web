@@ -116,8 +116,11 @@ public class JobInfoController extends BaseController {
         model.addAttribute("item", jobInfo);
         model.addAttribute("jobConfig", jobConfig);
         ////数据接入 和 数据推送
-        if (jobInfo.getTypeId() == JobType.INPUT.getCode() || jobInfo.getTypeId() == JobType.OUTPUT.getCode()) {
+        if (jobInfo.getTypeId() == JobType.INPUT.getCode() ) {
             showInputData(model, jobConfig);
+        }
+        if (jobInfo.getTypeId() == JobType.OUTPUT.getCode()) {
+            showOutputData(model, jobConfig);
         }
         LogObjectHolder.me().set(jobInfo);
         return DETAIL + pageName;
@@ -135,11 +138,12 @@ public class JobInfoController extends BaseController {
                 //设置连接类型id
                 jobConfig.setInput_connect_type(connect.getTypeId());
                 //查询该连接所属的类型下的所有的连接
-                Wrapper<ConfConnect> wrapper = new EntityWrapper<>();
-                wrapper = wrapper.eq("type_id", connect.getTypeId());
-                connects = confConnectService.selectList(wrapper);
+                connects = confConnectService.selectList(new EntityWrapper<ConfConnect>().eq("type_id", connect.getTypeId()));
             }
         }
+        model.addAttribute("allConfConnectType", allConfConnectType);
+        model.addAttribute("connects", connects);
+
         HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
         //查询输出的数据库集合
         List<String> dbList = hiveUtil.getDataBases();
@@ -148,11 +152,30 @@ public class JobInfoController extends BaseController {
         if (jobConfig.getOutput_db_name() != null) {
             tableList = hiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
         }
-        model.addAttribute("allConfConnectType", allConfConnectType);
-        model.addAttribute("connects", connects);
         model.addAttribute("dbList", dbList);
         model.addAttribute("tableList", tableList);
     }
+    private void showOutputData(Model model, JobConfig jobConfig) {
+        //所有连接类型
+        List<ConfConnectType> allConfConnectType = confConnectTypeService.selectAllConfConnectType();
+
+        //查询该连接所属的类型下的所有的连接
+        List<ConfConnect> connects = new ArrayList<>();
+        if (jobConfig.getOutput_connect_id() != null) {
+            ConfConnect connect = confConnectService.selectById(jobConfig.getOutput_connect_id());
+            if (connect != null) {
+                //设置连接类型id
+                jobConfig.setOutput_connect_type(connect.getTypeId());
+                //查询该连接所属的类型下的所有的连接
+                connects = confConnectService.selectList(new EntityWrapper<ConfConnect>().eq("type_id", connect.getTypeId()));
+            }
+        }
+        model.addAttribute("allConfConnectType", allConfConnectType);
+        model.addAttribute("connects", connects);
+
+    }
+
+
 
     /**
      * 获取任务信息列表
@@ -161,7 +184,7 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object list(String condition) {
         Wrapper<JobInfo> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("name", condition);
+        wrapper = wrapper.like("name", condition).orderBy("create_time",false);
 
         List<JobInfo> list = jobInfoService.selectList(wrapper);
         for (JobInfo info : list
@@ -422,8 +445,8 @@ public class JobInfoController extends BaseController {
                         runCmd = "embulk guess -g jsonl config.yml -o guessed.yml && embulk run guessed.yml";
 
                     }
-                    shell = String.format("echo \"\"\"%s\"\"\" > config.yml\n" +
-                            "%s && %s -e 'msck repair table %s.%s'\n", runCmd,configFile, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
+                    shell = String.format("echo \"\"\"\n%s\"\"\" > config.yml\n" +
+                            "%s && %s -e 'msck repair table %s.%s'\n", configFile,runCmd, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {

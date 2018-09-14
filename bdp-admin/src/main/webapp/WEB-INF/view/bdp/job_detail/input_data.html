@@ -39,7 +39,7 @@
                         <div class="col-input">
                             <select class="form-control" id="input_connect_id">
                                 @for(connect in connects){
-                                @if(jobConfig !=null && jobConfig.input_connect_id==connect.id){
+                                @if(jobConfig !=null && jobConfig.input_connect_id == connect.id){
                                 <option value=${connect.id} selected="selected">${connect.name}</option>
                                 @}else{
                                 <option value=${connect.id}>${connect.name}</option>
@@ -189,7 +189,10 @@
 </body>
 <script type="text/javascript">
     $(function () {
-        showInConnect();
+
+        if($("#input_connect_id").val()==null){
+            showInConnect();
+        }
 
         if ( $("#output_table_name").val()==null){
             showHiveTable();

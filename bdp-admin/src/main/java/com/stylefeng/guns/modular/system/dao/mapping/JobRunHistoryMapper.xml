@@ -22,6 +22,6 @@
 
     <!-- 根据任务id查询任务运行历史信息 -->
     <select id="selectByParam" parameterType="string" resultMap="BaseResultMap">
-			SELECT a.* FROM job_run_history  a inner join job_info b on a.job_info_id=b.id and b.name like  concat('%',#{_parameter},'%')
+			SELECT a.* FROM job_run_history  a inner join job_info b on a.job_info_id=b.id and b.name like  concat('%',#{_parameter},'%') order by a.id desc
 	</select>
 </mapper>

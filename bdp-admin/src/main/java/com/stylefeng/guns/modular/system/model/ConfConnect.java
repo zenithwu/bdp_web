@@ -230,6 +230,20 @@ public class ConfConnect extends Model<ConfConnect> {
      */
     @TableField(exist=false)
     private String createPerName;
+
+    public String getModPerName() {
+        return modPerName;
+    }
+
+    public void setModPerName(String modPerName) {
+        this.modPerName = modPerName;
+    }
+
+    /**
+     * 修改用户
+     */
+    @TableField(exist=false)
+    private String modPerName;
     /**
      * 连接类型
      */

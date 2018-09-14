@@ -86,7 +86,7 @@ public class ConfConnectController extends BaseController {
          wrapper = wrapper.like("name", condition);
          List<ConfConnect> list=confConnectService.selectList(wrapper);
          for (ConfConnect info:list) {
-           
+                info.setModPerName(userService.selectById(info.getModPer()).getName());
         	    info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
             	info.setTypeIdName(contypeService.selectById(info.getTypeId()).getName());                              
          }

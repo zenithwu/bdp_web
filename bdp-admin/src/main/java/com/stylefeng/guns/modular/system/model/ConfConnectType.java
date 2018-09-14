@@ -151,6 +151,7 @@ public class ConfConnectType extends Model<ConfConnectType> {
         ", type=" + type +
         ", desc=" + desc +
         ", createTime=" + createTime +
+        ", driverClass=" + driverClass +
         ", createPer=" + createPer +
         ", modTime=" + modTime +
         ", modPer=" + modPer +
@@ -168,5 +169,19 @@ public class ConfConnectType extends Model<ConfConnectType> {
      */
     @TableField(exist=false)
     private String createPerName;
+
+    public String getModPerName() {
+        return modPerName;
+    }
+
+    public void setModPerName(String modPerName) {
+        this.modPerName = modPerName;
+    }
+
+    /**
+     * 修改用户
+     */
+    @TableField(exist=false)
+    private String modPerName;
 
 }
