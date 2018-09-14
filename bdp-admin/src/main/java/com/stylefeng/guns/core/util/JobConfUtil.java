@@ -194,7 +194,7 @@ public class JobConfUtil {
         List<String> cmdList = new ArrayList<>();
         // 构造命令
         cmdList.add("/bin/spark2-submit");
-        cmdList.add("--class com.it863.common.ExportHiveToMysql");
+        cmdList.add("--class com.it863.common.ExportHiveToRDB");
         cmdList.add("--jars /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar,/opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar");
         cmdList.add(String.format("hdfs://%s/bdp-common-1.0.0.jar",bdpJobConfig.getJoblib()));
         cmdList.add(jobConfig.getJobId().toString());
