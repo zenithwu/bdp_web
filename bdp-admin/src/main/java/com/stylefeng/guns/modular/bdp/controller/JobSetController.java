@@ -12,6 +12,7 @@ import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.jenkins.ProcUtil;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
 import com.stylefeng.guns.modular.system.model.JobInfo;
+import com.stylefeng.guns.modular.system.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -94,8 +95,10 @@ public class JobSetController extends BaseController {
         wrapper = wrapper.like("name", condition);
         List<JobSet> list=jobSetService.selectList(wrapper);
         for (JobSet job:list) {
-            	job.setCreatePerName(userService.selectById(job.getCreatePer()).getName());
-            	/*job.setModPerName(userService.selectById(job.getModPer()).getName());*/
+            if(null!=job.getCreatePer()) {
+                User user=userService.selectById(job.getCreatePer());
+                job.setCreatePerName(user!=null?user.getName():"");
+            }
         }
         return list;
     }
@@ -106,6 +109,10 @@ public class JobSetController extends BaseController {
     @RequestMapping(value = "/add")
     @ResponseBody
     public Object add(JobSet jobSet) {
+        JobSet set = jobSetService.selectOne(new EntityWrapper<JobSet>().eq("name",jobSet.getName()));
+        if (set != null) {
+            throw new GunsException(BizExceptionEnum.JOBSET_EXISTED);
+        }
         jobSet.setCreatePer(ShiroKit.getUser().getId());
         jobSet.setCreateTime(DateTimeKit.date());
         if(jobSetService.insert(jobSet)){

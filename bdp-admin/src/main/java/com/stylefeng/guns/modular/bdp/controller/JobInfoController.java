@@ -191,14 +191,18 @@ public class JobInfoController extends BaseController {
                 ) {
             info.setEnableName(JobStatus.ObjOf(info.getEnable()).getName());
             info.setLastRunStateName(LastRunState.ObjOf(info.getLastRunState()).getName());
-            if (info.getCreatePer() != null) {
-                info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
+
+            if(null!=info.getCreatePer()) {
+                User user=userService.selectById(info.getCreatePer());
+                info.setCreatePerName(user!=null?user.getName():"");
             }
-            if (info.getModPer() != null) {
-                info.setModPerName(userService.selectById(info.getModPer()).getName());
+            if(null!=info.getModPer()) {
+                User user=userService.selectById(info.getModPer());
+                info.setModPerName(user!=null?user.getName():"");
             }
-            if (info.getUserInfoId() != null) {
-                info.setUserInfoName(userService.selectById(info.getUserInfoId()).getName());
+            if(null!=info.getUserInfoId()) {
+                User user=userService.selectById(info.getUserInfoId());
+                info.setUserInfoName(user!=null?user.getName():"");
             }
             if (info.getJobSetId() != null) {
                 info.setJobSetName(jobSetService.selectById(info.getJobSetId()).getName());
@@ -250,7 +254,9 @@ public class JobInfoController extends BaseController {
         if ((jobInfo.getLastRunState() != null) && LastRunState.RUNNING.getCode() == jobInfo.getLastRunState()) {
             throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
         }
-
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
         List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
         if (icList.size() > 0 && icList != null) {
             throw new GunsException(BizExceptionEnum.JOBINFOCOF_JOBINFO);
@@ -486,7 +492,7 @@ public class JobInfoController extends BaseController {
                     }
                     //上传job配置文件到hdfs上
                     try {
-                        JobConfUtil.upLoadJobConf(jobConfig,conf,confConnectType,bdpJobConfig.getZkurl(),bdpJobConfig.getJobconfig());
+                        JobConfUtil.upLoadJobConf(jobConfig,conf,confConnectType,bdpJobConfig.getNamenodestr(),bdpJobConfig.getJobconfig());
                     } catch (Exception e) {
                         throw new GunsException(new BizException(500,"上传配置文件失败!!!"));
                     }

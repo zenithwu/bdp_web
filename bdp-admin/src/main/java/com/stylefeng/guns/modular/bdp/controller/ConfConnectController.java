@@ -7,6 +7,7 @@ import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
+import com.stylefeng.guns.modular.system.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -86,9 +87,15 @@ public class ConfConnectController extends BaseController {
          wrapper = wrapper.like("name", condition);
          List<ConfConnect> list=confConnectService.selectList(wrapper);
          for (ConfConnect info:list) {
-                info.setModPerName(userService.selectById(info.getModPer()).getName());
-        	    info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
-            	info.setTypeIdName(contypeService.selectById(info.getTypeId()).getName());                              
+             if(null!=info.getCreatePer()) {
+                 User user=userService.selectById(info.getCreatePer());
+                 info.setCreatePerName(user!=null?user.getName():"");
+             }
+             if(null!=info.getModPer()) {
+                 User user=userService.selectById(info.getModPer());
+                 info.setModPerName(user!=null?user.getName():"");
+             }
+             info.setTypeIdName(contypeService.selectById(info.getTypeId()).getName());
          }
          return list;
     }

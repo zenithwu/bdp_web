@@ -49,7 +49,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="sql_div">
                         <label class="col-th col-th3 fl">sql语句</label>
                         <div class="col-input">
                             <textarea id="input_input_content" class="form-control"
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="ftp_div">
                         <label class="col-th col-th3 fl">文件位置</label>
                         <div class="col-input">
                             <input type="text" id="input_file_position" class="form-control" placeholder=""
@@ -100,20 +100,6 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">写入模式</label>
-                        <div class="col-input">
-                            <select class="form-control" id="output_write_model">
-                                @if(jobConfig !=null && jobConfig.output_write_model=='append'){
-                                <option selected="selected" value="append">追加</option>
-                                <option value="overwrite">覆盖</option>
-                                @}else{
-                                <option value="append">追加</option>
-                                <option selected="selected" value="overwrite">覆盖</option>
-                                @}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="col-th col-th3 fl">数据分区</label>
                         <div class="col-input">
                             <input type="text" class="form-control" placeholder="pt1={yyyy-mm},pt2={yyyy-mm-dd}"
@@ -135,7 +121,7 @@
                     <div class="form-group">
                         <label class="col-th col-th3 fl">依赖执行</label>
                         <div class="col-input">
-                            <input type="text" id="schedule_depend" class="form-control"
+                            <input type="text" id="schedule_depend" class="form-control" placeholder="多个任务逗号隔开"
                                    value="${jobConfig.schedule_depend}"/>
                         </div>
                     </div>
@@ -210,6 +196,15 @@
 
     function showInConnect() {
         var option = $("#input_connect_type option:selected");
+
+
+        if(option.html()=="ftp"){
+            $("#ftp_div").show()
+            $("#sql_div").hide()
+        }else{
+            $("#ftp_div").hide()
+            $("#sql_div").show()
+        }
         $.get(Feng.ctxPath + '/confConnect/listByTypeId/' + option.val(), {}, function (res) {
 
             var options = ""

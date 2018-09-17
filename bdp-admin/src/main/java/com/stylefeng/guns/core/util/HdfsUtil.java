@@ -3,12 +3,13 @@ package com.stylefeng.guns.core.util;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.server.namenode.ha.proto.HAZKInfoProtos;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.net.URI;
 
 /**
  * hdfs工具类
@@ -16,12 +17,23 @@ import java.io.IOException;
 public class HdfsUtil {
 
     private static Logger logger = Logger.getLogger(HdfsUtil.class);
-    private String FS_URL;
-    public HdfsUtil(String zkUrl) throws Exception {
-        ZkUtil zk=new ZkUtil(zkUrl);
-        HAZKInfoProtos.ActiveNodeInfo activeNodeInfo=HAZKInfoProtos.ActiveNodeInfo.parseFrom(zk.getValue("/hadoop-ha/bdpns/ActiveStandbyElectorLock"));
-        FS_URL=String.format("hdfs://%s",activeNodeInfo.getHostname());
-        zk.close();
+    public DistributedFileSystem dfs;
+
+    public HdfsUtil(String nameNodeStr) throws Exception {
+
+        Configuration conf=new Configuration(false);
+        String ns = "bdpns";
+        String[] nameNodesAddr = nameNodeStr.split(",");
+        String[] nameNodes = {"nn1","nn2"};
+        conf.set("fs.defaultFS", "hdfs://" + ns);
+        conf.set("dfs.nameservices",ns);
+        conf.set("dfs.ha.namenodes." + ns, nameNodes[0]+","+nameNodes[1]);
+        conf.set("dfs.namenode.rpc-address." + ns + "." + nameNodes[0], nameNodesAddr[0]);
+        conf.set("dfs.namenode.rpc-address." + ns + "." + nameNodes[1], nameNodesAddr[1]);
+        conf.set("dfs.client.failover.proxy.provider." + ns,"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
+        String hdfsRPCUrl = "hdfs://" + ns + ":" + 8020;
+        dfs = new DistributedFileSystem();
+        dfs.initialize(URI.create(hdfsRPCUrl),conf);
     }
 
 
@@ -32,15 +44,13 @@ public class HdfsUtil {
      * @return 成功还是失败
      */
     public boolean writeFile(String fileContent, String dst) {
-        Configuration conf=new Configuration();
-        Path dstPath = new Path(FS_URL+dst);
+        Path dstPath = new Path(dst);
         try {
-            FileSystem fs  = dstPath.getFileSystem(conf);
-            if(fs.exists(dstPath)){
-                fs.delete(dstPath,true);
+            if(dfs.exists(dstPath)){
+                dfs.delete(dstPath,true);
             }
             //Init output stream
-            FSDataOutputStream outputStream=fs.create(new Path(dst));
+            FSDataOutputStream outputStream=dfs.create(new Path(dst));
             //Cassical output stream usage
             outputStream.writeBytes(fileContent);
             outputStream.close();
@@ -56,9 +66,9 @@ public class HdfsUtil {
 
     public static void main(String[] args) throws Exception {
 
-//        HdfsUtil util=new HdfsUtil("bdata001:2181");
-//        util.writeFile("{\"id\":1,\"name\":\"zenith\"}","/bdp/jobconfig/test.json");
-
+//        HdfsUtil util=new HdfsUtil("bdata001:8020,bdata002:8020");
+//        util.writeFile("{\"id\":1,\"name\":\"zenithnw\"}","/bdp/jobconfig/test.json");
+//        util.dfs.close();
     }
 
 

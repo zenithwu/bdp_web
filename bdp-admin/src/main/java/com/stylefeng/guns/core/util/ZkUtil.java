@@ -12,7 +12,7 @@ import java.io.IOException;
 public class ZkUtil {
 
     private static Logger logger=LoggerFactory.getLogger(ZkUtil.class);
-    private int timeout=10000;
+    private int timeout=30000;
     private ZooKeeper zooKeeper=null;
 
     public ZkUtil(String connectStr) {

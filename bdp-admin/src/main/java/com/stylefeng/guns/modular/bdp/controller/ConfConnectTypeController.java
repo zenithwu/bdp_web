@@ -12,6 +12,7 @@ import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
 import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.system.model.ConfConnect;
 import com.stylefeng.guns.modular.system.model.ConfConnectType;
+import com.stylefeng.guns.modular.system.model.User;
 import com.stylefeng.guns.modular.system.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -79,8 +80,14 @@ public class ConfConnectTypeController extends BaseController {
         wrapper = wrapper.like("name", condition);
         List<ConfConnectType> list=confConnectTypeService.selectList(wrapper);
         for (ConfConnectType info:list) {
-           info.setCreatePerName(userService.selectById(info.getCreatePer()).getName());
-            info.setModPerName(userService.selectById(info.getModPer()).getName());
+            if(null!=info.getCreatePer()) {
+                User user=userService.selectById(info.getCreatePer());
+                info.setCreatePerName(user!=null?user.getName():"");
+            }
+           if(null!=info.getModPer()) {
+               User user=userService.selectById(info.getModPer());
+               info.setModPerName(user!=null?user.getName():"");
+           }
         }
         return list;
     }

@@ -36,5 +36,15 @@ public class BdpJobConfig {
 
     private  String zkurl;
 
+    public String getNamenodestr() {
+        return namenodestr;
+    }
+
+    public void setNamenodestr(String namenodestr) {
+        this.namenodestr = namenodestr;
+    }
+
+    private String namenodestr;
+
 
 }

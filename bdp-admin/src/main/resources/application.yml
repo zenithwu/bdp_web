@@ -54,8 +54,7 @@ spring:
       jobconfig: /bdp/jobconfig
       joblib: /bdp/sparkLib
       zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
-
-
+      namenodestr: 192.168.0.193:8020,192.168.0.194:8020
 
 #多数据源情况的配置
 guns:
@@ -90,9 +89,7 @@ spring:
       jobconfig: /bdp/jobconfig
       joblib: /bdp/sparkLib
       zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
-
-
-
+      namenodestr: 192.168.0.193:8020,192.168.0.194:8020
 ---
 
 spring:
@@ -114,6 +111,11 @@ spring:
       jobconfig: /bdp/jobconfig
       joblib: /bdp/sparkLib
       zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
+      namenodestr: 192.168.0.193:8020,192.168.0.194:8020
+
+
+
+
 ---
 
 spring:
@@ -135,4 +137,4 @@ spring:
       jobconfig: /bdp/jobconfig
       joblib: /bdp/sparkLib
       zkurl: 192.168.0.193,192.168.0.194,192.168.0.195:2180
-
+      namenodestr: 192.168.0.193:8020,192.168.0.194:8020

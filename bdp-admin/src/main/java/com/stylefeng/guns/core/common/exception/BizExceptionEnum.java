@@ -14,7 +14,9 @@ public enum BizExceptionEnum implements ServiceExceptionEnum {
      */
 	JOBINFO_NOTRUN(400,"该任务已被禁用，启用后再运行"),
 	JOBINFO_RUN(400, "该任务正在运行，请稍后再试"),
+    JOBINFO_PERMISSIOIN(400, "该任务不是你的任务不可删除"),
 	JOBINFO_EXISTED(400, "任务名重复，请重新输入"),
+    JOBSET_EXISTED(400, "任务集名重复，请重新输入"),
 	JOBINFOCOF_JOBINFO(400, "有其他任务依赖该任务，暂不能操作"),
     DEPEND_EXISTED(400, "有引用，不能操作"),
     DICT_EXISTED(400, "字典已经存在"),

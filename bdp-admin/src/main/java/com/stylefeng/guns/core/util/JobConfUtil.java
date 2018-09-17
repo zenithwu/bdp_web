@@ -65,30 +65,8 @@ public class JobConfUtil {
 
     }
 
-
-    public static Map<String, String> createJdbcUrl(JobConfig jobConfig, IConfConnectService confConnectService, IConfConnectTypeService confConnectTypeService) {
-        ConfConnect conf = confConnectService.selectById(jobConfig.getOutput_connect_id());
-
-        Map<String, String> urlParms = new HashMap<String, String>();
-
-        ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(jobConfig.getOutput_connect_type());
-        String url = null;
-        if (confConnectType.getType().equals(0)) { // rdbms
-            // 此处不能判断到数据库的类型, 只支持mysql
-            url = String.format("jdbc:mysql://%s:%s/%s", conf.getHost(), conf.getPort(), conf.getDbname());
-        } else { // ftp
-
-        }
-        urlParms.put("url", url);
-        urlParms.put("user", conf.getUsername());
-        urlParms.put("password", conf.getPassword());
-
-        return urlParms;
-    }
-
-
     public static String genConfigFile(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType) {
-        String config = null;
+        StringBuilder config = new StringBuilder();
         // sql查询, jobConfig.getInput_input_type().equals("sql")
         String tabAndLoc = genTableLocation(jobConfig);
         if (StringUtils.isEmpty(jobConfig.getHight_thread())) {
@@ -97,10 +75,13 @@ public class JobConfUtil {
         if (StringUtils.isEmpty(jobConfig.getHight_file_num())) {
             jobConfig.setHight_file_num("1");
         }
+        config.append(String.format("exec: {max_threads: %s, min_output_tasks: %s}\n",jobConfig.getHight_thread(),jobConfig.getHight_file_num()));
+
+
+
         //关系型数据的实现
         if (confConnectType.getType().equals(conTypeType.RDBMS.getCode())) {
-            config = String.format("exec: {max_threads: %s, min_output_tasks: %s}\n" +
-                            "in:\n" +
+            config.append(String.format("in:\n" +
                             "  type: %s\n" +
                             "  host: %s\n" +
                             "  port: %s\n" +
@@ -109,31 +90,16 @@ public class JobConfUtil {
                             "  database: %s\n" +
                             "  query: %s\n" +
                             "  use_raw_query_with_incremental: false\n" +
-                            "  options: {useLegacyDatetimeCode: false, serverTimezone: CST}\n" +
-                            "out:\n" +
-                            "  type: hdfs\n" +
-                            "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
-                            "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
-                            "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
-                            "  path_prefix: /user/hive/warehouse/%s/\n" +
-                            "  file_ext: text\n" +
-                            "  mode: %s\n" +
-                            "  formatter: {type: jsonl, encoding: UTF-8}",
-                    jobConfig.getHight_thread(),
-                    jobConfig.getHight_file_num(),
+                            "  options: {useLegacyDatetimeCode: false, serverTimezone: CST}\n",
                     confConnectType.getName(),
                     conf.getHost(),
                     conf.getPort(),
                     conf.getUsername(),
                     conf.getPassword(),
                     conf.getDbname(),
-                    jobConfig.getInput_input_content(),
-                    tabAndLoc,
-                    jobConfig.getOutput_write_model()
-            );
+                    jobConfig.getInput_input_content()));
         } else {
-            config = String.format("exec: {max_threads: %s, min_output_tasks: %s}\n" +
-                            "in:\n" +
+            config.append(String.format("in:\n" +
                             "  type: ftp\n" +
                             "  host: %s\n" +
                             "  port: %s\n" +
@@ -143,27 +109,23 @@ public class JobConfUtil {
                             "\n" +
                             "  ssl: true\n" +
                             "  ssl_verify: false\n" +
-                            "out:\n" +
-                            "  type: hdfs\n" +
-                            "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
-                            "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
-                            "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
-                            "  path_prefix: /user/hive/warehouse/%s/\n" +
-                            "  file_ext: text\n" +
-                            "  mode: %s\n" +
-                            "  formatter: {type: jsonl, encoding: UTF-8}",
-                    jobConfig.getHight_thread(),
-                    jobConfig.getHight_file_num(),
                     conf.getHost(),
                     conf.getPort(),
                     conf.getUsername(),
                     conf.getPassword(),
-                    jobConfig.getInput_file_position(),
-                    tabAndLoc,
-                    jobConfig.getOutput_write_model()
-            );
+                    jobConfig.getInput_file_position()));
         }
-        return config;
+        config.append(String.format( "out:\n" +
+                "  type: hdfs\n" +
+                "  config_files: [/etc/hadoop/conf/core-site.xml, /etc/hadoop/conf/hdfs-site.xml]\n" +
+                "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
+                "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
+                "  path_prefix: /user/hive/warehouse/%s/\n" +
+                "  file_ext: text\n" +
+                "  mode: overwrite\n" +
+                "  formatter: {type: jsonl, encoding: UTF-8}",tabAndLoc));
+
+        return config.toString();
     }
 
     private static String genTableLocation(JobConfig jobConfig) {
@@ -204,7 +166,7 @@ public class JobConfUtil {
         return shell;
     }
 
-    public static void upLoadJobConf(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType, String zkUrl, String conUrl) throws Exception {
+    public static void upLoadJobConf(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType, String nameNodeStrs, String conUrl) throws Exception {
 
 
         JSONObject jsonObject = (JSONObject) JSONObject.toJSON(jobConfig);
@@ -216,9 +178,9 @@ public class JobConfUtil {
         jsonObject.put("dbname", conf.getDbname());
         jsonObject.put("driverClass", confConnectType.getDriverClass());
 
-        HdfsUtil util = new HdfsUtil(zkUrl);
+        HdfsUtil util = new HdfsUtil(nameNodeStrs);
         util.writeFile(jsonObject.toJSONString(), String.format("%s/jobid_%s.json", conUrl, jobConfig.getJobId()));
-
+        util.dfs.close();
 
     }
 
