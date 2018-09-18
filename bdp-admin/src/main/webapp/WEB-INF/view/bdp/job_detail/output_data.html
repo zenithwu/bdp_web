@@ -13,6 +13,9 @@
             <input id="jobId" value="${item.id}" hidden="hidden">
             <h4 class="panel-title">${item.name}</h4>
             <p>${item.desc}</p>
+            <div style="float:right;position:relative;bottom:30px">
+                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
+            </div>
         </div>
         <div class="panel-body fl">
             <!--表格-->
@@ -109,12 +112,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-        <div class="panel-body fl">
-            <!--保存-->
-            <div class="btn-group fr mtop total-btn">
-                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
             </div>
         </div>
     </div>

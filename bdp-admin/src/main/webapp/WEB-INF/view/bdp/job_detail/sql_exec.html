@@ -13,15 +13,15 @@
             <input id="jobId" value="${item.id}" hidden="hidden">
             <h4 class="panel-title">${item.name}</h4>
             <p>${item.desc}</p>
+            <div style="float:right;position:relative;bottom:30px">
+            <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
+            </div>
         </div>
         <div class="panel-body fl">
                 <!--表格-->
             <div class="textarea-model fl">
                 <div class="title">HQL语句</div>
                 <textarea class="textarea" id="sql_statment">${jobConfig.sql_statment}</textarea>
-                <div class="btn-group fr mtop">
-                    <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
-                </div>
             </div>
             <div class="tabler-model fl">
                 <div class="title">调度设置</div>

@@ -16,6 +16,7 @@ import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.log.LogObjectHolder;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
+import com.stylefeng.guns.core.util.HdfsUtil;
 import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.core.util.JobConfUtil;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
@@ -24,15 +25,17 @@ import com.stylefeng.guns.modular.system.model.*;
 import com.stylefeng.guns.modular.system.service.IUserService;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +55,7 @@ public class JobInfoController extends BaseController {
 
     private String PREFIX = "/bdp/jobInfo/";
     private String DETAIL = "/bdp/job_detail/";
-
+    private Logger logger=Logger.getLogger(JobInfoController.class);
     @Autowired
     private IJobInfoService jobInfoService;
     @Autowired
@@ -392,11 +395,15 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/saveData")
     @ResponseBody
     public Object saveInputData(JobConfig jobConfig) {
+        JobInfo jobInfo = jobInfoService.selectById(jobConfig.getJobId());
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
         //转换特殊字符
         jobConfig.setSql_statment(unescapeHtml(jobConfig.getSql_statment()));
         jobConfig.setInput_input_content(unescapeHtml(jobConfig.getInput_input_content()));
         jobConfig.setOutput_pre_statment(unescapeHtml(jobConfig.getOutput_pre_statment()));
-        JobInfo jobInfo = jobInfoService.selectById(jobConfig.getJobId());
+
         if(StringUtils.isNotEmpty(jobConfig.getSchedule_depend())){
             //入库的时候依赖前面增加逗号
             StringBuilder sb=new StringBuilder(",");
@@ -438,21 +445,32 @@ public class JobInfoController extends BaseController {
 
         String beelineCmd = hiveConfig.getBeeline()+" "+hiveConfig.getUrl() + jobConfig.getOutput_db_name();
         if (jobInfoService.updateById(jobInfo)) {
-            String shell = "";
+            String shell;
+            StringBuilder paramCmd=new StringBuilder(String.format("if [ ! -f 'bdp-common-1.0.0.jar' ];then\n" +
+                    "\thdfs dfs -get %s/bdp-common-1.0.0.jar .\n" +
+                    "fi\n" +
+                    "if [ ! -f 'joda-time-2.8.1.jar' ];then\n" +
+                    "\thdfs dfs -get %s/joda-time-2.8.1.jar .\n" +
+                    "fi\n",bdpJobConfig.getJoblib(),bdpJobConfig.getJoblib()));
             switch (jobInfo.getTypeId()) {
 
                 //数据接入
                 case 1: {
                     ConfConnect conf = confConnectService.selectById(jobConfig.getInput_connect_id());
                     ConfConnectType confConnectType = confConnectTypeService.selConfConnectTypeById(conf.getTypeId());
-                    String configFile = JobConfUtil.genConfigFile(jobConfig,conf,confConnectType);
+                    Map<String,String> params=JobConfUtil.extraParams(jobConfig.getInput_file_position(),jobConfig.getInput_input_content(),jobConfig.getOutput_data_partition());
+                    String configFile = JobConfUtil.genConfigFile(jobConfig,conf,confConnectType,params.keySet());
                     String runCmd="embulk run config.yml ";
                     if(confConnectType.getType().equals(conTypeType.FTP.getCode())){
                         runCmd = "embulk guess -g jsonl config.yml -o guessed.yml && embulk run guessed.yml";
 
                     }
-                    shell = String.format("echo \"\"\"\n%s\"\"\" > config.yml\n" +
-                            "%s && %s -e 'msck repair table %s.%s'\n", configFile,runCmd, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
+                    for (String param:params.values()
+                         ) {
+                        paramCmd.append(param);
+                    }
+                    shell = String.format("%s\necho \"\"\"\n%s\"\"\" > config.yml\n" +
+                            "%s && %s -e 'msck repair table %s.%s'\n", paramCmd.toString(),configFile,runCmd, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
@@ -462,7 +480,15 @@ public class JobInfoController extends BaseController {
                 }
                 //SQL
                 case 2: {
-                    shell = String.format("echo \"\"\"%s\"\"\" > script.hql \n%s -f script.hql", jobConfig.getSql_statment(),beelineCmd);
+                    Map<String,String> params=JobConfUtil.extraParams(jobConfig.getSql_statment());
+                    for (String param:params.values()
+                            ) {
+                        paramCmd.append(param);
+                    }
+                    shell = String.format("%s\necho \"\"\"%s\"\"\" > script.hql \n%s -f script.hql"
+                            , paramCmd.toString()
+                            ,JobConfUtil.replace_date_to_normal(jobConfig.getSql_statment(),params.keySet())
+                            ,beelineCmd);
                     try {
                         jobUtil.setJobCmd(jobInfo.getName(), JobConfUtil.wrapShell(shell,jenkinsConfig));
                     } catch (Exception e) {
@@ -472,8 +498,13 @@ public class JobInfoController extends BaseController {
                 }
                 //程序执行
                 case 3: {
+                    Map<String,String> params=JobConfUtil.extraParams(jobConfig.getBase_proc_main_args(),jobConfig.getBase_proc_main_in(),jobConfig.getBase_proc_main_out());
+                    for (String param:params.values()
+                            ) {
+                        paramCmd.append(param);
+                    }
                     try {
-                        shell=JobConfUtil.gentProcExeShell(jobConfig,jenkinsConfig,bdpJobConfig);
+                        shell=JobConfUtil.gentProcExeShell(jobConfig,jenkinsConfig,bdpJobConfig,params.keySet());
                         jobUtil.setJobCmd(jobInfo.getName(), shell);
                     } catch (Exception e) {
                         throw new GunsException(SERVER_ERROR);
@@ -506,12 +537,39 @@ public class JobInfoController extends BaseController {
         return SUCCESS_TIP;
     }
 
+    /**
+     * 上传图片
+     */
+    @RequestMapping(method = RequestMethod.POST, path = "/upload")
+    @ResponseBody
+    public String upload(@RequestParam("file") MultipartFile file,Integer jobId) {
+
+        if (!file.isEmpty()) {
+            try {
+
+                HdfsUtil util=new HdfsUtil(bdpJobConfig.getNamenodestr());
+//
+//                BufferedOutputStream out = new BufferedOutputStream(
+//                        new FileOutputStream(new File(file.getOriginalFilename())));
+//                out.write(file.getBytes());
+                util.writeFile(file.getBytes(),String.format("%s/%s/%s",bdpJobConfig.getJoblib(),jobId,file.getOriginalFilename()));
+//                out.flush();
+//                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new GunsException(new BizException(500,e.getMessage()));
+            }
+            return file.getOriginalFilename();
+        } else {
+            throw new GunsException(new BizException(500,"文件为空!!!"));
+        }
+    }
 
 
 
     private String unescapeHtml(String str) {
         if (str != null) {
-            return StringEscapeUtils.unescapeHtml(str.replaceAll("& #", "&#"));
+            return StringEscapeUtils.unescapeHtml(str.replaceAll("& ","&"));
         } else {
             return null;
         }

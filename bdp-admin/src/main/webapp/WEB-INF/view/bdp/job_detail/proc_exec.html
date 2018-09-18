@@ -13,7 +13,10 @@
             <input id="jobId" value="${item.id}" hidden="hidden">
             <h4 class="panel-title">${item.name}</h4>
             <p>${item.desc}</p>
-        </div>
+            <div style="float:right;position:relative;bottom:30px">
+            <#button btnCss="btn btn-save"  name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
+            </div>
+            </div>
         </div>
         <div class="panel-body">
             <div class="clear"></div>
@@ -46,10 +49,16 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-th col-th3 fl">程序文件</label>
+                        <label class="col-th col-th3 fl">程序上传</label>
                         <div class="col-input">
-                            <input type="text"  id="base_proc_main_file" value="${jobConfig.base_proc_main_file}" class="form-control" />
+                            <input type="text"   id="base_proc_main_file" value="${jobConfig.base_proc_main_file}" class="form-control" />
                         </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                        <input type="file" id="file" class="form-control fl" style="margin-left: 4.5%;padding: 19px 15px;"/>
+                        <input  type="button" class="wenjian-btn" onclick="uploadFile()" value="点击上传">
+                        </form>
                     </div>
                 </form>
             </div>
@@ -99,13 +108,6 @@
                     </div>
                 </form>
             </div>
-            <div class="clear"></div>
-            <!--保存-->
-            <div class="btn-group fr mtop total-btn">
-                <div>
-                    <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -114,6 +116,66 @@
 
 <script type="application/javascript">
 
+
+    function setDefault(id,v) {
+        if($("#"+id).val()==null||$("#"+id).val()==""){
+            $("#"+id).val(v)
+        }
+    }
+
+    function uploadFile(){
+        var formData = new FormData();
+        var jobId = $("#jobId").val();
+        formData.append("file",$("#file")[0].files[0]);
+        formData.append("jobId",jobId);
+        $.ajax({
+            url : Feng.ctxPath + "/jobInfo/upload",
+            type : 'POST',
+            data : formData,
+            // 告诉jQuery不要去处理发送的数据
+            processData : false,
+            // 告诉jQuery不要去设置Content-Type请求头
+            contentType : false,
+            beforeSend:function(){
+                console.log("正在进行，请稍候");
+            },
+            success : function(responseStr) {
+                Feng.success("文件上传成功："+responseStr);
+            },
+            error : function(responseStr) {
+                Feng.error("文件上传失败："+responseStr);
+            }
+        });}
+
+    $(function () {
+
+
+        setDefault("resource_dm","1g")
+        setDefault("resource_dc","1")
+        setDefault("resource_em","1g")
+        setDefault("resource_ec","1")
+
+
+        $("#file").change(function () {
+            var path=$("#file").val();
+            var filename;
+            if(path.indexOf("/")>0)//如果包含有"/"号 从最后一个"/"号+1的位置开始截取字符串
+            {
+                filename=path.substring(path.lastIndexOf("/")+1,path.length);
+            }
+            else
+            {
+                if(path.indexOf("\\")>0)//如果包含有"/"号 从最后一个"/"号+1的位置开始截取字符串
+                {
+                    filename=path.substring(path.lastIndexOf("\\")+1,path.length);
+                }else{
+                filename=path;
+                }
+            }
+            $("#base_proc_main_file").val(filename)
+        })
+
+    })
 </script>
 
 </html>

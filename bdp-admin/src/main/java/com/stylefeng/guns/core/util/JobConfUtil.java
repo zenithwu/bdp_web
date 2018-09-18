@@ -4,17 +4,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.stylefeng.guns.config.properties.BdpJobConfig;
 import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.constant.conTypeType;
-import com.stylefeng.guns.modular.bdp.service.IConfConnectService;
-import com.stylefeng.guns.modular.bdp.service.IConfConnectTypeService;
 import com.stylefeng.guns.modular.system.model.ConfConnect;
 import com.stylefeng.guns.modular.system.model.ConfConnectType;
 import com.stylefeng.guns.modular.system.model.JobConfig;
 import org.apache.commons.lang.StringUtils;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class JobConfUtil {
 
@@ -22,8 +24,8 @@ public class JobConfUtil {
         String begin = "source /etc/profile\n" +
                 "param=${time_hour}\n" +
                 "stat_date=`date +%Y-%m-%d`\n" +
-                "if [ -z '%param' ]; then\n" +
-                "param=`date +%Y-%m-%d %H:%M:%S`\n" +
+                "if [ -z '$param' ]; then\n" +
+                "param=`date '+%Y-%m-%d %H:%M:%S'`\n" +
                 "fi\n" +
                 "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_begin\" &\n" +
                 "function run(){\n";
@@ -35,7 +37,29 @@ public class JobConfUtil {
     }
 
 
-    public static String gentProcExeShell(JobConfig jobConfig, JenkinsConfig jenkinsConfig, BdpJobConfig bdpJobConfig) {
+    /***
+     * 传入原始内容提取出需要替换的变量和提交脚本
+     * @param contents
+     * @return
+     */
+    public static Map<String,String> extraParams(String... contents){
+        String cmdLine="res=$(scala -cp bdp-common-1.0.0.jar:joda-time-2.8.1.jar  com.it863.common.util.ParseDateTime '%s' \"$param\")\n" +
+                "%s=`echo $res |awk '{print $1}'`\n";
+        String reg = "(\\$\\{y{0,4}[:-]*q{0,2}[:-]*m{0,2}[:-]*w{0,2}[:-]*d{0,2}[: -]*h{0,2}[:-]*(mi)?(-(\\d)+?)*?\\})";
+        Pattern p = Pattern.compile(reg);
+        Map<String,String> re=new HashMap<>();
+        for (String content:contents
+                ) {
+            Matcher m= p.matcher(content);
+            while (m.find()){
+                re.put(m.group(1),String.format(cmdLine,m.group(1),m.group(1).replace("-","_")
+                        .replace("${","").replace("}","")));
+            }
+        }
+        return re;
+    }
+
+    public static String gentProcExeShell(JobConfig jobConfig, JenkinsConfig jenkinsConfig, BdpJobConfig bdpJobConfig,Set<String> params) {
         String shell = String.format("spark2-submit --class %s \\\n" +
                         "--master yarn \\\n" +
                         "--deploy-mode cluster \\\n" +
@@ -44,28 +68,28 @@ public class JobConfUtil {
                         "--executor-memory %s \\\n" +
                         "--executor-cores %s \\\n" +
                         "--queue default \\\n" +
-                        "hdfs://%s/%s", jobConfig.getBase_proc_main_class()
+                        "hdfs://%s/%s/%s", jobConfig.getBase_proc_main_class()
                 , jobConfig.getResource_dm()
                 , jobConfig.getResource_dc()
                 , jobConfig.getResource_em()
                 , jobConfig.getResource_ec()
-                , bdpJobConfig.getJoblib()
+                , bdpJobConfig.getJoblib(),jobConfig.getJobId()
                 , jobConfig.getBase_proc_main_file());
         if (StringUtils.isNotEmpty(jobConfig.getBase_proc_main_in())) {
-            shell = shell + " " + jobConfig.getBase_proc_main_in();
+            shell = shell + " " + replace_date_to_normal(jobConfig.getBase_proc_main_in(),params);
         }
         if (StringUtils.isNotEmpty(jobConfig.getBase_proc_main_out())) {
-            shell = shell + " " + jobConfig.getBase_proc_main_out();
+            shell = shell + " " + replace_date_to_normal(jobConfig.getBase_proc_main_out(),params);
         }
         if (StringUtils.isNotEmpty(jobConfig.getBase_proc_main_args())) {
-            shell = shell + " " + jobConfig.getBase_proc_main_args();
+            shell = shell + " " + replace_date_to_normal(jobConfig.getBase_proc_main_args(),params);
         }
         return wrapShell(shell, jenkinsConfig);
 
 
     }
 
-    public static String genConfigFile(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType) {
+    public static String genConfigFile(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType,Set<String> params) {
         StringBuilder config = new StringBuilder();
         // sql查询, jobConfig.getInput_input_type().equals("sql")
         String tabAndLoc = genTableLocation(jobConfig);
@@ -97,7 +121,7 @@ public class JobConfUtil {
                     conf.getUsername(),
                     conf.getPassword(),
                     conf.getDbname(),
-                    jobConfig.getInput_input_content()));
+                    replace_date_to_normal(jobConfig.getInput_input_content(),params)));
         } else {
             config.append(String.format("in:\n" +
                             "  type: ftp\n" +
@@ -109,11 +133,11 @@ public class JobConfUtil {
                             "\n" +
                             "  ssl: true\n" +
                             "  ssl_verify: false\n" +
-                    conf.getHost(),
+                            conf.getHost(),
                     conf.getPort(),
                     conf.getUsername(),
                     conf.getPassword(),
-                    jobConfig.getInput_file_position()));
+                    replace_date_to_normal(jobConfig.getInput_file_position(),params)));
         }
         config.append(String.format( "out:\n" +
                 "  type: hdfs\n" +
@@ -123,9 +147,19 @@ public class JobConfUtil {
                 "  path_prefix: /user/hive/warehouse/%s/\n" +
                 "  file_ext: text\n" +
                 "  mode: overwrite\n" +
-                "  formatter: {type: jsonl, encoding: UTF-8}",tabAndLoc));
+                "  formatter: {type: jsonl, encoding: UTF-8}",replace_date_to_normal(tabAndLoc,params)));
 
         return config.toString();
+    }
+
+
+
+    public static String replace_date_to_normal(String content,Set<String> params){
+        for (String param:params
+                ) {
+            content=content.replace(param,param.replace("-","_"));
+        }
+        return content;
     }
 
     private static String genTableLocation(JobConfig jobConfig) {
@@ -158,9 +192,9 @@ public class JobConfUtil {
         cmdList.add("/bin/spark2-submit");
         cmdList.add("--class com.it863.common.ExportHiveToRDB");
         cmdList.add("--jars /opt/cm-5.15.0/share/cmf/lib/mysql-connector-java-5.1.46.jar,/opt/cloudera/parcels/CDH/jars/libthrift-0.9.3.jar");
-        cmdList.add(String.format("hdfs://%s/bdp-common-1.0.0.jar",bdpJobConfig.getJoblib()));
+        cmdList.add(String.format("hdfs://%s/bdp-common-1.0.0.jar", bdpJobConfig.getJoblib()));
         cmdList.add(jobConfig.getJobId().toString());
-        cmdList.add("${param}");
+        cmdList.add("\"${param}\"");
 
         shell = String.join(" ", cmdList.toArray(new String[cmdList.size()]));
         return shell;
@@ -179,7 +213,7 @@ public class JobConfUtil {
         jsonObject.put("driverClass", confConnectType.getDriverClass());
 
         HdfsUtil util = new HdfsUtil(nameNodeStrs);
-        util.writeFile(jsonObject.toJSONString(), String.format("%s/jobid_%s.json", conUrl, jobConfig.getJobId()));
+        util.writeFile(jsonObject.toJSONString().getBytes(), String.format("%s/jobid_%s.json", conUrl, jobConfig.getJobId()));
         util.dfs.close();
 
     }

@@ -1,7 +1,8 @@
 package com.stylefeng.guns.modular.system.model;
 
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.activerecord.Model;
-
+import com.baomidou.mybatisplus.annotations.TableName;
 import java.io.Serializable;
 
 /**
@@ -10,8 +11,9 @@ import java.io.Serializable;
  * </p>
  *
  * @author zenith
- * @since 2018-09-11
+ * @since 2018-09-18
  */
+@TableName("job_table_info")
 public class JobTableInfo extends Model<JobTableInfo> {
 
     private static final long serialVersionUID = 1L;
@@ -19,15 +21,19 @@ public class JobTableInfo extends Model<JobTableInfo> {
     /**
      * 数据库名称
      */
+    @TableField("db_name")
     private String dbName;
     /**
      * 表名称
      */
+    @TableField("table_name")
     private String tableName;
     /**
      * 详情信息
      */
     private String desc;
+    @TableField("user_id")
+    private Integer userId;
 
 
     public String getDbName() {
@@ -54,6 +60,14 @@ public class JobTableInfo extends Model<JobTableInfo> {
         this.desc = desc;
     }
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
     @Override
     protected Serializable pkVal() {
         return null;
@@ -65,6 +79,7 @@ public class JobTableInfo extends Model<JobTableInfo> {
         "dbName=" + dbName +
         ", tableName=" + tableName +
         ", desc=" + desc +
+        ", userId=" + userId +
         "}";
     }
 }

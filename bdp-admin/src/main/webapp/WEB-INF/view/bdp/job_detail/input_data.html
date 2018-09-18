@@ -13,6 +13,9 @@
             <input id="jobId" value="${item.id}" hidden="hidden">
             <h4 class="panel-title">${item.name}</h4>
             <p>${item.desc}</p>
+            <div style="float:right;position:relative;bottom:30px">
+                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
+            </div>
         </div>
         <div class="panel-body fl">
             <!--表格-->
@@ -52,8 +55,7 @@
                     <div class="form-group" id="sql_div">
                         <label class="col-th col-th3 fl">sql语句</label>
                         <div class="col-input">
-                            <textarea id="input_input_content" class="form-control"
-                                      placeholder="select * from tables where dt >='{yyyy-mm-dd}'">${jobConfig.input_input_content}</textarea>
+                            <textarea id="input_input_content"  rows="8" class="form-control">${jobConfig.input_input_content}</textarea>
                         </div>
                     </div>
 
@@ -108,6 +110,7 @@
                     </div>
                 </form>
             </div>
+            <div>
             <div class="tabler-model3 fl">
                 <div class="title">调度设置</div>
                 <form>
@@ -127,47 +130,40 @@
                     </div>
                 </form>
             </div>
-        </div>
-
-        <div class="panel-body fl">
-            <div class="tabler-model3">
-                <div class="title">高级设置</div>
-                <form>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">计算资源</label>
-                        <div class="col-input">
-                            <!--<input type="text" class="form-control" placeholder="mysql" />-->
-                            <select class="form-control" id="hight_resource">
-                                @if(jobConfig !=null && jobConfig.hight_resource=='cluster'){
-                                <option selected="selected" value="cluster">集群资源</option>
-                                <option value="local">本地资源</option>
-                                @}else{
-                                <option value="cluster">集群资源</option>
-                                <option selected="selected" value="local">本地资源</option>
-                                @}
-                            </select>
+            <div class="tabler-model3 fr">
+                    <div class="title">高级设置</div>
+                    <form>
+                        <div class="form-group">
+                            <label class="col-th col-th3 fl">计算资源</label>
+                            <div class="col-input">
+                                <!--<input type="text" class="form-control" placeholder="mysql" />-->
+                                <select class="form-control" id="hight_resource">
+                                    @if(jobConfig !=null && jobConfig.hight_resource=='cluster'){
+                                    <option selected="selected" value="cluster">集群资源</option>
+                                    <option value="local">本地资源</option>
+                                    @}else{
+                                    <option value="cluster">集群资源</option>
+                                    <option selected="selected" value="local">本地资源</option>
+                                    @}
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">线程数</label>
-                        <div class="col-input">
-                            <input id="hight_thread" type="text" class="form-control" placeholder="1"
-                                   value="${jobConfig.hight_thread}"/>
+                        <div class="form-group">
+                            <label class="col-th col-th3 fl">线程数</label>
+                            <div class="col-input">
+                                <input id="hight_thread" type="text" class="form-control" placeholder="1"
+                                       value="${jobConfig.hight_thread}"/>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-th col-th3 fl">文件数</label>
-                        <div class="col-input">
-                            <input id="hight_file_num" type="text" class="form-control" placeholder="1"
-                                   value="${jobConfig.hight_file_num}"/>
+                        <div class="form-group">
+                            <label class="col-th col-th3 fl">文件数</label>
+                            <div class="col-input">
+                                <input id="hight_file_num" type="text" class="form-control" placeholder="1"
+                                       value="${jobConfig.hight_file_num}"/>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-
-            <!--保存-->
-            <div class="btn-group fr mtop total-btn">
-                <#button btnCss="btn btn-save" name="保存" id="save" icon="fa-eraser" clickFun="JobConf.save()"/>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -176,6 +172,7 @@
 <script type="text/javascript">
     $(function () {
 
+        change_content();
         if($("#input_connect_id").val()==null){
             showInConnect();
         }
@@ -186,6 +183,7 @@
 
         $("#input_connect_type").change(function () {
             showInConnect();
+            change_content();
         })
     })
 
@@ -194,10 +192,8 @@
     })
 
 
-    function showInConnect() {
+    function change_content() {
         var option = $("#input_connect_type option:selected");
-
-
         if(option.html()=="ftp"){
             $("#ftp_div").show()
             $("#sql_div").hide()
@@ -205,6 +201,12 @@
             $("#ftp_div").hide()
             $("#sql_div").show()
         }
+
+    }
+
+
+    function showInConnect() {
+        var option = $("#input_connect_type option:selected");
         $.get(Feng.ctxPath + '/confConnect/listByTypeId/' + option.val(), {}, function (res) {
 
             var options = ""

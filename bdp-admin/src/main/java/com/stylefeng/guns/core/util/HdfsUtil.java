@@ -43,16 +43,19 @@ public class HdfsUtil {
      * @param dst  目标路径
      * @return 成功还是失败
      */
-    public boolean writeFile(String fileContent, String dst) {
+    public boolean writeFile(byte[] fileContent, String dst) {
         Path dstPath = new Path(dst);
         try {
             if(dfs.exists(dstPath)){
                 dfs.delete(dstPath,true);
             }
+            if(!dfs.exists(dstPath.getParent())){
+                dfs.mkdirs(dstPath.getParent());
+            }
             //Init output stream
-            FSDataOutputStream outputStream=dfs.create(new Path(dst));
+            FSDataOutputStream outputStream=dfs.create(dstPath);
             //Cassical output stream usage
-            outputStream.writeBytes(fileContent);
+            outputStream.write(fileContent);
             outputStream.close();
 
 

@@ -23,7 +23,7 @@ public enum BizExceptionEnum implements ServiceExceptionEnum {
     ERROR_CREATE_DICT(500, "创建字典失败"),
     ERROR_WRAPPER_FIELD(500, "包装字典属性失败"),
     ERROR_CODE_EMPTY(500, "字典类型不能为空"),
-
+    TABLE_PERMISSIOIN(400, "该表不是你创建的不可删除"),
     /**
      * 文件上传
      */

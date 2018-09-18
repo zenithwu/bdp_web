@@ -1,5 +1,5 @@
 /**
- * 任务数据表管理初始化
+ * 数据表信息管理初始化
  */
 var JobTableInfo = {
     id: "JobTableInfoTable",	//表格id
@@ -16,7 +16,7 @@ JobTableInfo.initColumn = function () {
         {field: 'selectItem', radio: true},
             {title: '数据库名称', field: 'dbName', visible: true, align: 'center', valign: 'middle'},
             {title: '表名称', field: 'tableName', visible: true, align: 'center', valign: 'middle'},
-            {title: '详情信息', field: 'desc', visible: true, align: 'center', valign: 'middle'}
+            {title: '描述', field: 'desc', visible: true, align: 'center', valign: 'middle'}
     ];
 };
 
@@ -35,18 +35,55 @@ JobTableInfo.check = function () {
 };
 
 /**
- * 打开查看任务数据表详情
+ * 点击添加数据表信息
  */
-JobTableInfo.openJobTableInfoDetail = function () {
+JobTableInfo.openAddJobTableInfo = function () {
     var index = layer.open({
         type: 2,
-        title: '任务数据表详情',
-        area: ['1000px', '600px'], //宽高
+        title: '添加数据表信息',
+        area: ['80%', '80%'], //宽高
         fix: false, //不固定
         maxmin: true,
-        content: Feng.ctxPath + '/jobTableInfo/jobTableInfo_update/'
+        content: Feng.ctxPath + '/jobTableInfo/jobTableInfo_add'
     });
     this.layerIndex = index;
+};
+
+/**
+ * 打开查看数据表信息详情
+ */
+JobTableInfo.openJobTableInfoDetail = function () {
+    if (this.check()) {
+        var index = layer.open({
+            type: 2,
+            title: '数据表信息详情',
+            area: ['1000px', '420px'], //宽高
+            fix: false, //不固定
+            maxmin: true,
+            content: Feng.ctxPath + '/jobTableInfo/jobTableInfo_update/' + JobTableInfo.seItem.id
+        });
+        this.layerIndex = index;
+    }
+};
+
+/**
+ * 删除数据表信息
+ */
+JobTableInfo.delete = function () {
+    if (this.check()) {
+        var queren=function () {
+            var ajax = new $ax(Feng.ctxPath + "/jobTableInfo/delete", function (data) {
+                Feng.success("删除成功!");
+                JobTableInfo.table.refresh();
+            }, function (data) {
+                Feng.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("dbName",JobTableInfo.seItem.dbName);
+            ajax.set("tableName",JobTableInfo.seItem.tableName);
+            ajax.start();
+        }
+        Feng.confirm("确认要删除此表" + JobTableInfo.seItem.tableName + "?",queren);
+    }
 };
 
 
@@ -65,9 +102,8 @@ JobTableInfo.detail = function () {
     }
 };
 
-
 /**
- * 查询任务数据表列表
+ * 查询数据表信息列表
  */
 JobTableInfo.search = function () {
     var queryData = {};

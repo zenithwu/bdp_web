@@ -119,7 +119,6 @@ public class HiveUtil {
                     JobTableInfo jobTableInfo=new JobTableInfo();
                     jobTableInfo.setDbName(dbName);
                     jobTableInfo.setTableName(tableName);
-                    jobTableInfo.setDesc("………………");
                     reTable.add(jobTableInfo);
                 }
             }
