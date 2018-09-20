@@ -20,7 +20,6 @@ public class HdfsUtil {
     public DistributedFileSystem dfs;
 
     public HdfsUtil(String nameNodeStr) throws Exception {
-
         Configuration conf=new Configuration(false);
         String ns = "bdpns";
         String[] nameNodesAddr = nameNodeStr.split(",");
@@ -65,6 +64,18 @@ public class HdfsUtil {
         }
         return true;
     }
+    public boolean delete(String dst) {
+        Path dstPath = new Path(dst);
+        try {
+            if(dfs.exists(dstPath)){
+                dfs.delete(dstPath,true);
+            }
+        } catch (IOException ie) {
+            logger.error(ie.getMessage());
+            return false;
+        }
+        return true;
+}
 
 
     public static void main(String[] args) throws Exception {

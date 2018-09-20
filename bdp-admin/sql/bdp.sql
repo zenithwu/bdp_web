@@ -505,12 +505,14 @@ ENGINE = InnoDB DEFAULT CHARSET=utf8
 COMMENT = '任务的统计表';
 
 
-DROP TABLE IF EXISTS `job_table_info`;
+DROP TABLE IF EXISTS `bdp`.`job_table_info`;
 CREATE TABLE `job_table_info` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '编号',
   `db_name` varchar(100) DEFAULT NULL COMMENT '数据库名称',
   `table_name` varchar(255) DEFAULT NULL COMMENT '表名称',
   `desc` text COMMENT '详情信息',
   `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `kj` (`db_name`,`table_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='表信息';
 

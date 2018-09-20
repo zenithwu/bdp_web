@@ -1,5 +1,7 @@
 package com.stylefeng.guns.modular.system.model;
 
+import com.baomidou.mybatisplus.enums.IdType;
+import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableName;
@@ -11,13 +13,18 @@ import java.io.Serializable;
  * </p>
  *
  * @author zenith
- * @since 2018-09-18
+ * @since 2018-09-19
  */
 @TableName("job_table_info")
 public class JobTableInfo extends Model<JobTableInfo> {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 编号
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
     /**
      * 数据库名称
      */
@@ -35,6 +42,28 @@ public class JobTableInfo extends Model<JobTableInfo> {
     @TableField("user_id")
     private Integer userId;
 
+    public String getCreatePerName() {
+        return createPerName;
+    }
+
+    public void setCreatePerName(String createPerName) {
+        this.createPerName = createPerName;
+    }
+
+    /**
+     * 创建用户
+     */
+    @TableField(exist=false)
+    private String createPerName;
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getDbName() {
         return dbName;
@@ -70,13 +99,14 @@ public class JobTableInfo extends Model<JobTableInfo> {
 
     @Override
     protected Serializable pkVal() {
-        return null;
+        return this.id;
     }
 
     @Override
     public String toString() {
         return "JobTableInfo{" +
-        "dbName=" + dbName +
+        "id=" + id +
+        ", dbName=" + dbName +
         ", tableName=" + tableName +
         ", desc=" + desc +
         ", userId=" + userId +

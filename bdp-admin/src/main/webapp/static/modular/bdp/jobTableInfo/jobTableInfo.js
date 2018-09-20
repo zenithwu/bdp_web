@@ -16,7 +16,8 @@ JobTableInfo.initColumn = function () {
         {field: 'selectItem', radio: true},
             {title: '数据库名称', field: 'dbName', visible: true, align: 'center', valign: 'middle'},
             {title: '表名称', field: 'tableName', visible: true, align: 'center', valign: 'middle'},
-            {title: '描述', field: 'desc', visible: true, align: 'center', valign: 'middle'}
+        {title: '所属人', field: 'createPerName', visible: true, align: 'center', valign: 'middle'},
+        {title: '描述', field: 'desc', visible: true, align: 'center', valign: 'middle'}
     ];
 };
 
@@ -57,10 +58,10 @@ JobTableInfo.openJobTableInfoDetail = function () {
         var index = layer.open({
             type: 2,
             title: '数据表信息详情',
-            area: ['1000px', '420px'], //宽高
+            area: ['80%', '80%'], //宽高
             fix: false, //不固定
             maxmin: true,
-            content: Feng.ctxPath + '/jobTableInfo/jobTableInfo_update/' + JobTableInfo.seItem.id
+            content: Feng.ctxPath + '/jobTableInfo/jobTableInfo_update/'  + JobTableInfo.seItem.dbName+"/"+JobTableInfo.seItem.tableName
         });
         this.layerIndex = index;
     }
@@ -86,6 +87,25 @@ JobTableInfo.delete = function () {
     }
 };
 
+/**
+ * 删除数据表信息
+ */
+JobTableInfo.drop = function () {
+    if (this.check()) {
+        var queren=function () {
+            var ajax = new $ax(Feng.ctxPath + "/jobTableInfo/drop", function (data) {
+                Feng.success("删除成功!");
+                JobTableInfo.table.refresh();
+            }, function (data) {
+                Feng.error("删除失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("dbName",JobTableInfo.seItem.dbName);
+            ajax.set("tableName",JobTableInfo.seItem.tableName);
+            ajax.start();
+        }
+        Feng.confirm("确认要删除此表和数据" + JobTableInfo.seItem.tableName + "?",queren);
+    }
+};
 
 
 JobTableInfo.detail = function () {
@@ -107,7 +127,8 @@ JobTableInfo.detail = function () {
  */
 JobTableInfo.search = function () {
     var queryData = {};
-    queryData['condition'] = $("#condition").val();
+    queryData['dbName'] = $("#dbName").val();
+    queryData['tableName'] = $("#tableName").val();
     JobTableInfo.table.refresh({query: queryData});
 };
 

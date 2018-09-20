@@ -1,16 +1,18 @@
 package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.stylefeng.guns.config.properties.BdpJobConfig;
 import com.stylefeng.guns.config.properties.HiveConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.common.exception.BizException;
 import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
-import com.stylefeng.guns.core.constant.LastRunState;
 import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.shiro.ShiroKit;
+import com.stylefeng.guns.core.util.HdfsUtil;
 import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.modular.bdp.service.IJobTableInfoService;
-import com.stylefeng.guns.modular.system.model.JobInfo;
+import com.stylefeng.guns.modular.system.model.User;
+import com.stylefeng.guns.modular.system.service.IUserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +26,7 @@ import com.stylefeng.guns.modular.system.model.JobTableInfo;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 数据表信息控制器
@@ -43,9 +42,14 @@ public class JobTableInfoController extends BaseController {
 
     @Autowired
     private IJobTableInfoService jobTableInfoService;
+    @Autowired
+    private IUserService userService;
 
     @Autowired
     private HiveConfig hiveConfig;
+
+    @Autowired
+    private BdpJobConfig bdpJobConfig;
 
     /**
      * 跳转到数据表信息首页
@@ -64,33 +68,26 @@ public class JobTableInfoController extends BaseController {
     }
 
     /**
-     * 跳转到修改数据表信息
-     */
-    @RequestMapping("/jobTableInfo_update/{jobTableInfoId}")
-    public String jobTableInfoUpdate(@PathVariable Integer jobTableInfoId, Model model) {
-//        JobTableInfo jobTableInfo = jobTableInfoService.selectById(jobTableInfoId);
-//        model.addAttribute("item",jobTableInfo);
-//        LogObjectHolder.me().set(jobTableInfo);
-        return PREFIX + "jobTableInfo_edit.html";
-    }
-
-    /**
      * 获取数据表信息列表
      */
     @RequestMapping(value = "/list")
     @ResponseBody
-    public Object list(String condition) {
+    public Object list(String dbName,String tableName) {
         HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
-        List<JobTableInfo> list=hiveUtil.getTablesBytableName(condition);
+        List<JobTableInfo> list=hiveUtil.getTablesBycondition(dbName,tableName);
         List<JobTableInfo> dbList=jobTableInfoService.selectList(null);
-        Map<String,String> dict=new HashMap<>();
+        Map<String,String> descDict=new HashMap<>();
+        Map<String,String> userDict=new HashMap<>();
         for (JobTableInfo info:dbList
              ) {
-            dict.put(info.getDbName()+"_"+info.getTableName(),info.getDesc());
+            descDict.put(info.getDbName()+"_"+info.getTableName(),info.getDesc());
+            User user=userService.selectById(info.getUserId());
+            userDict.put(info.getDbName()+"_"+info.getTableName(),user!=null?user.getName():"");
         }
         for (JobTableInfo info:list
              ) {
-            info.setDesc(dict.get(info.getDbName()+"_"+info.getTableName()));
+            info.setDesc(descDict.get(info.getDbName()+"_"+info.getTableName()));
+            info.setCreatePerName(userDict.get(info.getDbName()+"_"+info.getTableName()));
         }
         return list;
     }
@@ -118,19 +115,19 @@ public class JobTableInfoController extends BaseController {
         }
         String statment="";
         if("text".equals(format)){
-            statment=String.format("create table %s (\n" +
+            statment=String.format("create EXTERNAL table %s (\n" +
                     "%s)\n" +
                     "%s",tableName,StringUtils.join(cols.toArray(),","),paritions);
         }
         if("json".equals(format)){
-            statment=String.format("create table %s (\n" +
+            statment=String.format("create EXTERNAL table %s (\n" +
                     "%s)\n" +
                     "%s\n" +
                     "ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe'\n" +
                     "STORED AS TEXTFILE",tableName,StringUtils.join(cols.toArray(),","),paritions);
         }
         if("parquet".equals(format)){
-            statment=String.format("create table %s (\n" +
+            statment=String.format("create EXTERNAL table %s (\n" +
                     "%s)\n" +
                     "%s\n" +
                     "stored as parquet",tableName,StringUtils.join(cols.toArray(),","),paritions);
@@ -160,28 +157,48 @@ public class JobTableInfoController extends BaseController {
         JobTableInfo info = jobTableInfoService
                 .selectOne(new EntityWrapper<JobTableInfo>()
                         .eq("db_name",dbName)
-                        .eq("table_name",tableName)
-                        .eq("user_id",ShiroKit.getUser().getId()));
-        if(info==null){
+                        .eq("table_name",tableName));
+        if(info==null||!ShiroKit.getUser().getId().equals(info.getUserId())){
             throw new GunsException(BizExceptionEnum.TABLE_PERMISSIOIN);
         }
         HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl(),dbName);
         try {
             hiveUtil.execute("drop table "+tableName);
+            if(info!=null) {
+                jobTableInfoService.deleteById(info.getId());
+            }
             return SUCCESS_TIP;
         } catch (SQLException e) {
             throw new GunsException(new BizException(500,e.getMessage()));
         }
     }
 
+
     /**
-     * 修改数据表信息
+     * 删除表的数据和元数据
      */
-    @RequestMapping(value = "/update")
+    @RequestMapping(value = "/drop")
     @ResponseBody
-    public Object update(JobTableInfo jobTableInfo) {
-//        jobTableInfoService.updateById(jobTableInfo);
-        return SUCCESS_TIP;
+    public Object truncate(@RequestParam String dbName,@RequestParam String tableName) {
+        JobTableInfo info = jobTableInfoService
+                .selectOne(new EntityWrapper<JobTableInfo>()
+                        .eq("db_name",dbName)
+                        .eq("table_name",tableName));
+        if(info==null||!ShiroKit.getUser().getId().equals(info.getUserId())){
+            throw new GunsException(BizExceptionEnum.TABLE_PERMISSIOIN);
+        }
+        try {
+            HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl(),dbName);
+            hiveUtil.execute("drop table "+tableName);
+            if(info!=null) {
+                jobTableInfoService.deleteById(info.getId());
+            }
+            HdfsUtil hdfsUtil=new HdfsUtil(bdpJobConfig.getNamenodestr());
+            hdfsUtil.delete(hiveUtil.genTableLocation(dbName,tableName));
+            return SUCCESS_TIP;
+        } catch (Exception e) {
+            throw new GunsException(new BizException(500,e.getMessage()));
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ public class GunsApplication {
     private final static Logger logger = LoggerFactory.getLogger(GunsApplication.class);
 
     public static void main(String[] args) {
+        System.setProperty("HADOOP_USER_NAME", "hdfs");
         SpringApplication.run(GunsApplication.class, args);
         logger.info("GunsApplication is success!");
     }

@@ -1,7 +1,9 @@
 package com.stylefeng.guns.core.util;
 
 
+import com.stylefeng.guns.modular.system.model.JobConfig;
 import com.stylefeng.guns.modular.system.model.JobTableInfo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +41,7 @@ public class HiveUtil {
         }
     }
 
-    /**
-     * 删除目录
-     *
-     * @author wuzhanwei
-     * @Date 2018/08/30 下午4:15
-     */
+
     public  List<String> getDataBases( ) {
 
         List<String> list=new ArrayList<>();
@@ -61,17 +58,42 @@ public class HiveUtil {
         return list;
     }
 
-    /**
-     * 删除目录
-     *
-     * @author wuzhanwei
-     * @Date 2018/08/30 下午4:15
-     */
+    public  List<String> getDataBases( String condition) {
+
+        List<String> list=new ArrayList<>();
+
+        try{
+            PreparedStatement sta = con.prepareStatement(String.format("show databases  like '*%s*'",condition));
+            ResultSet result = sta.executeQuery();
+            while(result.next()){
+                list.add(result.getString(1));
+            }
+        } catch(SQLException e) {
+            log.error(e.getMessage());
+        }
+        return list;
+    }
+
     public  List<String> getTablesByDbName(String dbName ) {
 
         List<String> list=new ArrayList<>();
         try{
-            PreparedStatement sta = con.prepareStatement(String.format("show tables in %s",dbName));
+            PreparedStatement sta = con.prepareStatement(String.format("show tables in %s ",dbName));
+            ResultSet result = sta.executeQuery();
+            while(result.next()){
+                list.add(result.getString(1));
+            }
+        } catch(SQLException e) {
+            log.error(e.getMessage());
+        }
+        return list;
+    }
+
+    public  List<String> getTablesByDbName(String dbName ,String condition) {
+
+        List<String> list=new ArrayList<>();
+        try{
+            PreparedStatement sta = con.prepareStatement(String.format("show tables in %s like '*%s*'",dbName,condition));
             ResultSet result = sta.executeQuery();
             while(result.next()){
                 list.add(result.getString(1));
@@ -101,30 +123,30 @@ public class HiveUtil {
     }
 
 
-    public  List<JobTableInfo> getTablesBytableName(String contition ) {
+    public  List<JobTableInfo> getTablesBycondition(String dbName,String tableName ) {
+        dbName=(dbName==null?"":dbName);
+        tableName=(tableName==null?"":tableName);
 
         List<JobTableInfo> reTable=new ArrayList<>();
-
-        List<String > dbs=getDataBases();
-        for (String dbName:dbs
+        List<String > dbs=getDataBases(dbName);
+        for (String dName:dbs
              ) {
-            List<String> tables=getTablesByDbName(dbName);
-
-            for (String tableName:tables
+            List<String> tables=getTablesByDbName(dName,tableName);
+            for (String tName:tables
                  ) {
-                if(contition==null){
-                    contition="";
-                }
-                if(tableName.matches("^.*"+contition+".*$")){
-                    JobTableInfo jobTableInfo=new JobTableInfo();
-                    jobTableInfo.setDbName(dbName);
-                    jobTableInfo.setTableName(tableName);
-                    reTable.add(jobTableInfo);
-                }
+                JobTableInfo jobTableInfo = new JobTableInfo();
+                jobTableInfo.setDbName(dName);
+                jobTableInfo.setTableName(tName);
+                reTable.add(jobTableInfo);
             }
-
         }
         return reTable;
+    }
+
+
+    public String genTableLocation(String dbName,String tableName) {
+        String tabUrl = "default".equals(dbName) ? tableName : dbName + ".db/" + tableName;
+        return "/user/hive/warehouse/"+tabUrl;
     }
 
 
