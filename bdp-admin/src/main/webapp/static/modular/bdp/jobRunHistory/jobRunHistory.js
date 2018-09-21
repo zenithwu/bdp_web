@@ -100,6 +100,22 @@ JobRunHistory.delete = function () {
     }
 };
 
+JobRunHistory.sync = function () {
+    if (this.check()) {
+        var ajax = new $ax(Feng.ctxPath + "/jobRunHistory/sync", function (data) {
+            Feng.success("同步成功!");
+            JobRunHistory.table.refresh();
+        }, function (data) {
+            Feng.error("同步失败!" + data.responseJSON.message + "!");
+        });
+        ajax.set("jobRunHistoryId",this.seItem.id);
+        ajax.start();
+    }
+};
+
+
+
+
 /**
  * 查询列表
  */

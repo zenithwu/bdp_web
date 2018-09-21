@@ -137,11 +137,11 @@ JobInfoInfoDlg.rungoJobInfo = function() {
 
     //提交信息
     var ajax = new $ax(Feng.ctxPath + "/jobInfo/rungoJobInfo", function(data){
-        Feng.success("运行成功!");
+        Feng.success("提交成功!");
         window.parent.JobInfo.table.refresh();
         JobInfoInfoDlg.close();
     },function(data){
-        Feng.error("运行失败!" + data.responseJSON.message + "!");
+        Feng.error("提交失败!" + data.responseJSON.message + "!");
     });
     ajax.set(this.jobInfoInfoData);
     ajax.start();

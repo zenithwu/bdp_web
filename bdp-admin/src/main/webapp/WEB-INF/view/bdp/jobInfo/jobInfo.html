@@ -10,7 +10,18 @@
                     <div class="col-sm-12">
                         <div class="row">
                             <div class="col-sm-3">
-                                <#NameCon id="condition" name="名称" />
+                                <#NameCon id="condition" name="任务名称" />
+                            </div>
+                            <div class="col-sm-3">
+                                <#select id="userId" name="所属人">
+                                @for(user in userList){
+                                @if(user.id==userId){
+                                <option selected="selected" value=${user.id}>${user.name}</option>
+                                @}else{
+                                <option value=${user.id}>${user.name}</option>
+                                @}
+                                @}
+                            </#select>
                             </div>
                             <div class="col-sm-3">
                                 <#button name="搜索" icon="fa-search" clickFun="JobInfo.search()"/>
@@ -34,6 +45,9 @@
                             @}
                             @if(shiro.hasPermission("/jobInfo/runJobInfo")){
                                 <#button name="运行" icon="fa-tags" clickFun="JobInfo.runJobInfo()" space="true"/>
+                            @}
+                            @if(shiro.hasPermission("/jobInfo/runJobInfo")){
+                            <#button name="停止" icon="fa-tags" clickFun="JobInfo.stop()" space="true"/>
                             @}
                             @if(shiro.hasPermission("/jobInfo/jobRunHistory")){
                                 <#button name="运行历史" icon="fa-tasks" clickFun="JobInfo.jobRunHistory()" space="true"/>

@@ -2,8 +2,15 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.offbytwo.jenkins.model.BuildWithDetails;
+import com.stylefeng.guns.config.properties.JenkinsConfig;
 import com.stylefeng.guns.core.base.controller.BaseController;
+import com.stylefeng.guns.core.common.exception.BizException;
+import com.stylefeng.guns.core.common.exception.BizExceptionEnum;
 import com.stylefeng.guns.core.constant.LastRunState;
+import com.stylefeng.guns.core.exception.GunsException;
+import com.stylefeng.guns.core.shiro.ShiroKit;
+import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
 import com.stylefeng.guns.modular.system.model.JobInfo;
@@ -47,6 +54,9 @@ public class JobRunHistoryController extends BaseController {
 
     @Autowired
     private IJobSetService jobSetService;
+
+    @Autowired
+    private JenkinsConfig jenkinsConfig;
 
     /**
      * 跳转到首页
@@ -158,6 +168,53 @@ public class JobRunHistoryController extends BaseController {
         jobRunHistoryService.deleteById(jobRunHistoryId);
         return SUCCESS_TIP;
     }
+
+
+
+    @RequestMapping(value = "/sync")
+    @ResponseBody
+    public Object sync(@RequestParam Integer jobRunHistoryId) {
+
+        //job_run_history 根据jobName和构建num更新   statLastRunState   cost log
+        JobRunHistory jobRunHistory = jobRunHistoryService.selectById(jobRunHistoryId);
+        JobInfo info=jobInfoService.selectById(jobRunHistory.getJobInfoId());
+        JobSet set=jobSetService.selectById(info.getJobSetId());
+
+        if (info != null && set!=null) {
+
+            if(info.getUserInfoId()!=ShiroKit.getUser().getId()){
+                throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+            }
+
+            String buildResult="fail";
+            Long duration=0l;
+            String consoleOutputText="";
+            try {
+                BuildWithDetails buildWithDetails = new JobUtil(set.getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken())
+                        .getJob(info.getName())
+                        .getBuildByNumber(jobRunHistory.getNum().intValue())
+                        .details();
+                buildResult = buildWithDetails.getResult().name().toLowerCase();
+                duration = buildWithDetails.getDuration();
+                consoleOutputText = buildWithDetails.getConsoleOutputText();
+            } catch (Exception ex) {
+                consoleOutputText = ex.getMessage();
+            } finally {
+                if (buildResult.equals("success")) {
+                    jobRunHistory.setState(LastRunState.SUCCESS.getCode());
+                } else {
+                    jobRunHistory.setState(LastRunState.FAIL.getCode());
+                }
+                jobRunHistory.setCost(duration);
+                jobRunHistory.setLog(consoleOutputText);
+                jobRunHistoryService.updateById(jobRunHistory);
+                return SUCCESS_TIP;
+            }
+        }else{
+            throw new GunsException(new BizException(500,"相关任务不存在"));
+        }
+    }
+
 
     /**
      * 修改

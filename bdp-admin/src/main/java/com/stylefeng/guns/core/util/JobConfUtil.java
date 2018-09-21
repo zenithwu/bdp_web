@@ -132,7 +132,7 @@ public class JobConfUtil {
                             "  path_prefix: %s\n" +
                             "\n" +
                             "  ssl: true\n" +
-                            "  ssl_verify: false\n" +
+                            "  ssl_verify: false\n",
                             conf.getHost(),
                     conf.getPort(),
                     conf.getUsername(),

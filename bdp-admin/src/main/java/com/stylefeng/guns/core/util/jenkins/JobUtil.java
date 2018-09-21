@@ -57,10 +57,13 @@ public  class JobUtil {
         jenkins.updateJob(proc,jobName,new JobXML().init(jenkins.getJobXml(proc,jobName)).setDisabled("true").getJobXml(),false);
     }
 
-    public void runJob(String jobName,Map<String,String> params) throws IOException, DocumentException {
+    public void runJob(String jobName,Map<String,String> params) throws IOException {
         jenkins.getJob(proc,jobName).build(params);
     }
 
+    public void stopJob(String jobName) throws IOException {
+        jenkins.getJob(proc,jobName).getLastBuild().Stop();
+    }
     public void setDependsJob(String jobName,String depends) throws IOException, DocumentException {
         JobXML jobXML=new JobXML();
         jenkins.updateJob(proc,jobName,jobXML.init(jenkins.getJobXml(proc,jobName)).setUpstreams(depends).getJobXml(),false);

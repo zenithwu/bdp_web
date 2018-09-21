@@ -2,6 +2,7 @@ package com.stylefeng.guns.modular.bdp.controller;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import com.stylefeng.guns.config.properties.BdpJobConfig;
 import com.stylefeng.guns.config.properties.HiveConfig;
 import com.stylefeng.guns.config.properties.JenkinsConfig;
@@ -21,6 +22,7 @@ import com.stylefeng.guns.core.util.HiveUtil;
 import com.stylefeng.guns.core.util.JobConfUtil;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.*;
+import com.stylefeng.guns.modular.bdp.service.impl.JobRestServiceImpl;
 import com.stylefeng.guns.modular.system.model.*;
 import com.stylefeng.guns.modular.system.service.IUserService;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -58,6 +60,10 @@ public class JobInfoController extends BaseController {
     private Logger logger=Logger.getLogger(JobInfoController.class);
     @Autowired
     private IJobInfoService jobInfoService;
+
+    @Autowired
+    private IJobRunHistoryService jobRunHistoryService;
+
     @Autowired
     private IJobSetService jobSetService;
     @Autowired
@@ -74,11 +80,17 @@ public class JobInfoController extends BaseController {
     private HiveConfig hiveConfig;
     @Autowired
     private BdpJobConfig bdpJobConfig;
+    @Autowired
+    private JobRestServiceImpl jobRestService;
     /**
      * 跳转到任务信息首页
      */
     @RequestMapping("")
     public String index() {
+
+        List<User> userList=userService.selectList(new EntityWrapper<User>().eq("status",1));
+        super.setAttr("userList", userList);
+        super.setAttr("userId", ShiroKit.getUser().getId());
         return PREFIX + "jobInfo.html";
     }
 
@@ -185,16 +197,17 @@ public class JobInfoController extends BaseController {
      */
     @RequestMapping(value = "/list")
     @ResponseBody
-    public Object list(String condition) {
+    public Object list(String condition,String userId) {
+        userId=StringUtils.isEmpty(userId)?String.valueOf(ShiroKit.getUser().getId()):userId;
         Wrapper<JobInfo> wrapper = new EntityWrapper<>();
-        wrapper = wrapper.like("name", condition).orderBy("create_time",false);
-
+        wrapper = wrapper.like("name", condition).eq("user_info_id",userId).orderBy("create_time",false);
         List<JobInfo> list = jobInfoService.selectList(wrapper);
         for (JobInfo info : list
                 ) {
             info.setEnableName(JobStatus.ObjOf(info.getEnable()).getName());
-            info.setLastRunStateName(LastRunState.ObjOf(info.getLastRunState()).getName());
-
+            if(info.getLastRunState()!=null) {
+                info.setLastRunStateName(LastRunState.ObjOf(info.getLastRunState()).getName());
+            }
             if(null!=info.getCreatePer()) {
                 User user=userService.selectById(info.getCreatePer());
                 info.setCreatePerName(user!=null?user.getName():"");
@@ -280,6 +293,30 @@ public class JobInfoController extends BaseController {
         }
     }
 
+
+    @RequestMapping(value = "/stop")
+    @ResponseBody
+    public Object stop(@RequestParam Integer jobInfoId) {
+        JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
+        if ((jobInfo.getLastRunState() == null) || LastRunState.RUNNING.getCode() != jobInfo.getLastRunState()) {
+            throw new GunsException(BizExceptionEnum.JOBINFO_NOTRUNNING);
+        }
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
+        JobUtil jobUtil = new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
+        try {
+            jobUtil.stopJob(jobInfo.getName());
+            JobWithDetails jobWithDetails=jobUtil.getJob(jobInfo.getName());
+            Integer lastBuildNum=jobWithDetails.getLastBuild().getNumber();
+            jobRestService.end(jobWithDetails.getFullName(),String.valueOf(lastBuildNum),DateTimeKit.formatDate(jobInfo.getLastRunTime()));
+            return SUCCESS_TIP;
+        } catch (IOException e) {
+            throw new GunsException(SERVER_ERROR);
+        }
+
+    }
+
     /**
      * 启用任务
      *
@@ -289,6 +326,9 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object enableJobInfo(@RequestParam Integer jobInfoId) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
         if (jobInfoService.enableJobInfo(jobInfoId) > 0) {
             JobUtil jobUtil = new JobUtil(jobSetService.selectById(jobInfo.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
             try {
@@ -311,7 +351,10 @@ public class JobInfoController extends BaseController {
     @ResponseBody
     public Object disableJobInfo(@RequestParam Integer jobInfoId) {
         JobInfo jobInfo = jobInfoService.selectById(jobInfoId);
-        if (jobInfo.getLastRunState() == LastRunState.RUNNING.getCode()) {
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
+        if (jobInfo.getLastRunState()!=null && LastRunState.RUNNING.getCode() == jobInfo.getLastRunState()) {
             throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
         }
         List<JobInfo> icList = jobInfoService.selJobDependByJobId(jobInfoId);
@@ -348,9 +391,12 @@ public class JobInfoController extends BaseController {
     @RequestMapping(value = "/rungoJobInfo")
     @ResponseBody
     public Object rungoJobInfo(JobInfo jobInfo) {
-        String time_hour = DateTimeKit.formatDateTime(jobInfo.getLastRunTime());
-
         JobInfo job = jobInfoService.selectById(jobInfo.getId());
+
+        if(job.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
+        String time_hour = DateTimeKit.formatDateTime(jobInfo.getLastRunTime());
 
         if (null != job.getLastRunState() && job.getLastRunState() == LastRunState.RUNNING.getCode()) {
             throw new GunsException(BizExceptionEnum.JOBINFO_RUN);
@@ -543,7 +589,10 @@ public class JobInfoController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, path = "/upload")
     @ResponseBody
     public String upload(@RequestParam("file") MultipartFile file,Integer jobId) {
-
+        JobInfo jobInfo = jobInfoService.selectById(jobId);
+        if(jobInfo.getUserInfoId()!=ShiroKit.getUser().getId()){
+            throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
+        }
         if (!file.isEmpty()) {
             try {
 

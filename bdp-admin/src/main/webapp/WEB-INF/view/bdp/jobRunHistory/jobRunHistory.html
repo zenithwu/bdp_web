@@ -29,6 +29,7 @@
                             @if(shiro.hasPermission("/jobRunHistory/detail")){
                                 <#button name="记录详情" icon="fa-info" clickFun="JobRunHistory.detail()" space="true"/>
                             @}
+                            <#button name="同步日志" icon="fa-info" clickFun="JobRunHistory.sync()" space="true"/>
                         </div>
                         <#table id="JobRunHistoryTable"/>
                     </div>

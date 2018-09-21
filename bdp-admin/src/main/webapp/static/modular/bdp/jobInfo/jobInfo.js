@@ -17,14 +17,32 @@ JobInfo.initColumn = function () {
             {title: '任务编号', field: 'id', visible: false, align: 'center', valign: 'middle'},
             {title: '任务名称', field: 'name', visible: true, align: 'center', valign: 'middle'},
             {title: '任务类型', field: 'typeName', visible: true, align: 'center', valign: 'middle'},
-            {title: '任务状态', field: 'enableName', visible: true, align: 'center', valign: 'middle'},
+            {title: '任务状态', field: 'enableName', visible: true, align: 'center', valign: 'middle', formatter: function (value, row, index) {
+            if (value == "启用") {
+                return ' <label  style="color: green">启用</label>';
+            } else {
+                return ' <label  style="color: red">禁用</label>';
+            }}},
             {title: '创建时间', field: 'createTime', visible: false, align: 'center', valign: 'middle'},
             {title: '创建用户', field: 'createPerName', visible: false, align: 'center', valign: 'middle'},
             {title: '修改时间', field: 'modTime', visible: false, align: 'center', valign: 'middle'},
             {title: '修改用户', field: 'modPerName', visible: false, align: 'center', valign: 'middle'},
-            {title: '上次运行状态', field: 'lastRunStateName', visible: true, align: 'center', valign: 'middle'},
+            {title: '上次运行状态', field: 'lastRunStateName', visible: true, align: 'center', valign: 'middle', formatter: function (value, row, index) {
+                if(value!=null&&value!=""){
+                    if (value == "成功") {
+                        return ' <label  style="color: green">成功</label>';
+                    } else {
+                        if (value == "失败") {
+                            return ' <label  style="color: red">失败</label>';
+                        }else{
+                            return ' <label  style="color: yellowgreen">运行中</label>';
+                        }
+                    }}else{
+                    return ""
+                }
+                }},
             {title: '上次运行时间', field: 'lastRunTime', visible: true, align: 'center', valign: 'middle'},
-            {title: '上次运行耗时', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
+            {title: '上次运行耗时(毫秒)', field: 'lastRunCost', visible: true, align: 'center', valign: 'middle'},
             {title: '所属人', field: 'userInfoName', visible: true, align: 'center', valign: 'middle'},
             {title: '所属任务集', field: 'jobSetName', visible: true, align: 'center', valign: 'middle'}
     ];
@@ -119,6 +137,25 @@ JobInfo.delete = function () {
     }
 };
 
+JobInfo.stop = function () {
+    if (this.check()) {
+        var queren = function(){
+            var ajax = new $ax(Feng.ctxPath + "/jobInfo/stop", function (data) {
+                Feng.success("操作成功!");
+                JobInfo.table.refresh();
+            }, function (data) {
+                Feng.error("操作失败!" + data.responseJSON.message + "!");
+            });
+            ajax.set("jobInfoId",JobInfo.seItem.id);
+            ajax.start();
+
+        }
+        Feng.confirm("是否删除任务" + JobInfo.seItem.name + "?",queren);
+    }
+};
+
+
+
 /**
  * 启用任务信息
  */
@@ -182,6 +219,8 @@ JobInfo.runJobInfo = function () {
 JobInfo.search = function () {
     var queryData = {};
     queryData['condition'] = $("#condition").val();
+    queryData['userId'] = $("#userId").val();
+
     JobInfo.table.refresh({query: queryData});
 };
 
@@ -190,4 +229,10 @@ $(function () {
     var table = new BSTable(JobInfo.id, "/jobInfo/list", defaultColunms);
     table.setPaginationType("client");
     JobInfo.table = table.init();
+
+
+    $("#userId").change(function () {
+        JobInfo.search()
+    })
+
 });
