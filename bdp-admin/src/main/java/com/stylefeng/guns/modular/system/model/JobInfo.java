@@ -78,6 +78,18 @@ public class JobInfo extends Model<JobInfo> {
      */
     @TableField("last_run_cost")
     private Long lastRunCost;
+
+    public Integer getLastRunNum() {
+        return lastRunNum;
+    }
+
+    public void setLastRunNum(Integer lastRunNum) {
+        this.lastRunNum = lastRunNum;
+    }
+
+    @TableField("last_run_num")
+    private Integer lastRunNum;
+
     /**
      * 所属人id
      */

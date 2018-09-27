@@ -145,10 +145,9 @@ public class JobConfUtil {
                 "  config: {fs.defaultFS: 'hdfs://bdpns', fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem,\n" +
                 "    fs.file.impl: org.apache.hadoop.fs.LocalFileSystem}\n" +
                 "  path_prefix: /user/hive/warehouse/%s/\n" +
-                "  file_ext: text\n" +
+                "  file_ext: text${BUILD_NUMBER}\n" +
                 "  mode: overwrite\n" +
                 "  formatter: {type: jsonl, encoding: UTF-8}",replace_date_to_normal(tabAndLoc,params)));
-
         return config.toString();
     }
 
@@ -162,7 +161,7 @@ public class JobConfUtil {
         return content;
     }
 
-    private static String genTableLocation(JobConfig jobConfig) {
+    public static String genTableLocation(JobConfig jobConfig) {
         String partition = null;
         String tabName = "default".equals(jobConfig.getOutput_db_name()) ? jobConfig.getOutput_table_name() : jobConfig.getOutput_db_name() + ".db/" + jobConfig.getOutput_table_name();
 
@@ -182,11 +181,7 @@ public class JobConfUtil {
 
     public static String genOutPutShell(JobConfig jobConfig, ConfConnect conf, ConfConnectType confConnectType, BdpJobConfig bdpJobConfig) {
         String shell;
-        Map<String, String> jdbcUrl = JDBCUtil.createJDBCUrl(conf, confConnectType.getType());
-        String sql_statement = null;
 
-        // 构造SQL statement
-        sql_statement = jobConfig.getInput_input_content();
         List<String> cmdList = new ArrayList<>();
         // 构造命令
         cmdList.add("/bin/spark2-submit");

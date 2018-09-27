@@ -7,6 +7,8 @@ import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.HiveUtil;
+import com.stylefeng.guns.modular.bdp.service.IJobTableInfoService;
+import com.stylefeng.guns.modular.system.model.JobTableInfo;
 import com.stylefeng.guns.modular.system.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,9 @@ public class ConfConnectController extends BaseController {
     private IConfConnectTypeService contypeService;
     @Autowired
     private HiveConfig hiveConfig;
+
+    @Autowired
+    private IJobTableInfoService jobTableInfoService;
     /**
      * 跳转到配置连接首页
      */
@@ -162,6 +168,21 @@ public class ConfConnectController extends BaseController {
     @ResponseBody
     public Object listHiveTableBydbName(@PathVariable("dbName") String dbName) {
         HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
-        return hiveUtil.getTablesByDbName(dbName);
+
+        List<JobTableInfo> perTables=jobTableInfoService.selectList(new EntityWrapper<JobTableInfo>().eq("user_id",ShiroKit.getUser().getId()));
+        List<String> tableList = new ArrayList<>();
+        if (dbName != null) {
+            List<String> tList = hiveUtil.getTablesByDbName(dbName);
+            for (String tName:tList
+                    ) {
+                for (JobTableInfo info:perTables
+                        ) {
+                    if(info.getTableName().equals(tName)){
+                        tableList.add(tName);
+                    }
+                }
+            }
+        }
+        return tableList;
     }
 }

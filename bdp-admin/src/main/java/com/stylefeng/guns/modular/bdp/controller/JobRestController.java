@@ -10,10 +10,7 @@ import com.stylefeng.guns.core.base.controller.BaseController;
 import com.stylefeng.guns.core.constant.LastRunState;
 import com.stylefeng.guns.core.support.DateTimeKit;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
-import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
-import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
-import com.stylefeng.guns.modular.bdp.service.IJobSetService;
-import com.stylefeng.guns.modular.bdp.service.IJobStatService;
+import com.stylefeng.guns.modular.bdp.service.*;
 import com.stylefeng.guns.modular.bdp.service.impl.JobInfoServiceImpl;
 import com.stylefeng.guns.modular.bdp.service.impl.JobRestServiceImpl;
 import com.stylefeng.guns.modular.system.model.JobInfo;
@@ -43,7 +40,7 @@ import java.util.List;
 public class JobRestController extends BaseController {
 
     @Autowired
-    private JobRestServiceImpl jobRestService;
+    private IJobRestService jobRestService;
 
 
     @RequestMapping(value = "/job_begin", method = RequestMethod.POST)

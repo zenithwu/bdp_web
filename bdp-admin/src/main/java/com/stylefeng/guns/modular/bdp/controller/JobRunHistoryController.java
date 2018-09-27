@@ -12,7 +12,9 @@ import com.stylefeng.guns.core.exception.GunsException;
 import com.stylefeng.guns.core.shiro.ShiroKit;
 import com.stylefeng.guns.core.util.jenkins.JobUtil;
 import com.stylefeng.guns.modular.bdp.service.IJobInfoService;
+import com.stylefeng.guns.modular.bdp.service.IJobRestService;
 import com.stylefeng.guns.modular.bdp.service.IJobSetService;
+import com.stylefeng.guns.modular.bdp.service.impl.JobRestServiceImpl;
 import com.stylefeng.guns.modular.system.model.JobInfo;
 import com.stylefeng.guns.modular.system.model.JobSet;
 import org.springframework.stereotype.Controller;
@@ -34,6 +36,8 @@ import com.stylefeng.guns.modular.system.model.JobRunHistory;
 import com.stylefeng.guns.modular.system.warpper.LogWarpper;
 import com.stylefeng.guns.modular.bdp.service.IJobRunHistoryService;
 
+import javax.jws.Oneway;
+
 /**
  * 控制器
  *
@@ -54,6 +58,9 @@ public class JobRunHistoryController extends BaseController {
 
     @Autowired
     private IJobSetService jobSetService;
+
+    @Autowired
+    private IJobRestService jobRestService;
 
     @Autowired
     private JenkinsConfig jenkinsConfig;
@@ -179,36 +186,15 @@ public class JobRunHistoryController extends BaseController {
         JobRunHistory jobRunHistory = jobRunHistoryService.selectById(jobRunHistoryId);
         JobInfo info=jobInfoService.selectById(jobRunHistory.getJobInfoId());
         JobSet set=jobSetService.selectById(info.getJobSetId());
-
         if (info != null && set!=null) {
-
             if(info.getUserInfoId()!=ShiroKit.getUser().getId()){
                 throw new GunsException(BizExceptionEnum.JOBINFO_PERMISSIOIN);
             }
-
-            String buildResult="fail";
-            Long duration=0l;
-            String consoleOutputText="";
-            try {
-                BuildWithDetails buildWithDetails = new JobUtil(set.getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken())
-                        .getJob(info.getName())
-                        .getBuildByNumber(jobRunHistory.getNum().intValue())
-                        .details();
-                buildResult = buildWithDetails.getResult().name().toLowerCase();
-                duration = buildWithDetails.getDuration();
-                consoleOutputText = buildWithDetails.getConsoleOutputText();
-            } catch (Exception ex) {
-                consoleOutputText = ex.getMessage();
-            } finally {
-                if (buildResult.equals("success")) {
-                    jobRunHistory.setState(LastRunState.SUCCESS.getCode());
-                } else {
-                    jobRunHistory.setState(LastRunState.FAIL.getCode());
-                }
-                jobRunHistory.setCost(duration);
-                jobRunHistory.setLog(consoleOutputText);
-                jobRunHistoryService.updateById(jobRunHistory);
+            String result=jobRestService.sync(String.format("%s/%s",set.getName(),info.getName()),String.valueOf(jobRunHistory.getNum()));
+            if(result!=null) {
                 return SUCCESS_TIP;
+            }else{
+                throw new GunsException(new BizException(500,"同步任务信息失败"));
             }
         }else{
             throw new GunsException(new BizException(500,"相关任务不存在"));

@@ -62,9 +62,6 @@ public class JobInfoController extends BaseController {
     private IJobInfoService jobInfoService;
 
     @Autowired
-    private IJobRunHistoryService jobRunHistoryService;
-
-    @Autowired
     private IJobSetService jobSetService;
     @Autowired
     private IUserService userService;
@@ -82,6 +79,9 @@ public class JobInfoController extends BaseController {
     private BdpJobConfig bdpJobConfig;
     @Autowired
     private JobRestServiceImpl jobRestService;
+
+    @Autowired
+    private IJobTableInfoService jobTableInfoService;
     /**
      * 跳转到任务信息首页
      */
@@ -158,15 +158,25 @@ public class JobInfoController extends BaseController {
         }
         model.addAttribute("allConfConnectType", allConfConnectType);
         model.addAttribute("connects", connects);
-
+        List<JobTableInfo> perTables=jobTableInfoService.selectList(new EntityWrapper<JobTableInfo>().eq("user_id",ShiroKit.getUser().getId()));
         HiveUtil hiveUtil=new HiveUtil(hiveConfig.getUrl());
         //查询输出的数据库集合
         List<String> dbList = hiveUtil.getDataBases();
         //查询输出的该数据库的所有的表的集合
         List<String> tableList = new ArrayList<>();
         if (jobConfig.getOutput_db_name() != null) {
-            tableList = hiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
+            List<String> tList = hiveUtil.getTablesByDbName(jobConfig.getOutput_db_name());
+            for (String tName:tList
+                    ) {
+                for (JobTableInfo info:perTables
+                        ) {
+                    if(info.getTableName().equals(tName)){
+                        tableList.add(tName);
+                    }
+                }
+            }
         }
+
         model.addAttribute("dbList", dbList);
         model.addAttribute("tableList", tableList);
     }
@@ -457,7 +467,7 @@ public class JobInfoController extends BaseController {
                  ) {
                 //检测依赖的正确性
                 if(jobInfoService.selectCount(new EntityWrapper<JobInfo>().eq("name",jobName).eq("job_set_id",jobInfo.getJobSetId()))==0){
-                    throw new GunsException(new BizException(500,"依赖任务不存在"));
+                    throw new GunsException(new BizException(500,"依赖任务在此任务集中不存在"));
                 }
                 if(StringUtils.isNotEmpty(jobName)){
                     sb.append(jobName+",");
@@ -514,6 +524,10 @@ public class JobInfoController extends BaseController {
                     for (String param:params.values()
                          ) {
                         paramCmd.append(param);
+                    }
+                    if(jobConfig.getOutput_write_model()!=null&&jobConfig.getOutput_write_model().equals("overwrite")){
+                        String path=String.format("/user/hive/warehouse/%s/",JobConfUtil.replace_date_to_normal(JobConfUtil.genTableLocation(jobConfig),params.keySet()));
+                        paramCmd.append(String.format("if $(hdfs dfs -test -d %s) ; then hdfs dfs -rm -r %s*; fi\n",path,path));
                     }
                     shell = String.format("%s\necho \"\"\"\n%s\"\"\" > config.yml\n" +
                             "%s && %s -e 'msck repair table %s.%s'\n", paramCmd.toString(),configFile,runCmd, beelineCmd, jobConfig.getOutput_db_name(), jobConfig.getOutput_table_name());

@@ -102,6 +102,20 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-th col-th3 fl">写入模式</label>
+                        <div class="col-input">
+                            <select class="form-control" id="output_write_model">
+                                @if(jobConfig !=null && jobConfig.output_write_model=='append'){
+                                <option selected="selected" value="append">追加</option>
+                                <option value="overwrite">覆盖</option>
+                                @}else{
+                                <option value="append">追加</option>
+                                <option selected="selected" value="overwrite">覆盖</option>
+                                @}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-th col-th3 fl">数据分区</label>
                         <div class="col-input">
                             <input type="text" class="form-control" placeholder="pt1={yyyy-mm},pt2={yyyy-mm-dd}"

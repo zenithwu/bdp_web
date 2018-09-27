@@ -453,6 +453,7 @@ CREATE TABLE IF NOT EXISTS `bdp`.`job_info` (
   `last_run_state` TINYINT(1) NULL COMMENT '上次运行状态 0 失败 1 成功 2 运行中',
   `last_run_time` DATETIME NULL COMMENT '上次运行时间',
   `last_run_cost` BIGINT(20) NULL COMMENT '上次运行耗时 单位ms',
+  `last_run_num` INT NULL COMMENT '上次构建的编号',
   `user_info_id` INT NOT NULL COMMENT '所属人id',
   `job_set_id` INT NOT NULL COMMENT '所属任务集',
   PRIMARY KEY (`id`))
