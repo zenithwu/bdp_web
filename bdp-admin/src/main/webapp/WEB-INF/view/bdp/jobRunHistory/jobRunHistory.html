@@ -10,7 +10,7 @@
                     <div class="col-sm-12">
                         <div class="row">
                             <div class="col-sm-3">
-                                <#NameCon id="condition" name="名称" />
+                                <#NameCon id="condition" name="任务名称" />
                             </div>
                             <div class="col-sm-3">
                                 <#button name="搜索" icon="fa-search" clickFun="JobRunHistory.search()"/>
@@ -27,9 +27,9 @@
                                 <#button name="删除" icon="fa-remove" clickFun="JobRunHistory.delete()" space="true"/>
                             @}
                             @if(shiro.hasPermission("/jobRunHistory/detail")){
-                                <#button name="记录详情" icon="fa-info" clickFun="JobRunHistory.detail()" space="true"/>
+                                <#button name="详细日志" icon="fa-info" clickFun="JobRunHistory.detail()" space="true"/>
                             @}
-                            <#button name="同步日志" icon="fa-info" clickFun="JobRunHistory.sync()" space="true"/>
+                            <#button name="同步" icon="fa-info" clickFun="JobRunHistory.sync()" space="true"/>
                         </div>
                         <#table id="JobRunHistoryTable"/>
                     </div>

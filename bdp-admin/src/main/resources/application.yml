@@ -38,16 +38,16 @@ log:
 spring:
   profiles: local
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    url: jdbc:mysql://192.168.0.204:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
     filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.204:8080
+      url: http://192.168.0.204:8088
       user: rest_api
       token: rest_api
-      rest_url: http://192.168.0.203:8080
+      rest_url: http://192.168.0.204:8080
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
@@ -61,7 +61,7 @@ spring:
 guns:
   muti-datasource:
     open: false
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    url: jdbc:mysql://192.168.0.204:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     dataSourceNames:
@@ -73,16 +73,16 @@ guns:
 spring:
   profiles: dev
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    url: jdbc:mysql://192.168.0.204:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     db-name: bdp #用来搜集数据库的所有表
     filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.204:8080
+      url: http://192.168.0.204:8088
       user: rest_api
       token: rest_api
-      rest_url: http://192.168.0.203:8080
+      rest_url: http://192.168.0.204:8080
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
@@ -96,15 +96,15 @@ spring:
 spring:
   profiles: test
   datasource:
-    url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+    url: jdbc:mysql://192.168.0.204:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
     username: bdp
     password: bdp
     filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.204:8080
+      url: http://192.168.0.204:8088
       user: rest_api
       token: rest_api
-      rest_url: http://192.168.0.203:8080
+      rest_url: http://192.168.0.204:8080
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/
@@ -122,15 +122,15 @@ spring:
 spring:
   profiles: produce
   datasource:
-      url: jdbc:mysql://192.168.0.203:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
+      url: jdbc:mysql://192.168.0.204:3306/bdp?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false
       username: bdp
       password: bdp
       filters: wall,mergeStat
   jenkins:
-      url: http://192.168.0.204:8080
+      url: http://192.168.0.204:8088
       user: rest_api
       token: rest_api
-      rest_url: http://192.168.0.203:8080
+      rest_url: http://192.168.0.204:8080
   hive:
       beeline: /bin/beeline -n hdfs -p hdfs -u
       url: jdbc:hive2://bdata003:10000/

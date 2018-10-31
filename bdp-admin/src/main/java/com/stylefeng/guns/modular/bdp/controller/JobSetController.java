@@ -99,6 +99,10 @@ public class JobSetController extends BaseController {
                 User user=userService.selectById(job.getCreatePer());
                 job.setCreatePerName(user!=null?user.getName():"");
             }
+            if(null!=job.getModPer()) {
+                User user=userService.selectById(job.getModPer());
+                job.setModPerName(user!=null?user.getName():"");
+            }
         }
         return list;
     }
