@@ -55,6 +55,7 @@ public class JobXML {
                     root.element("properties").element("hudson.model.ParametersDefinitionProperty")
                             .element("parameterDefinitions")
                             .addElement("hudson.model.StringParameterDefinition")
+                            .addElement("defaultValue")
                             .addElement("name").setText(param);
                 }
             }
@@ -145,23 +146,15 @@ public class JobXML {
     public JobXML setCrontab(String crontab){
 
         Element triggers = this.jobXml.getRootElement().element("triggers");
+        //删除crontab
+        if (null != triggers.element("hudson.triggers.TimerTrigger")) {
+            triggers.remove(triggers.element("hudson.triggers.TimerTrigger"));
+        }
         if(StringUtils.isNotEmpty(crontab)) {
-            if (null == triggers.element("hudson.triggers.TimerTrigger")) {
-                triggers.addElement("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
-            } else {
-                triggers.element("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
-            }
-        }else{
-            //删除crontab
-            if (null != triggers.element("hudson.triggers.TimerTrigger")) {
-                triggers.remove(triggers.element("hudson.triggers.TimerTrigger"));
-            }
-
+            triggers.addElement("hudson.triggers.TimerTrigger").addElement("spec").setText(crontab);
         }
         return this;
     }
-
-
     public String getJobXml(){
         return this.jobXml.asXML();
     }

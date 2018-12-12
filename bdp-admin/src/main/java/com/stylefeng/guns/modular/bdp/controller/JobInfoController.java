@@ -415,22 +415,16 @@ public class JobInfoController extends BaseController {
             throw new GunsException(BizExceptionEnum.JOBINFO_NOTRUN);
         } else {
             //启用状态
-
-            if (jobInfoService.updateById(job)) {
-
-                JobUtil jobUtil = new JobUtil(jobSetService.selectById(job.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
-                try {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("time_hour", time_hour);
-                    jobUtil.runJob(job.getName(), params);
-                    //修改最近一次执行状态为运行中
-                    job.setLastRunState(LastRunState.RUNNING.getCode());
-                    return SUCCESS_TIP;
-                } catch (Exception e) {
-                    throw new GunsException(SERVER_ERROR);
-                }
+            JobUtil jobUtil = new JobUtil(jobSetService.selectById(job.getJobSetId()).getName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
+            try {
+                Map<String, String> params = new HashMap<>();
+                params.put("time_hour", time_hour);
+                //调用此方法后会调用rest接口来修改job的状态为运行中和其他状态
+                jobUtil.runJob(job.getName(), params);
+                return SUCCESS_TIP;
+            } catch (Exception e) {
+                throw new GunsException(SERVER_ERROR);
             }
-            return SUCCESS_TIP;
         }
     }
 

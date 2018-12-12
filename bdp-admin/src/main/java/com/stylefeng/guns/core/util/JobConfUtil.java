@@ -24,7 +24,7 @@ public class JobConfUtil {
         String begin = "source /etc/profile\n" +
                 "param=${time_hour}\n" +
                 "stat_date=`date +%Y-%m-%d`\n" +
-                "if [ -z '$param' ]; then\n" +
+                "if [ -z \"$param\" ]; then\n" +
                 "param=`date '+%Y-%m-%d %H:%M:%S'`\n" +
                 "fi\n" +
                 "curl -d \"jobName=${JOB_NAME}&number=${BUILD_NUMBER}&stat_date=${stat_date}&params=${param}\" \"" + jenkinsConfig.getRest_url() + "/rest/job_begin\" &\n" +

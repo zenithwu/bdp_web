@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
  * <p>
  * 任务信息表 服务实现类
@@ -89,14 +91,23 @@ public class JobRestServiceImpl implements IJobRestService {
 		//获取任务信息并赋值任务集名称
 		JobInfo jobInfo= resolveJobInfo(jobNamePath);
 		if (jobInfo != null) {
-			//等待jenkins任务执行完毕
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-			}
 			//如果此任务是运行中的任务则将统计结果修改 否则仅仅同步运行状态
 			if(jobInfo.getLastRunState()!=null&&jobInfo.getLastRunState().equals(LastRunState.RUNNING.getCode())) {
-				// 同步jenkins运行的信息
+				// 同步jenkins运行的信息 每1秒查看jenkins是否完成
+                while (true){
+                    try {
+                    Thread.sleep(1000);
+                    BuildWithDetails buildWithDetails = new JobUtil(jobInfo.getJobSetName(), jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken())
+                                .getJob(jobInfo.getName())
+                                .getBuildByNumber(Integer.valueOf(number))
+                                .details();
+                        if (!buildWithDetails.isBuilding()){
+                            break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
 				String buildResult=sync(jobNamePath,number);
 				if(buildResult!=null) {
 					// job_stat 去掉一个正在运行的加上一个运行成功或者失败的
@@ -155,16 +166,14 @@ public class JobRestServiceImpl implements IJobRestService {
 					jobRunHistory.setLog(consoleOutputText);
 					jobRunHistoryService.updateById(jobRunHistory);
 				}
-                //如果此构建是最新一次构建则更新任务最新状态
-                if(jobInfo.getLastRunNum()!=null&&jobInfo.getLastRunNum().equals(Integer.valueOf(number))) {
-                    if (buildResult.equals("success")) {
-                        jobInfo.setLastRunState(LastRunState.SUCCESS.getCode());
-                    } else {
-                        jobInfo.setLastRunState(LastRunState.FAIL.getCode());
-                    }
-                    jobInfo.setLastRunCost(duration);
-                    jobInfoService.updateById(jobInfo);
-                }
+                //更新任务最新状态
+				if (buildResult.equals("success")) {
+					jobInfo.setLastRunState(LastRunState.SUCCESS.getCode());
+				} else {
+					jobInfo.setLastRunState(LastRunState.FAIL.getCode());
+				}
+				jobInfo.setLastRunCost(duration);
+				jobInfoService.updateById(jobInfo);
 				return buildResult;
 			}
 		}

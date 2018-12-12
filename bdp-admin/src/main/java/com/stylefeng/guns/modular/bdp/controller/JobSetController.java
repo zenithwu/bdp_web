@@ -163,7 +163,16 @@ public class JobSetController extends BaseController {
     public Object update(JobSet jobSet) {
         jobSet.setModPer(ShiroKit.getUser().getId());
         jobSet.setModTime(DateTimeKit.date());
-        jobSetService.updateById(jobSet);
+        if(jobSetService.updateById(jobSet)) {
+            //如果jenkins中没有此工程则添加工程
+            try {
+                ProcUtil procUtil = new ProcUtil(jenkinsConfig.getUrl(), jenkinsConfig.getUser(), jenkinsConfig.getToken());
+                procUtil.createProject(jobSet.getName());
+            } catch (IOException e) {
+
+            }
+        }
+
         return SUCCESS_TIP;
     }
 
